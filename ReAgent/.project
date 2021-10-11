@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>ReAgent</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.xtext.ui.shared.xtextBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.xtext.ui.shared.xtextNature</nature>
+		<nature>msi.gama.application.gamaNature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>external/grandlyon</name>
+			<type>1</type>
+			<locationURI>CACHE_LOC/download.data.grandlyon.com+_++_+wfs+_+grandlyon</locationURI>
+		</link>
+		<link>
+			<name>external/rdata</name>
+			<type>1</type>
+			<locationURI>CACHE_LOC/download.data.grandlyon.com+_++_+wfs+_+rdata</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>
