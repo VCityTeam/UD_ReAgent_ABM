@@ -20,8 +20,8 @@ global {
    
 	
     float step <- 1#sec;
-	float saveLocationInterval<-step;
-	int totalTimeInSec<-10;//86400; //24hx60minx60sec 1step is 10#sec
+	float saveLocationInterval<-step*100;
+	int totalTimeInSec<-8400; //24hx60minx60sec 1step is 10#sec
 	
 	
 	init {
