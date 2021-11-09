@@ -48,7 +48,7 @@ global {
 			//t <- "{\n\"mode\": "+mode+"\n\"type\": "+type+ ",\n\"segments\": [";
 			int curLoc<-0;
 			loop l over: locs {
-				point loc <- CRS_transform(l,"EPSG:4326").location;
+				point loc <- CRS_transform(l,"EPSG:4171").location;
 				if(curLoc<length(locs)-1){
 				t <- t + "[" + loc.x + ", " + loc.y + "],\n";	
 				}else{
