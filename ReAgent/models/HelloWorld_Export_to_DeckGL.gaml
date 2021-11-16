@@ -11,9 +11,10 @@ model HelloWorld
 /* Insert your model definition here */
 
 global {
-	file shape_file_buildings <- file("../includes/Lyon/Buildings.shp");
-	file shape_file_roads <- file("../includes/Lyon/Roads.shp");
-	file shape_file_bounds <- file("../includes/Lyon/Bounds.shp");
+	string useCase<-"GratteCiel";
+	file shape_file_buildings <- file("../includes/"+useCase+"/Buildings.shp");
+	file shape_file_roads <- file("../includes/"+useCase+"/Roads.shp");
+	file shape_file_bounds <- file("../includes/"+useCase+"/Bounds.shp");
 	geometry shape <- envelope(shape_file_bounds);
 	graph the_graph;
 	bool savePedestrian parameter: 'Save Pedestrian' category: "Parameters" <-true;  
@@ -39,7 +40,7 @@ global {
 		
 		string t;
 		map<string, unknown> test;
-		save "[" to: "result.json";
+		save "[" to: useCase+"result.json";
 		ask people {
 			test <+ "mode"::mode;
 			test<+"path"::locs;
