@@ -8,6 +8,8 @@
 
 model HelloWorld
 
+import 'CityScope.gaml'
+
 /* Insert your model definition here */
 
 global {
@@ -26,7 +28,7 @@ global {
 	map<string,rgb> standard_color_per_type <- 
 	["road"::#gamablue,"building"::#gamared,"amenity"::#gamaorange,"shop"::#cyan, "leisure"::#darkcyan];
 	
-		//UI
+	//UI
 	bool show_building<-true;
 	bool show_road<-true;
 	bool show_amenity<-true;
@@ -47,6 +49,11 @@ global {
 			location <- any_location_in (one_of(building)); 
 			color<-rnd_color(255);
 			mode<-rnd(2);
+		}
+		create TUI{
+			size<-250#m;
+			nbCells<-8;
+			location<-{world.shape.width/2,world.shape.height/2};
 		}
 	}
 	}
@@ -125,6 +132,7 @@ experiment road_traffic type: gui {
 			species shop aspect: base visible:show_shop;
 			species road aspect: base visible:show_road;
 			species people aspect: base ;
+			species TUI aspect:base;
 			
 			event["b"] {show_building<-!show_building;}
 			event["r"] {show_road<-!show_road;}
