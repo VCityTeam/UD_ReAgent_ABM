@@ -8,7 +8,7 @@
 
 model HelloWorld
 
-import 'CityScope.gaml'
+import 'TUI.gaml'
 
 /* Insert your model definition here */
 
@@ -35,6 +35,7 @@ global {
 	bool show_shop<-true;
 	bool show_leisure<-true;
 	bool show_legend<-true;
+	bool show_wireframe<-true;
 	rgb backgroundColor<-#black;
 	rgb textcolor<- (backgroundColor = #white) ? #black : #white;
 	
@@ -63,7 +64,7 @@ species amenities {
 	rgb color <- #yellow  ;
 	
 	aspect base {
-		draw shape color: standard_color_per_type["amenity"] ;
+		draw shape color: standard_color_per_type["amenity"] wireframe:show_wireframe width:2;
 	}
 }
 
@@ -72,7 +73,7 @@ species building {
 	rgb color <- #gray  ;
 	
 	aspect base {
-		draw shape color: standard_color_per_type["building"] ;
+		draw shape color: standard_color_per_type["building"] wireframe:show_wireframe width:2;
 	}
 }
 
@@ -81,7 +82,7 @@ species leisure {
 	rgb color <- #blue  ;
 	
 	aspect base {
-		draw shape color: color ;
+		draw shape color: color wireframe:show_wireframe width:2;
 	}
 }
 
@@ -90,7 +91,7 @@ species shop {
 	rgb color <- #orange  ;
 	
 	aspect base {
-		draw shape color: standard_color_per_type["shop"] ;
+		draw shape color: standard_color_per_type["shop"] wireframe:show_wireframe width:2;
 	}
 }
 
@@ -139,6 +140,9 @@ experiment road_traffic type: gui {
 			event["a"] {show_amenity<-!show_amenity;}
 			event["l"] {show_leisure<-!show_leisure;}
 			event["s"] {show_shop<-!show_shop;}
+			event["w"] {show_wireframe<-!show_wireframe;}
+			
+			
 			
 			overlay position: { 0 , 0 } size: { 0 #px, 0 #px } background: backgroundColor  transparency:0.0 border: backgroundColor rounded: true
             {
@@ -155,10 +159,6 @@ experiment road_traffic type: gui {
 					    draw type at: { x, y + 4#px } color: textcolor font: font("Helvetica", 16, #plain);
 					    y <- y + 25#px;
 					}
-					/*draw "Layers" at: { x, y } color: textcolor font: font("Helvetica", 20, #bold);
-					y <- y + 20 #px;
-					draw " building(b): " + show_building + " road(r): " + show_road + " amenity(a): " + show_amenity + " shop(s): " + show_shop + " leisure(l): " + show_leisure  
-	            	at: { x, y} color*/
 	            }
           }
 		}
