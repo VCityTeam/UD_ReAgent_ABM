@@ -37,7 +37,7 @@ global skills:[launchpadskill]
 
 grid cell width: 8 height: 8;
 
-experiment Displays type: gui
+experiment LanchPadBasic type: gui
 {
 	output
 	{

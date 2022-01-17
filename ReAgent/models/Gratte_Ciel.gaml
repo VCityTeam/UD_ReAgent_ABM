@@ -122,7 +122,7 @@ species people skills:[moving] {
 
 
 
-experiment road_traffic type: gui {
+experiment GratteCiel type: gui {
 
 	
 	output {

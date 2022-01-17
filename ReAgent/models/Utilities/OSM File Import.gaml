@@ -155,7 +155,7 @@ species TUI{
 
 experiment "Load OSM" type: gui
 {
-	parameter "File:" var: osmfile <- file<geometry> (osm_file("../includes/GratteCiel/map.osm"));
+	parameter "File:" var: osmfile <- file<geometry> (osm_file("./../../includes/GratteCiel/map.osm"));
 	output
 	{
 		display map type: opengl background:backgroundColor
