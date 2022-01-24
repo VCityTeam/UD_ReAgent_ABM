@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "Zone_orange_3946",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:EPSG::3946" } },
+"features": [
+{ "type": "Feature", "properties": { "fid": 125, "handle": 141515, "block": -1, "etype": 18, "space": 0, "layer": "Teinte-orange", "olinetype": "continuous", "linetype": "", "color": "255,191,127,255", "ocolor": 31, "color24": -1, "transparency": 0, "lweight": 18, "linewidth": 0.18, "ltscale": 1.0, "visible": 1, "thickness": 0.0, "ext": "(3:0,0,1)", "name": "SOLID", "solid": 1, "associative": 0, "hstyle": 0, "hpattern": 1, "doubleflag": 0, "angle": 0.0, "scale": 0.0, "deflines": 0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 1846166.862862769281492, 5176257.55051093082875, 0.0 ], [ 1846162.811981302453205, 5176324.984091952443123, 0.0 ], [ 1846164.605903628049418, 5176343.4250856814906, 0.0 ], [ 1846164.746695496840402, 5176344.873664839193225, 0.0 ], [ 1846227.553893562871963, 5176338.769239879213274, 0.0 ], [ 1846227.553893562871963, 5176283.0068030487746, 0.0 ], [ 1846202.200439211679623, 5176283.689988167025149, 0.0 ], [ 1846202.271550745004788, 5176259.677570181898773, 0.0 ], [ 1846166.862862769281492, 5176257.55051093082875, 0.0 ] ] ] } }
+]
+}
