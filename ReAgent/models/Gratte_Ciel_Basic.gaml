@@ -15,10 +15,10 @@ import 'TUI.gaml'
 global {
 	string useCase<-"GratteCiel";
 
-	file shape_file_buildings <- file("../includes/"+useCase+"/generated/building_polygon.shp");
-	file shape_file_roads <- file("../includes/"+useCase+"/generated/highway_line.shp");
-	file shape_file_bounds <- file("../includes/"+useCase+"/Bounds.shp");
-	geometry shape <- envelope(shape_file_bounds);
+	file shape_file_buildings <- file("../includes/"+useCase+"/Data/Data_cc46/New_Buildings_500_1000_3946.geojson");
+	file shape_file_roads <- file("../includes/"+useCase+"/Data/Data_cc46/Roads_500_1000_3946.geojson");
+	file shape_file_bounds <- file("../includes/"+useCase+"/Data/Data_cc46/Bounds_3946.geojson");
+	geometry shape <- envelope(shape_file_buildings);
 	graph the_graph;
 
 	
@@ -28,24 +28,24 @@ global {
 	//UI
 	bool show_building<-true;
 	bool show_road<-true;
-	bool show_legend<-true;
-	bool show_wireframe<-true;
-	rgb backgroundColor<-#black;
+	bool show_legend<-false;
+	bool show_wireframe<-false;
+	rgb backgroundColor<-#white;
 	rgb textcolor<- (backgroundColor = #white) ? #black : #white;
 	
 	init {
 		create building from: shape_file_buildings;
 		create road from: shape_file_roads ;
 		the_graph <- as_edge_graph(road);
-		create people number: 10 {
+		create people number: 100 {
 			location <- any_location_in (one_of(building)); 
 			color<-rnd_color(255);
 			mode<-rnd(2);
 		}
 		create TUI{
-			size<-250#m;
+			size<-125#m;
 			nbCells<-8;
-			location<-{world.shape.width/2,world.shape.height/2};
+			location<-{world.shape.width/1.8,world.shape.height/4};
 		}
 	}
 	}
@@ -79,26 +79,27 @@ species people skills:[moving] {
 	list<point> locs;
 	 
 	reflex move {
-		do wander on:the_graph speed:1#m/#sec;
+		do wander on:the_graph speed:0.1#m/#sec;
 	}
 	
 	aspect base {
-		draw circle(10) color: color border: #black;
+		draw circle(2#m) color: color border: #black;
 	}
 }
 
 
 
 
-experiment GratteCiel type: gui {
+experiment GratteCielTable type: gui {
 
 	
 	output {
-		display city_display type: opengl background:backgroundColor rotate:90{
+		display city_display type: opengl background:backgroundColor rotate:90 fullscreen:true
+		{
 			species building aspect: base visible:show_building;
 			species road aspect: base visible:show_road;
 			species people aspect: base ;
-			species TUI aspect:base;		
+			species TUI aspect:base refresh:false;		
 			event["b"] {show_building<-!show_building;}
 			event["r"] {show_road<-!show_road;}
 			event["w"] {show_wireframe<-!show_wireframe;}
