@@ -37,15 +37,42 @@ global {
 		create building from: shape_file_buildings;
 		create road from: shape_file_roads ;
 		the_graph <- as_edge_graph(road);
+		
+		
 		create people number: 100 {
 			location <- any_location_in (one_of(building)); 
 			color<-rnd_color(255);
 			mode<-rnd(2);
+			if(flip(0.25)){
+				my_speed<-0.1#m/#sec;
+			}else{
+				if(flip(0.25)){
+				my_speed<-0.05#m/#sec;	
+				}else{
+				my_speed<-0.01#m/#sec;		
+				}
+			}
 		}
+		
+		create materials number: 100 {
+			location <- any_location_in (one_of(building)); 
+			color<-rnd_color(255);
+			mode<-rnd(2);
+			if(flip(0.25)){
+				my_speed<-0.1#m/#sec;
+			}else{
+				if(flip(0.25)){
+				my_speed<-0.05#m/#sec;	
+				}else{
+				my_speed<-0.01#m/#sec;		
+				}
+			}
+		}
+		
 		create TUI{
 			size<-125#m;
 			nbCells<-8;
-			location<-{world.shape.width/1.8,world.shape.height/4};
+			location<-{world.shape.width/1.8,world.shape.height/4+25#m};
 		}
 	}
 	}
@@ -57,7 +84,8 @@ species building {
 	rgb color <- #gray  ;
 	
 	aspect base {
-		draw shape color: standard_color_per_type["building"] wireframe:show_wireframe width:2;
+		//draw shape color: standard_color_per_type["building"] wireframe:show_wireframe width:2;
+		draw shape color: #gamablue wireframe:show_wireframe width:2;
 	}
 }
 
@@ -77,15 +105,34 @@ species people skills:[moving] {
     int mode;
 	int type;
 	list<point> locs;
+	float my_speed;
 	 
 	reflex move {
-		do wander on:the_graph speed:0.1#m/#sec;
+		do wander on:the_graph speed:my_speed;
 	}
 	
 	aspect base {
 		draw circle(2#m) color: color border: #black;
 	}
 }
+
+species materials skills:[moving] {
+    rgb color;
+    int mode;
+	int type;
+	list<point> locs;
+	float my_speed;
+	 
+	reflex move {
+		do wander on:the_graph speed:my_speed;
+	}
+	
+	aspect base {
+		draw square(4#m) color: color border: #black;
+	}
+}
+
+
 
 
 
@@ -94,11 +141,12 @@ experiment GratteCielTable type: gui {
 
 	
 	output {
-		display city_display type: opengl background:backgroundColor rotate:90 fullscreen:true
+		display city_display type: opengl background:backgroundColor rotate:90 fullscreen:true 
 		{
 			species building aspect: base visible:show_building;
 			species road aspect: base visible:show_road;
 			species people aspect: base ;
+			species materials aspect: base ;
 			species TUI aspect:base refresh:false;		
 			event["b"] {show_building<-!show_building;}
 			event["r"] {show_road<-!show_road;}
