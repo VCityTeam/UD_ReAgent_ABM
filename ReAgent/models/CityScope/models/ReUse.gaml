@@ -31,7 +31,7 @@ global{
 	
 	bool load_grid_file_from_cityIO <-false; //parameter: 'Online Grid:' category: 'Simulation' <- false;
 	bool load_grid_file <- false;// parameter: 'Offline Grid:' category: 'Simulation'; 
-	bool udpScannerReader <- false; 
+	bool udpScannerReader <- true; 
 	bool editionMode <-false;
 
 	
@@ -79,7 +79,15 @@ global{
 	string url <- "localhost";
 	
 	init {
+		
+		
 		cityIOUrl <- "https://cityio.media.mit.edu/api/table/urbam";
+		if(udpScannerReader){
+			create NetworkingAgent number: 1 {
+				 type <-"scanner";	
+			     do connect to: url protocol: "udp_server" port: scaningUDPPort ;
+			    }
+		}
 		do load_materials;
 		do load_buildings_info;
 		do randomGridInit;
@@ -122,12 +130,7 @@ global{
 		create road from: lines2;
 		the_graph <- as_edge_graph(road);
 
-		if(udpScannerReader){
-			create NetworkingAgent number: 1 {
-				 type <-"scanner";	
-			     do connect to: url protocol: "udp_server" port: scaningUDPPort ;
-			    }
-			}
+
 		}
 	
 	action load_materials {
@@ -185,7 +188,7 @@ global{
 		return first(buildings_info where (each.type = s));
 	}
 	
-	reflex randomGridUpdate when: cycle> 0 and !udpScannerReader and !editionMode and !load_grid_file_from_cityIO and every(scan_step#cycle){
+	reflex randomGridUpdate when: cycle> 0 and !editionMode and !load_grid_file_from_cityIO and every(scan_step#cycle){
 		do randomGrid;
 	} 
 	
@@ -235,6 +238,7 @@ global{
 		
 		loop i from: 0 to: grid_height-1{
 			loop j from: 0 to: grid_width-1{
+				
 				if id_matrix[i,j] = -1 {
 					id_matrix[i,j] <- old_id_matrix[i,j];
 				}
