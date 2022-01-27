@@ -42,4 +42,14 @@ bois 4
 metal 1
 color 128 128 64
 </building>
+
+<building>
+type Factory
+pop 2
+beton 30
+bois 4
+metal 24
+color 244 227 11
+</building>
+
 	
