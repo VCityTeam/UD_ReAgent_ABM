@@ -95,13 +95,13 @@ global{
 		list<geometry> lines;
 		cell_w <- first(cell).shape.width;
 		cell_h <- first(cell).shape.height;
-		loop i from: 0 to: grid_width {
+		loop i from: 1 to: grid_width {
 			lines << line([{i*cell_w,0}, {i*cell_w,environment_height}]);
 		}
 		loop i from: 0 to: grid_height {
 			lines << line([{0, i*cell_h}, {environment_width,i*cell_h}]);
 		}
-		float scale <- (1 - cell_scale_factor)/2;
+		float scale <- 1.1*(1 - cell_scale_factor)/2;
 		loop i from: 0 to: grid_width-1 {
 			loop j from: 0 to: grid_height-1 {
 				lines << line([{(i+0.5)*cell_w,j*cell_h}, {(i+0.5)*cell_w,(j+scale)*cell_h}]);
