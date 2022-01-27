@@ -11,6 +11,7 @@ model Urbam
 //import "common model.gaml"
 global{
 	bool blackMirror parameter: 'Dark Room' category: 'Aspect' <- true;
+	bool reverse <- true;
 	
 	//SPATIAL PARAMETERS  
 	int scan_step <- 30;
@@ -570,6 +571,34 @@ grid cell width: grid_width height: grid_height {
 		}
 		
 	}
+	
+		aspect default3D{
+		if show_cells {		
+			draw shape scaled_by (cell_scale_factor) color: world.get_buildings_info(type).color depth:pop*70;
+			if status = "destruction" {
+				draw line([location-{cell_w/4,cell_h/4}*cell_scale_factor,location+{cell_w/4,cell_h/4}*cell_scale_factor]) color: #red;
+				draw line([location+{-cell_w/4,cell_h/4}*cell_scale_factor,location+{cell_w/4,-cell_h/4}*cell_scale_factor]) color: #red;
+			}
+			if status = "construction" {
+				draw polygon([{-20,50}+location, {20,50}+location,{20,-20}+location,{40,-20}+location,{0,-100}+location,{-40,-20}+location,{-20,-20}+location,{-20,50}+location]) color: #blue;
+			}
+			draw ""+pop  color:#white font:font("SansSerif", 10, #bold) at: location - {140,60.0,0};
+			float y_offset <- 80.0;
+			//int i <- 0;
+			loop i from: 0 to: length(materials.keys) - 1{
+				draw ""+materials_stock[materials.keys[i]]  color:materials.values[i] font:font("SansSerif", 10, #bold) at: location + {30,-80.0+i*y_offset,0};
+				i <- i+1;
+			}
+//			loop i from: 0 to: length(materials.keys) - 1{
+//				draw ""+(materials_stock[materials.keys[i]]+material_flow(materials.keys[i]))  color:materials.values[i] font:font("SansSerif", 10, #bold) at: location + {100,-80.0+i*y_offset,0};
+//				i <- i+1;
+//			}
+//			loop i over: exits{
+//				draw circle(10) at: i.location color: #red;
+//			}
+		}
+		
+	}
 
 }
 
@@ -619,22 +648,46 @@ species stock{
 
 species legend {
 	int total_pop <- 0;
-	point location <- {-100,1000};
-	float y_offset <- 140.0;
+	point location <- {-100,100};
+	point location_3D <- {0,3500};	
+	point location_reverse <- {6250,3000};
+	float y_offset <- 160.0;
+	float y_offset_3D <- 10.0;
 	
 	reflex update_legend{
 		total_pop <- sum(cell collect each.pop);
 	}
 	
 	aspect default {
+		y_offset <- 160.0;
 		draw "Pop: "+total_pop+" (+"+the_stock.people_in+"/-"+the_stock.people_out+")"  color:#white font:font("SansSerif", 16, #bold) at: location + {-15,0.0,0};
 		loop i from: 0 to: length(materials.keys)-1{
 			string m <- materials.keys[i];
 			draw ""+m+" In: "+the_stock.materials_in[m]+" Out:"+the_stock.materials_out[m]+" Recyc.:"+the_stock.materials_recycle[m]  color:#white font:font("SansSerif", 16, #bold) at: location + {-15,(i+1)*y_offset,0};
 			
 		}
-	//	draw "Bois In: "+the_stock.materials_in["bois"]+" Out:"+the_stock.materials_out["bois"]+" Recyc.:"+the_stock.materials_recycle["bois"]  color:#white font:font("SansSerif", 16, #bold) at: location + {-15,140.0,0};
-
+		
+	}
+	
+	
+	aspect map3D {
+		draw "Pop: "+total_pop+" (+"+the_stock.people_in+"/-"+the_stock.people_out+")"  color:#white font:font("SansSerif", 16, #bold) at: location_3D + {-15,0.0,0} rotate: 90;
+		loop i from: 0 to: length(materials.keys)-1{
+			string m <- materials.keys[i];
+			draw ""+m+" In: "+the_stock.materials_in[m]+" Out:"+the_stock.materials_out[m]+" Recyc.:"+the_stock.materials_recycle[m]  color:#white font:font("SansSerif", 16, #bold) at: location_3D + {-15,0}*(i+1)*y_offset_3D rotate: 90;
+			
+		}
+		
+	}
+	
+	aspect reverse {
+		draw "Pop: "+total_pop+" (+"+the_stock.people_in+"/-"+the_stock.people_out+")"  color:#white font:font("SansSerif", 20, #bold) at: location_reverse + {-15,0.0,0} rotate:180;
+		loop i from: 0 to: length(materials.keys)-1{
+			string m <- materials.keys[i];
+			draw ""+m color:#white font: font("SansSerif", 20, #bold) at: location_reverse + {-15,-(2.5*i+1.5)*y_offset,0} rotate:180;
+			draw "In: "+the_stock.materials_in[m]+" Out:"+the_stock.materials_out[m]+" Recyc.:"+the_stock.materials_recycle[m]  color:#white font:font("SansSerif", 18, #bold) at: location_reverse + {-15,-(2.5*i+2.5)*y_offset,0} rotate:180;
+			
+		}
 	}
 }
 
@@ -657,7 +710,7 @@ species NetworkingAgent skills:[network] {
 	 			int nbcols<-8;
 	 			int nbrows<-8;
 	 			
-	 			loop i from:0 to:nbrows-1{
+/* 	 			loop i from:0 to:nbrows-1{
 	 				loop j from:0 to: nbcols-1{
 	 					if (m at (i*(2*nbcols-1)*4+4*j) = 'x'){
 	 					  id_matrix[j,i]<-old_id_matrix[j,i];
@@ -665,7 +718,20 @@ species NetworkingAgent skills:[network] {
 	 					}else{
 	 					  id_matrix[j,i]<-int(m at (i*(2*nbcols-1)*4+4*j));
 	 					  rot_matrix[j,i]<-int(m at (i*(2*nbcols-1)*4+4*j+1));
-	 					  }
+	 					 }
+	 				} 						
+	 			}*/
+	 			loop i from:0 to:nbrows-1{
+	 				loop j from:0 to: nbcols-1{
+	 					int i2 <- reverse?nbrows-1-i:i;
+	 					int j2 <- reverse?nbcols-1-j:j;
+	 					if (m at (i2*(2*nbcols-1)*4+4*j2) = 'x'){
+	 					  id_matrix[j2,i2]<-old_id_matrix[j2,i2];
+	 					  rot_matrix[j2,i2]<-old_rot_matrix[j2,i2];	
+	 					}else{
+	 					  id_matrix[j2,i2]<-int(m at (i*(2*nbcols-1)*4+4*j));
+	 					  rot_matrix[j2,i2]<-int(m at (i*(2*nbcols-1)*4+4*j+1));
+	 					 }
 	 				} 						
 	 			}
  			
@@ -696,7 +762,39 @@ experiment ReUse type: gui autorun: true{
 						draw fivefoods[i] color: color_per_id.values[i] at: {i*world.shape.width*0.175+world.shape.width*0.025+world.shape.width*0.05, 100} perspective: true font:font("Helvetica", 20 , #bold);
 					}
 			}*/
-		}		
+		}
+				
 	}
 }
+
+experiment cityScienceTableGCCV type: gui autorun: true{
+	float minimum_cycle_duration <- 0.05;
+	output {
+		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:1 
+		keystone: [{0.06523620510074757,0.0648083320477677,0.0},{0.04029295020928528,0.876614906293673,0.0},{1.0,0.8155455164794305,0.0},{0.9357231508566163,0.03614310825740896,0.0}]
+		{
+		species transport transparency: 0.6;
+	  	species cell aspect: default;// refresh: on_modification_cells;
+	  	species legend aspect: reverse;
+	  	species road aspect: default;
+	  	species people aspect: default;
+	  	species stock aspect: default;
+	   
+		}	
+		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 rotate:90
+		camera_location: {-996.391,7152.6832,5502.6118} camera_target: {2365.0787,2691.8624,-281.1955} camera_orientation: {0.4329,0.5745,0.6947}
+		{
+		species transport transparency: 0.6;
+	  	species cell aspect: default3D transparency:0.5;// refresh: on_modification_cells;
+	  	species legend aspect: map3D;
+	  	species road aspect: default;
+	  	species people aspect: default;
+	  	species stock aspect: default;
+	   
+			
+		}	
+	}
+}
+
+
 
