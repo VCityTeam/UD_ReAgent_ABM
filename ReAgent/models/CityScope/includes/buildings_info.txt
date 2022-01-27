@@ -33,4 +33,13 @@ bois 24
 metal 17
 color 91 120 164
 </building>
+
+<building>
+type Public
+pop 2
+beton 3
+bois 4
+metal 1
+color 128 128 64
+</building>
 	
