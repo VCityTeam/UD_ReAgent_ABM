@@ -23,7 +23,7 @@ global{
 	
 	bool load_grid_file_from_cityIO <-false; //parameter: 'Online Grid:' category: 'Simulation' <- false;
 	bool load_grid_file <- false;// parameter: 'Offline Grid:' category: 'Simulation'; 
-	bool udpScannerReader <- false; 
+	bool udpScannerReader <- true; 
 	bool udpSliderReader <- false; 
 	bool editionMode <-false;
 	bool launchpad<-false;
@@ -37,6 +37,7 @@ global{
 	bool on_modification_bds <- false update: false;
 	
 	string cityIOUrl;
+	bool projector_reversed<-true;
 
 	
 	
@@ -84,6 +85,8 @@ global{
 	int scaningUDPPort <- 5000;
 	int interfaceUDPPort <- 9878;
 	string url <- "localhost";
+	
+	map<string,int> depth_map <- ["S"::500, "M"::250, "L"::100];
 	
 	init {
 		cityIOUrl <- launchpad ? "https://cityio.media.mit.edu/api/table/launchpad": "https://cityio.media.mit.edu/api/table/urbam";
@@ -415,14 +418,14 @@ species building parent: poi {
 		
 	}
 	action define_color {
-		//color <- rgb(color_per_type[type], size = "S" ? 50 : (size = "M" ? 100: 255)  );
 		color <- color_per_id[type+size];
 	}
 	aspect default {
-		//if show_building {draw shape scaled_by building_scale color: color;}
-		//if show_building {draw shape scaled_by 0.75 color: color;}
-		draw image_file(images_reemploi[typeId]) size:{shape.width * 0.75,shape.height * 0.75} ;
-		//if show_building {draw shape scaled_by building_scale*1.2 empty:true color: color;}
+		if show_building {draw shape scaled_by 0.75 color: color;}
+	}
+	
+	aspect screen {
+		if show_building {draw shape scaled_by 0.75 color: color depth:depth_map[size];}
 	}
 }
 
@@ -434,7 +437,7 @@ species people parent: basic_people skills: [moving]{
 	}
 }
 
-grid cell width: grid_width height: grid_height { // height: 16{
+grid cell width: grid_width height: grid_height { 
 	building my_building;
 	bool is_active <- true;
 	//rgb color <- #white;
@@ -490,64 +493,103 @@ grid button width:3 height:4
 species NetworkingAgent skills:[network] {
 	string type;
 	string previousMess <-"";
-	reflex fetch when:has_more_message() {	
-		if (length(mailbox) > 0) {
-			message s <- fetch_message();
-			if(s.contents !=previousMess){	
-			  previousMess<-s.contents;
-			  if(type="scanner"){
-			  	list gridlist <- string(s.contents) split_with(";");
-			  	int nrows <- 12;
-			  	int ncols <- 12;
-			  	int x;
-			  	int y;
-			  	int id;
-			  	loop i from:0 to: (length(gridlist)-2){ 
-			    	if((i mod nrows) mod 2 = 0 and int(i/ncols) mod 2 = 0){   
-			      		x<- int((i mod nrows)/2);
-			      		y<-int((int(i/ncols))/2);
-			      		id<-int(gridlist[i]);
-			      	if(id!=-2 and id !=-1 and id!=6 ){
-	      	  	    	ask world{do createCell(id+1, x, y);}	
-	      	      	} 
-	      	      	if (id=-1){
-			        	cell current_cell <- cell[x,y];
-				    	ask current_cell{ do erase_building;}
-			      	}	   
-			    	} 		
-	          	}
-			  }
-			  if(type="interface"){
-			  	weight_car<-float(previousMess)/5.0;
-			  	write weight_car;
-			  }
-			}	
-	    }
+	
+		reflex update_landuse when: has_more_message() and type = "scanner"{
+		list<list<int>> scan_result <- [];    
+	    
+	    if (length(mailbox) > 0) {
+			message mes <- fetch_message();	
+ 			string m <- string(mes.contents);
+ 			
+ 			matrix<int> id_matrix <- {8,8} matrix_with 0;
+ 			matrix<int> rot_matrix <- {8,8} matrix_with 0;
+ 			
+ 			int nbcols<-8;
+ 			int nbrows<-8;
+ 			
+ 			loop i from:0 to:nbrows-1{
+ 				loop j from:0 to: nbcols-1{
+ 					if (m at (i*(2*nbcols-1)*4+4*j) = 'x'){
+ 					  id_matrix[j,i]<--1;
+ 					  rot_matrix[j,i]<--1;	
+ 					}else{
+ 					  id_matrix[j,i]<-int(m at (i*(2*nbcols-1)*4+4*j));
+ 					  rot_matrix[j,i]<-int(m at (i*(2*nbcols-1)*4+4*j+1));
+ 					  }
+ 				} 						
+ 			}
+            loop i from:0 to:nbrows-1{
+ 				loop j from:0 to: nbcols-1{
+ 					int i2<-projector_reversed ? nbrows-1-i : i;
+ 					int j2<-projector_reversed ? nbcols-1-j : j;
+ 					
+ 					
+ 					int id <-id_matrix[i2,j2];
+ 					if(id!=-2 and id !=-1 and id!=6 ){
+	      	  	      ask world{do createCell(id+1, i, j);}	
+	      	    	} 
+	      	    	if (id=-1){
+			      	  cell current_cell <- cell[i,j];
+				   	  ask current_cell{ do erase_building;}
+			    	}
+ 				}
+ 			}			
+		} 
+	} 
+}
+
+
+
+experiment cityScienceTableGCCV_Debug type: gui autorun: true{
+	float minimum_cycle_duration <- 0.05;
+	output {
+		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false  
+		{
+	   species cell aspect:default;
+			species road ;
+			species people;
+			species building;
+		}		
 	}
 }
 
 
-experiment cityScienceScreenEditionMode type: gui autorun: true{
-	init{
-		editionMode<-true;
-	}
+experiment cityScienceTableGCCV type: gui autorun: true{
 	float minimum_cycle_duration <- 0.05;
 	output {
-		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false {
-		species cell aspect:default;// refresh: on_modification_cells;
-			species road ;
+		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:1 
+		keystone: [{0.06523620510074757,0.0648083320477677,0.0},{0.04029295020928528,0.876614906293673,0.0},{1.0,0.8155455164794305,0.0},{0.9357231508566163,0.03614310825740896,0.0}]
+		{
+	   species cell aspect:default;// refresh: on_modification_cells;
+			//species road ;
 			species people;
 			species building;// refresh: on_modification_bds;
-			event mouse_down action:infrastructure_management;
 			
-			event["1"] action: {action_type<-9;};
-			event["2"] action: {action_type<-3;};
-			event["3"] action: {action_type<-6;};
-			event["4"] action: {action_type<-4;};
-			event["5"] action: {action_type<-7;};
-			event["6"] action: {action_type<-10;};
-			event["7"] action: {action_type<-5;};
-			event["8"] action: {action_type<-8;}; 
+			
+			/*graphics "mobilityMode"{
+				    draw circle(world.shape.width * 0.01) color: color_per_mode["walk"] at: {world.shape.width * 0.2, world.shape.height*0.985};
+					draw "walk" color: color_per_mode["walk"]  at: {world.shape.width * 0.2+world.shape.width * 0.02, world.shape.height*0.995} font:font("Helvetica", 20 , #bold) rotate:180;
+					
+					draw circle(world.shape.width * 0.01) color: color_per_mode["bike"] at: {world.shape.width * 0.4, world.shape.height*0.985};
+					draw "bike" color: color_per_mode["bike"]  at: {world.shape.width * 0.4 + world.shape.width * 0.02, world.shape.height *0.995} font:font("Helvetica", 20 , #bold) rotate:180;
+					
+					draw circle(world.shape.width * 0.01) color: color_per_mode["car"] at: {world.shape.width * 0.6, world.shape.height*0.985};
+					draw "car" color: color_per_mode["car"]  at: {world.shape.width * 0.6 + world.shape.width * 0.02, world.shape.height *0.995} font:font("Helvetica", 20 , #bold) rotate:180;
+					
+					draw circle(world.shape.width * 0.01) color: color_per_mode["pev"] at: {world.shape.width * 0.8, world.shape.height*0.985};
+					draw "pev" color: color_per_mode["pev"]  at: {world.shape.width * 0.8 + world.shape.width * 0.02, world.shape.height *0.995} font:font("Helvetica", 20 , #bold) rotate:180;
+			}
+			
+			graphics "landuse" {
+					point hpos <- {world.shape.width * 1.1, world.shape.height * 1.1};
+					float barH <- world.shape.width * 0.01;
+					float factor <-  world.shape.width * 0.1;
+					loop i from:0 to:length(color_per_id)-1{
+						draw square(world.shape.width*0.02) empty:false color: color_per_id.values[i] at: {i*world.shape.width*0.175+world.shape.width*0.05, 75};
+						draw fivefoods[i] color: color_per_id.values[i] at: {i*world.shape.width*0.175+world.shape.width*0.025+world.shape.width*0.05, 100} perspective: true font:font("Helvetica", 20 , #bold) rotate:180;
+					}
+			}*/
+
 			
 			event["h"] action: {road_aspect<-"hide";};
 			event["r"] action: {road_aspect<-"default";};
@@ -572,75 +614,16 @@ experiment cityScienceScreenEditionMode type: gui autorun: true{
 			
 			event["t"] action: {weight_pev<-weight_pev-0.1;}; 
 			event["y"] action: {weight_pev<-weight_pev+0.1;};
-			
-			
-			graphics "mobilityMode" {
-				    draw circle(world.shape.width * 0.01) color: color_per_mode["walk"] at: {world.shape.width * 0.2, world.shape.height};
-					draw "walk" color: color_per_mode["walk"]  at: {world.shape.width * 0.2+world.shape.width * 0.02, world.shape.height * 1.005} font:font("Helvetica", 6 , #bold);
-					
-					draw circle(world.shape.width * 0.01) color: color_per_mode["bike"] at: {world.shape.width * 0.4, world.shape.height};
-					draw "bike" color: color_per_mode["bike"]  at: {world.shape.width * 0.4 + world.shape.width * 0.02, world.shape.height * 1.005} font:font("Helvetica", 6 , #bold);
-					
-					draw circle(world.shape.width * 0.01) color: color_per_mode["car"] at: {world.shape.width * 0.6, world.shape.height};
-					draw "car" color: color_per_mode["car"]  at: {world.shape.width * 0.6 + world.shape.width * 0.02, world.shape.height * 1.005} font:font("Helvetica", 6 , #bold);
-					
-					draw circle(world.shape.width * 0.01) color: color_per_mode["pev"] at: {world.shape.width * 0.8, world.shape.height};
-					draw "pev" color: color_per_mode["pev"]  at: {world.shape.width * 0.8 + world.shape.width * 0.02, world.shape.height * 1.005} font:font("Helvetica", 6 , #bold);
-			}
-			
-			graphics "landuse" {
-					point hpos <- {world.shape.width * 1.1, world.shape.height * 1.1};
-					float barH <- world.shape.width * 0.01;
-					float factor <-  world.shape.width * 0.1;
-					loop i from:0 to:length(color_per_id)-1{
-						draw square(world.shape.width*0.02) empty:true color: color_per_id.values[i] at: {i*world.shape.width*0.175, -50};
-						draw fivefoods[i] color: color_per_id.values[i] at: {i*world.shape.width*0.175+world.shape.width*0.025, -40} perspective: true font:font("Helvetica", 8 , #bold);
-					}
-			}
-		}
-				
-	    //Bouton d'action
-		display action_buton background:#black name:"Actions possibles" ambient_light:100 	{
-			species button aspect:normal ;
-			event mouse_down action:activate_act;    
 		}	
-	}
-}
-
-experiment cityScienceTableGCCV type: gui autorun: true{
-	float minimum_cycle_duration <- 0.05;
-	output {
-		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:1 
-	    keystone: [{0.07003298488756726,0.14457243302963552,0.0},{0.03165874659300989,0.9252211553294987,0.0},{0.9568289819186231,0.9302064116408656,0.0},{0.9309263710697968,0.15329663157452744,0.0}]{
-	  	species cell aspect:default;// refresh: on_modification_cells;
-			//species road ;
+		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 rotate:90
+		camera_location: {-996.391,7152.6832,5502.6118} camera_target: {2365.0787,2691.8624,-281.1955} camera_orientation: {0.4329,0.5745,0.6947}
+		{
+	   species cell aspect:default;
+			species road ;
 			species people;
-			species building;// refresh: on_modification_bds;
+			species building aspect:screen transparency:0.75;
 			
-			/*graphics "mobilityMode" {
-				    draw circle(world.shape.width * 0.01) color: color_per_mode["walk"] at: {world.shape.width * 0.2, world.shape.height*0.985};
-					draw "walk" color: color_per_mode["walk"]  at: {world.shape.width * 0.2+world.shape.width * 0.02, world.shape.height*0.995} font:font("Helvetica", 20 , #bold);
-					
-					draw circle(world.shape.width * 0.01) color: color_per_mode["bike"] at: {world.shape.width * 0.4, world.shape.height*0.985};
-					draw "bike" color: color_per_mode["bike"]  at: {world.shape.width * 0.4 + world.shape.width * 0.02, world.shape.height *0.995} font:font("Helvetica", 20 , #bold);
-					
-					draw circle(world.shape.width * 0.01) color: color_per_mode["car"] at: {world.shape.width * 0.6, world.shape.height*0.985};
-					draw "car" color: color_per_mode["car"]  at: {world.shape.width * 0.6 + world.shape.width * 0.02, world.shape.height *0.995} font:font("Helvetica", 20 , #bold);
-					
-					draw circle(world.shape.width * 0.01) color: color_per_mode["pev"] at: {world.shape.width * 0.8, world.shape.height*0.985};
-					draw "pev" color: color_per_mode["pev"]  at: {world.shape.width * 0.8 + world.shape.width * 0.02, world.shape.height *0.995} font:font("Helvetica", 20 , #bold);
-			}
-			
-			graphics "landuse" {
-					point hpos <- {world.shape.width * 1.1, world.shape.height * 1.1};
-					float barH <- world.shape.width * 0.01;
-					float factor <-  world.shape.width * 0.1;
-					loop i from:0 to:length(color_per_id)-1{
-						draw square(world.shape.width*0.02) empty:false color: color_per_id.values[i] at: {i*world.shape.width*0.175+world.shape.width*0.05, 75};
-						draw fivefoods[i] color: color_per_id.values[i] at: {i*world.shape.width*0.175+world.shape.width*0.025+world.shape.width*0.05, 100} perspective: true font:font("Helvetica", 20 , #bold);
-					}
-			}*/
-		}		
+		}	
 	}
 }
 
