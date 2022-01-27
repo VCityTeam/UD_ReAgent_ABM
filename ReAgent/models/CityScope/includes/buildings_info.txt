@@ -1,0 +1,36 @@
+<building>
+type R1
+pop 4
+color 12 243 87
+beton 20
+bois 5
+metal 8
+</building>
+
+<building>
+type R2 
+pop 8
+color 84 171 130
+beton 30
+bois 8
+metal 12
+</building>
+
+<building>
+type C1
+pop 6
+color 27 118 228
+beton 10
+bois 12
+metal 15
+</building>
+
+<building>
+type C2
+pop 9
+beton 14
+bois 24
+metal 17
+color 91 120 164
+</building>
+	
