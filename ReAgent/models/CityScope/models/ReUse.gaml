@@ -214,7 +214,8 @@ global{
    		}
 		if !init_map {
 			loop i from: 0 to: grid_width-1 {
-				loop j from: 0 to: grid_height-1 {		
+				loop j from: 0 to: grid_height-1 {	
+					if id_matrix[j,i] = -1 {id_matrix[j,i]<-0;}	
 					string type <- buildings_info[id_matrix[j,i]].type;
 					cell[j,i].type <- type;
 					cell[j,i].pop <- get_buildings_info(type).pop;
