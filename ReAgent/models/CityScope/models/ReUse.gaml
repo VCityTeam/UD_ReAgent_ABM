@@ -247,10 +247,10 @@ global{
 		loop i from: 0 to: grid_height-1{
 			loop j from: 0 to: grid_width-1{
 				
-				if id_matrix[i,j] = -1 {
-					id_matrix[i,j] <- old_id_matrix[i,j];
-				}
-				if id_matrix[i,j] != old_id_matrix[i,j] and id_matrix[i,j] != -1{
+//				if id_matrix[i,j] = -1 {
+//					id_matrix[i,j] <- old_id_matrix[i,j];
+//				}
+				if id_matrix[i,j] != old_id_matrix[i,j] {
 					ask cell[i,j] {do changeTo(buildings_info[id_matrix[j,i]].type);}
 				}
 			}
@@ -656,8 +656,8 @@ species NetworkingAgent skills:[network] {
 	 			loop i from:0 to:nbrows-1{
 	 				loop j from:0 to: nbcols-1{
 	 					if (m at (i*(2*nbcols-1)*4+4*j) = 'x'){
-	 					  id_matrix[j,i]<--1;
-	 					  rot_matrix[j,i]<--1;	
+	 					  id_matrix[j,i]<-old_id_matrix[j,i];
+	 					  rot_matrix[j,i]<-old_rot_matrix[j,i];	
 	 					}else{
 	 					  id_matrix[j,i]<-int(m at (i*(2*nbcols-1)*4+4*j));
 	 					  rot_matrix[j,i]<-int(m at (i*(2*nbcols-1)*4+4*j+1));
