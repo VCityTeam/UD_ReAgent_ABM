@@ -234,7 +234,8 @@ global{
 				rot_matrix[i,j] <- mod(rot_matrix[i,j]+1,3);
 			}
 		}
-	
+		write cycle;
+		write id_matrix;
 		
 		loop i from: 0 to: grid_height-1{
 			loop j from: 0 to: grid_width-1{
@@ -257,10 +258,7 @@ global{
 		old_rot_matrix <- copy(rot_matrix);
 		//ask 6 among cell {do changeTo(one_of(buildings_info).type);}
 	}
-	
-	action load_cityIO_v2_urbam(string cityIOUrl_) {
-		
-	}
+
 		
 }
 
