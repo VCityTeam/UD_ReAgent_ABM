@@ -242,7 +242,7 @@ global{
 				if id_matrix[i,j] = -1 {
 					id_matrix[i,j] <- old_id_matrix[i,j];
 				}
-				if id_matrix[i,j] != old_id_matrix[i,j]{
+				if id_matrix[i,j] != old_id_matrix[i,j] and id_matrix[i,j] != -1{
 					ask cell[i,j] {do changeTo(buildings_info[id_matrix[j,i]].type);}
 				}
 			}
