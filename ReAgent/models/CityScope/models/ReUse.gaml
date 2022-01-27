@@ -341,9 +341,10 @@ species transport{
 //		draw circle(20) at: po color: #green;
 //		draw circle(20) at: pd color: #red;
 		if type = materials.keys[current_material]{
-			loop e over: the_path.edges {
-				draw e+line_width color: materials[type];
-			}
+//			loop e over: the_path.edges {
+//				draw e+line_width color: materials[type];
+//			}
+			draw line(the_path.edges)+line_width color: materials[type];
 			switch status{
 				match "init"{
 					draw first(the_path.edges)+line_width color: blend(#white,materials[type], timer/transport_time);
