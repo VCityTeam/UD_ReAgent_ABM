@@ -56,6 +56,7 @@ global{
 	graph the_graph;
 	stock the_stock;
 	int current_material <- 0;
+	bool init_map <- true;
 	
 
 //	string imageFolder <- "../images/flat/";
@@ -90,7 +91,7 @@ global{
 		}
 		do load_materials;
 		do load_buildings_info;
-		do randomGridInit;
+	//	do randomGridInit;
 		
 		list<geometry> lines;
 		cell_w <- first(cell).shape.width;
@@ -106,7 +107,7 @@ global{
 			loop j from: 0 to: grid_height-1 {
 				lines << line([{(i+0.5)*cell_w,j*cell_h}, {(i+0.5)*cell_w,(j+scale)*cell_h}]);
 				lines << line([{(i+0.5)*cell_w,(j+1)*cell_h}, {(i+0.5)*cell_w,(j+1-scale)*cell_h}]);
-				lines << line([{i*cell_w,(j+0.5)*cell_h}, {(i+scale)*cell_w,(j+0.5)*cell_h}]);
+				if i != 0 {lines << line([{i*cell_w,(j+0.5)*cell_h}, {(i+scale)*cell_w,(j+0.5)*cell_h}]);}
 				lines << line([{(i+1)*cell_w,(j+0.5)*cell_h}, {(i+1-scale)*cell_w,(j+0.5)*cell_h}]);
 			}
 		}
@@ -192,7 +193,7 @@ global{
 		do randomGrid;
 	} 
 	
-	action randomGridInit{
+	reflex randomGridInit when: init_map{
    		int id;
    		if !udpScannerReader{
    			loop i from: 0 to: grid_width-1 {
@@ -201,24 +202,31 @@ global{
 					rot_matrix[j,i] <- rnd(3);
 				}
 			}
+			init_map <- false;
    		}else{
    			ask first(NetworkingAgent){
    				do read_scanner;
+   				if id_matrix != old_id_matrix{
+   					init_map <- false;
+   					write "Table initialisée";
+   				}
    			}
    		}
-		
-		loop i from: 0 to: grid_width-1 {
-			loop j from: 0 to: grid_height-1 {		
-				string type <- buildings_info[id_matrix[j,i]].type;
-				cell[j,i].type <- type;
-				cell[j,i].pop <- get_buildings_info(type).pop;
-				cell[j,i].max_pop <- get_buildings_info(type).pop;
-				cell[j,i].materials_stock <- copy(get_buildings_info(type).materials_use);
-				cell[j,i].max_materials_stock <- copy(get_buildings_info(type).materials_use);
+		if !init_map {
+			loop i from: 0 to: grid_width-1 {
+				loop j from: 0 to: grid_height-1 {		
+					string type <- buildings_info[id_matrix[j,i]].type;
+					cell[j,i].type <- type;
+					cell[j,i].pop <- get_buildings_info(type).pop;
+					cell[j,i].max_pop <- get_buildings_info(type).pop;
+					cell[j,i].materials_stock <- copy(get_buildings_info(type).materials_use);
+					cell[j,i].max_materials_stock <- copy(get_buildings_info(type).materials_use);
+				}
 			}
-		}
-		old_id_matrix <- copy(id_matrix);
+			old_id_matrix <- copy(id_matrix);
 		old_rot_matrix <- copy(rot_matrix);
+		}
+		
 	}
 	
 	action randomGrid{
@@ -234,7 +242,7 @@ global{
 				rot_matrix[i,j] <- mod(rot_matrix[i,j]+1,3);
 			}
 		}
-	
+		
 		
 		loop i from: 0 to: grid_height-1{
 			loop j from: 0 to: grid_width-1{
@@ -255,11 +263,6 @@ global{
 		
 		old_id_matrix <- copy(id_matrix);
 		old_rot_matrix <- copy(rot_matrix);
-		//ask 6 among cell {do changeTo(one_of(buildings_info).type);}
-	}
-	
-	action load_cityIO_v2_urbam(string cityIOUrl_) {
-		
 	}
 		
 }
@@ -570,6 +573,7 @@ species people skills: [moving]{
 	point target;
 	cell cell_target;
 	float speed <- people_speed;
+	rgb color <- #white; //rnd_color(256);
 	
 	reflex 	move {
 		do goto target: target on: the_graph recompute_path: false;
@@ -584,14 +588,15 @@ species people skills: [moving]{
 	}
 	
 	aspect default{
-		draw circle(10) color: #white;
+		draw circle(20) color: color;
+		//draw circle(50) color: color at: target;
 	}
 	
 }
 
 species road{	
 	aspect default{
-//		draw shape color: #grey;
+//		draw shape color: #red;
 	}
 }
 
