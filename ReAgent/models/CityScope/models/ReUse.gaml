@@ -14,7 +14,7 @@ global{
 	bool reverse <- true;
 	
 	//SPATIAL PARAMETERS  
-	int scan_step <- 30;
+	int scan_step <- 3;
 	int people_change_per_step <- 1;
 	int people_change_time_interval <- 3;
 	float people_speed <- 20.0;
@@ -27,7 +27,7 @@ global{
 	float cell_scale_factor <- 0.5;
 	float material_flow_per_cycle <- 0.1;
 	float recycle_probability <- 0.9;
-	int transport_time <- 20;
+	int transport_time <- 40;
 	float line_width <- 20.0;
 	
 	bool load_grid_file_from_cityIO <-false; //parameter: 'Online Grid:' category: 'Simulation' <- false;
