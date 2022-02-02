@@ -11,10 +11,11 @@ model Urbam
 //import "common model.gaml"
 global{
 	bool blackMirror parameter: 'Dark Room' category: 'Aspect' <- true;
-	bool reverse <- true;
+	bool reverse <- false;
+	bool udpScannerReader <- false; 
+		int scan_step <- 30;
 	
 	//SPATIAL PARAMETERS  
-	int scan_step <- 3;
 	int people_change_per_step <- 1;
 	int people_change_time_interval <- 3;
 	float people_speed <- 20.0;
@@ -32,7 +33,6 @@ global{
 	
 	bool load_grid_file_from_cityIO <-false; //parameter: 'Online Grid:' category: 'Simulation' <- false;
 	bool load_grid_file <- false;// parameter: 'Offline Grid:' category: 'Simulation'; 
-	bool udpScannerReader <- true; 
 	bool editionMode <-false;
 
 	
@@ -90,10 +90,16 @@ global{
 			     do connect to: url protocol: "udp_server" port: scaningUDPPort ;
 			    }
 		}
+		do create_roads;
 		do load_materials;
 		do load_buildings_info;
-	//	do randomGridInit;
-		
+		create legend;
+		create stock;
+		the_stock <- first(stock);
+	}
+	
+	
+	action create_roads{
 		list<geometry> lines;
 		cell_w <- first(cell).shape.width;
 		cell_h <- first(cell).shape.height;
@@ -113,27 +119,29 @@ global{
 			}
 		}
 		exits <- (lines accumulate(each.points)) where (each.x = 0 or each.y=0 or each.x = environment_width or each.y=environment_height) ;
-//		loop l over: lines {
-//			do split_line_in(l,2);
-//		}
-		list<geometry> lines2 <- split_lines(lines) accumulate (split_line_in(each,2));
+		//list<geometry> lines2 <- split_lines(lines) accumulate (split_line_in(each,2));
 		ask cell{
-		//	list<point> tmp <- lines accumulate(each.points);
 			exits <- lines accumulate(each.points) where (sqrt((self.location.x-each.location.x)^2+(self.location.y-each.location.y)^2) < cell_w/2);
 		}
-
-		create legend;
-		create stock;
-		the_stock <- first(stock);
-		
-		
-		
-//		create road from: split_lines(lines);
-		create road from: lines2;
-		the_graph <- as_edge_graph(road);
-
-
+		//list<geometry> lines3 <-[];
+		float x_offset <- scale/2*cell_w;
+		float y_offset <- scale/2*cell_h;
+		loop i from: 1 to: 2*(grid_width) {
+			loop j from: 0 to: 2*(grid_height) {
+				if not(mod(i,2)=1 and mod(j,2)=1){
+					lines << line([{i*cell_w/2,j*cell_h/2-y_offset}, {i*cell_w/2+x_offset,j*cell_h/2}]);
+					lines << line([{i*cell_w/2,j*cell_h/2+y_offset}, {i*cell_w/2+x_offset,j*cell_h/2}]);
+					lines << line([{i*cell_w/2,j*cell_h/2-y_offset}, {i*cell_w/2-x_offset,j*cell_h/2}]);
+					lines << line([{i*cell_w/2,j*cell_h/2+y_offset}, {i*cell_w/2-x_offset,j*cell_h/2}]);
+				}
+			}
 		}
+		
+		
+		//create road from: lines2+lines3;
+		create road from: split_lines(lines);
+		the_graph <- as_edge_graph(road);
+	}
 	
 	action load_materials {
 		matrix data <- matrix(materials_file);
@@ -175,16 +183,13 @@ global{
 			}
 			i<-i+1;
 		}
-//		create buildings_info returns: bi;
-//		bi[0].type <- "WIP";
-//		bi[0].pop <- 0;
 	}
 	
-	list<geometry> split_line_in(geometry l, int i){
-		point p1 <- l.points[0];
-		point p2 <- l.points[1];
-		return [line([p1,(p1+p2)/2]),line([p2,(p1+p2)/2])];
-	}
+//	list<geometry> split_line_in(geometry l, int i){
+//		point p1 <- l.points[0];
+//		point p2 <- l.points[1];
+//		return [line([p1,(p1+p2)/2]),line([p2,(p1+p2)/2])];
+//	}
 	
 	buildings_info get_buildings_info(string s){
 		return first(buildings_info where (each.type = s));
@@ -302,6 +307,7 @@ species transport{
 	string type;
 	int creation_time;
 	path the_path;
+	list<point> path_points;
 	point po;
 	point pd;
 	
@@ -311,6 +317,10 @@ species transport{
 		po <- origin=nil?origin_location:origin.exits closest_to destination_location;
 		pd <- destination=nil?destination_location:destination.exits closest_to origin_location;
 		the_path <- the_graph path_between(po,pd); 
+		path_points <- [first(first(the_path.edges).points-the_path.edges[1].points),first(inter(first(the_path.edges).points,the_path.edges[1].points))];
+		loop r over: the_path.edges-first(the_path.edges){
+			path_points << first(r.points-last(path_points));
+		}
 	}
 	
 	reflex update {
@@ -357,7 +367,9 @@ species transport{
 //			loop e over: the_path.edges {
 //				draw e+line_width color: materials[type];
 //			}
-			draw line(the_path.edges)+line_width color: materials[type];
+
+	//		draw the_path.edges collect(each.points) +line_width color: materials[type];
+			draw line(path_points)+line_width color: materials[type];
 			switch status{
 				match "init"{
 					draw first(the_path.edges)+line_width color: blend(#white,materials[type], timer/transport_time);
@@ -369,8 +381,7 @@ species transport{
 					draw the_path.edges[timer]+line_width color: #white;
 				}		
 			} 
-		}
-		
+		}	
 	}
 }
 
@@ -378,7 +389,6 @@ species transport{
 grid cell width: grid_width height: grid_height { 
 	string type;
 	string old_type;
-	string next_type;
 	int pop;
 	int max_pop;
 	int incoming_people <- 0;
@@ -391,7 +401,6 @@ grid cell width: grid_width height: grid_height {
 	int time_counter <- 0;
 	
 	int material_flow(string m){	
-//		return sum(transports where (each.type = m and each.destination = self) collect (each.quantity))-sum(transports where (each.type = m and each.origin = self) collect (each.quantity));
 		return transports count (each.type = m and each.destination = self)-transports count (each.type = m and each.origin = self);
 	}
 	
@@ -439,7 +448,7 @@ grid cell width: grid_width height: grid_height {
 	
 	reflex end_destruction when: status = "destruction" and sum(materials_stock.values) = 0{
 		status <- "construction";
-		type <- next_type;
+		old_type <- type;
 		max_materials_stock <- copy(world.get_buildings_info(type).materials_use);
 	}
 	
@@ -513,33 +522,31 @@ grid cell width: grid_width height: grid_height {
 		}
 	}
 	
+
 	action changeTo(string t){
-		switch status{
-			match "destruction" {
-				next_type <- t;
-				if type = t{
-					status <- "construction";
-					max_pop <- pop;
-					max_materials_stock <- copy(null_map);
+		if type != t{
+			switch status{
+				match "destruction" {
+					if type = old_type{
+						status <- "construction";
+						max_pop <- pop;
+						max_materials_stock <- copy(null_map);
+					}		
 				}
-			}
-			match "construction" {
-				if next_type != t{
-					next_type <- t;
+				match "construction" {
+					old_type <- type;
 					status <- "destruction";
 					max_pop <- 0;
 					max_materials_stock <- copy(null_map);
 				}
-			}
-			match "idle"{
-				if type != t{
-					next_type <- t;
+				match "idle"{
 					old_type <- type;
 					status <- "destruction";
 					max_pop <- 0;
 					max_materials_stock <- copy(null_map);
 				}
 			}
+			type <- t;	
 		}
 	}
 	
@@ -632,7 +639,7 @@ species people skills: [moving]{
 
 species road{	
 	aspect default{
-//		draw shape color: #red;
+		draw shape color: #red;
 	}
 }
 
@@ -751,7 +758,7 @@ experiment ReUse type: gui autorun: true{
 		species transport transparency: 0.6;
 	  	species cell aspect: default;// refresh: on_modification_cells;
 	  	species legend aspect: default;
-	  	species road aspect: default;
+//	  	species road aspect: default;
 	  	species people aspect: default;
 	  	species stock aspect: default;
 
@@ -779,7 +786,7 @@ experiment cityScienceTableGCCV type: gui autorun: true{
 		species transport transparency: 0.6;
 	  	species cell aspect: default;// refresh: on_modification_cells;
 	  	species legend aspect: reverse;
-	  	species road aspect: default;
+//	  	species road aspect: default;
 	  	species people aspect: default;
 	  	species stock aspect: default;
 	   
@@ -790,7 +797,7 @@ experiment cityScienceTableGCCV type: gui autorun: true{
 		species transport transparency: 0.6;
 	  	species cell aspect: default3D transparency:0.5;// refresh: on_modification_cells;
 	  	species legend aspect: map3D;
-	  	species road aspect: default;
+//	  	species road aspect: default;
 	  	species people aspect: default;
 	  	species stock aspect: default;
 	   
