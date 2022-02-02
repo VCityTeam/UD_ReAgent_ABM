@@ -1,42 +1,42 @@
 <building>
 type R1
-pop 4
+pop 1
 color 12 243 87
-beton 20
-bois 5
-metal 8
+beton 3
+bois 1
+metal 2
 </building>
 
 <building>
 type R2 
-pop 8
+pop 2
 color 84 171 130
-beton 30
-bois 8
-metal 12
+beton 5
+bois 3
+metal 3
 </building>
 
 <building>
 type C1
-pop 6
+pop 1
 color 27 118 228
-beton 10
-bois 12
-metal 15
+beton 3
+bois 1
+metal 3
 </building>
 
 <building>
 type C2
-pop 9
-beton 14
-bois 24
-metal 17
+pop 2
+beton 4
+bois 2
+metal 4
 color 91 120 164
 </building>
 
 <building>
 type Public
-pop 2
+pop 0
 beton 3
 bois 4
 metal 1
@@ -45,10 +45,10 @@ color 128 128 64
 
 <building>
 type Factory
-pop 2
-beton 30
-bois 4
-metal 24
+pop 1
+beton 6
+bois 1
+metal 4
 color 244 227 11
 </building>
 

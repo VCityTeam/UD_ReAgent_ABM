@@ -13,23 +13,32 @@ global{
 	bool blackMirror parameter: 'Dark Room' category: 'Aspect' <- true;
 	bool reverse <- false;
 	bool udpScannerReader <- false; 
-		int scan_step <- 30;
-	
-	//SPATIAL PARAMETERS  
+	int scan_step <- 3;
+	int random_step <- 40;
+	int nb_rand_changes <- 4;
+	float proba_change_mat <- 0.0;
+	bool show_all_materials <- false;
+		
+	//SIM PARAMETERS
 	int people_change_per_step <- 1;
 	int people_change_time_interval <- 3;
 	float people_speed <- 20.0;
 	float transport_proba <- 0.1;
+	float material_flow_per_cycle <- 0.1;
+	float recycle_probability <- 0.9;
+	int transport_cooldown <- 30;
+	int transport_update_time <- 40;
+	int transport_time <- 40;
+	int transport_cycles_per_segment <- 2;
+	float line_width <- 20.0;
+	float cell_scale_factor <- 0.5;
+	
+	//SPATIAL PARAMETERS  
 	int grid_height <- 8;
 	int grid_width <- 8;
 	int nb_ids <- 4;
 	float environment_height <- 5000.0;
 	float environment_width <- 5000.0;
-	float cell_scale_factor <- 0.5;
-	float material_flow_per_cycle <- 0.1;
-	float recycle_probability <- 0.9;
-	int transport_time <- 40;
-	float line_width <- 20.0;
 	
 	bool load_grid_file_from_cityIO <-false; //parameter: 'Online Grid:' category: 'Simulation' <- false;
 	bool load_grid_file <- false;// parameter: 'Offline Grid:' category: 'Simulation'; 
@@ -195,11 +204,8 @@ global{
 		return first(buildings_info where (each.type = s));
 	}
 	
-	reflex randomGridUpdate when: cycle> 0 and !editionMode and !load_grid_file_from_cityIO and every(scan_step#cycle){
-		do randomGrid;
-	} 
 	
-	reflex randomGridInit when: init_map{
+	reflex gridInit when: init_map{
    		int id;
    		if !udpScannerReader{
    			loop i from: 0 to: grid_width-1 {
@@ -237,41 +243,39 @@ global{
 		
 	}
 	
-	action randomGrid{
-		if !udpScannerReader{
-			loop times: 5 {
-				int i <- rnd(grid_height-1);
-				int j <- rnd(grid_width-1);
-				id_matrix[i,j] <- rnd(nb_ids-1);
-			}
-			if flip(0.3){
-				int i <- rnd(grid_height-1);
-				int j <- rnd(grid_width-1);
-				rot_matrix[i,j] <- mod(rot_matrix[i,j]+1,3);
-			}
+	reflex randomGridUpdate when: !udpScannerReader and cycle> 0 and !editionMode and !load_grid_file_from_cityIO and every(random_step#cycle){
+		//do randomGrid;
+		loop times: rnd(nb_rand_changes) {
+			int i <- rnd(grid_height-1);
+			int j <- rnd(grid_width-1);
+			id_matrix[i,j] <- rnd(nb_ids-1);
 		}
-
-		write cycle;
-		write id_matrix;
-
-		
+		if flip(proba_change_mat){
+			int i <- rnd(grid_height-1);
+			int j <- rnd(grid_width-1);
+			rot_matrix[i,j] <- mod(rot_matrix[i,j]+1,3);
+		}
+		do gridUpdate;
+	} 
+	
+	reflex scanGrid when: udpScannerReader and !init_map and !editionMode and !load_grid_file_from_cityIO and every(scan_step#cycle){
+		do gridUpdate;
+	} 
+	
+	action gridUpdate{
+//		write cycle;
+//		write id_matrix;	
 		loop i from: 0 to: grid_height-1{
 			loop j from: 0 to: grid_width-1{
-				
-//				if id_matrix[i,j] = -1 {
-//					id_matrix[i,j] <- old_id_matrix[i,j];
-//				}
 				if id_matrix[i,j] != old_id_matrix[i,j] {
 					ask cell[i,j] {do changeTo(buildings_info[id_matrix[j,i]].type);}
 				}
 			}
-		}
-		
+		}	
 		if old_rot_matrix!=rot_matrix{
 			current_material <- mod(current_material+1,length(materials.keys));
 			write "Changement de matériau : "+materials.keys[current_material];
-		}
-		
+		}	
 		old_id_matrix <- copy(id_matrix);
 		old_rot_matrix <- copy(rot_matrix);
 	}
@@ -305,11 +309,12 @@ species transport{
 	string status <- "init" among: ["init","transport","end"];
 	int timer <- 0;
 	string type;
-	int creation_time;
+	int max_timer;
 	path the_path;
 	list<point> path_points;
 	point po;
 	point pd;
+	
 	
 	action compute_path{
 		point origin_location <- origin=nil?the_stock.location:origin.location;
@@ -321,13 +326,14 @@ species transport{
 		loop r over: the_path.edges-first(the_path.edges){
 			path_points << first(r.points-last(path_points));
 		}
+		max_timer <- max(transport_update_time,length(the_path.edges)*transport_cycles_per_segment);
 	}
 	
 	reflex update {
 		timer <- timer+1;
 	}
 	
-	reflex start_transport when: status="init" and timer = transport_time{
+	reflex start_transport when: status="init" and timer = max_timer{
 		if origin !=nil {
 			origin.materials_stock[type] <- origin.materials_stock[type] - 1;
 			origin.transports >> self;
@@ -343,7 +349,7 @@ species transport{
 		timer <- 0;
 	}
 	
-	reflex close when: status="end" and timer = transport_time{
+	reflex close when: status="end" and timer = max_timer{
 		if destination !=nil {
 			destination.materials_stock[type] <- destination.materials_stock[type] + 1;
 			destination.transports >> self;
@@ -364,24 +370,23 @@ species transport{
 //		draw circle(20) at: po color: #green;
 //		draw circle(20) at: pd color: #red;
 		if type = materials.keys[current_material]{
-//			loop e over: the_path.edges {
-//				draw e+line_width color: materials[type];
-//			}
-
-	//		draw the_path.edges collect(each.points) +line_width color: materials[type];
-			draw line(path_points)+line_width color: materials[type];
 			switch status{
 				match "init"{
-					draw first(the_path.edges)+line_width color: blend(#white,materials[type], timer/transport_time);
+					draw line(first(1+int(floor(timer/transport_cycles_per_segment)),path_points))+line_width color: materials[type];
 				}
 				match "end"{
-					draw last(the_path.edges)+line_width color: blend(materials[type],#white, timer/transport_time);
+					draw line(last(int(floor((max_timer-timer)/transport_cycles_per_segment)),path_points))+line_width color: materials[type];		
 				}	
 				match "transport"{
-					draw the_path.edges[timer]+line_width color: #white;
+					draw line(path_points)+line_width color: materials[type];
+					draw the_path.edges[mod(timer,length(the_path.edges))]+line_width color: rgb(200,200,200);
 				}		
 			} 
 		}	
+		if show_all_materials and type != materials.keys[current_material]{
+			int offset <- 1+index_of(materials.keys-materials.keys[current_material],type);
+			draw line(path_points collect (each+{2,2}+{1,1}*(line_width)*offset)) color: materials[type];
+		}
 	}
 }
 
@@ -395,6 +400,7 @@ grid cell width: grid_width height: grid_height {
 	map<string,int> materials_stock;
 	map<string,int> max_materials_stock;
 	list<transport> transports <- [];
+	int transport_cooldown <- world.transport_cooldown;
 
 	list<point> exits <- [];
 	string status <- "idle" among: ["idle", "destruction", "construction"];
@@ -410,39 +416,42 @@ grid cell width: grid_width height: grid_height {
 	}
 	
 	reflex when: status= "construction"{
+		if transport_cooldown >0{
+			transport_cooldown <- transport_cooldown - 1;
+		}else{
 			loop m over: materials.keys{
-			if (materials_stock[m]+material_flow(m)<max_materials_stock[m]) and flip(0.2){
-				create transport{
-					destination <- myself;
-					creation_time <- cycle;
-					myself.transports << self;
-					type <- m;
-					list<cell> possible_sources <-[];
-					loop c over: cell{
-						if (c.materials_stock[m]+c.material_flow(m) > c.max_materials_stock[m]){
-							possible_sources << c;
+				if (materials_stock[m]+material_flow(m)<max_materials_stock[m]) and flip(0.2){
+					transport_cooldown <- world.transport_cooldown;
+					create transport{
+						destination <- myself;
+						myself.transports << self;
+						type <- m;
+						list<cell> possible_sources <-[];
+						loop c over: cell{
+							if (c.materials_stock[m]+c.material_flow(m) > c.max_materials_stock[m]){
+								possible_sources << c;
+							}
+						}		
+					//	list<cell> possible_dest <- cell where (each.materials_stock[m]+each.material_flow(m) < each.max_materials_stock[m]);
+					//	list<cell> possible_dest <- cell where (each.materials_stock[m]< each.max_materials_stock[m]);
+					//	write "dests "+possible_dest;
+						
+						if !empty(possible_sources-myself) and flip(recycle_probability){
+							try{
+							origin <- possible_sources closest_to myself;
+							origin.transports << self;
+							}catch{
+								write "erreur";
+								write int(myself);
+								write "set: "+possible_sources;
+								write "destination: "+destination;
+							}
 						}
-					}		
-				//	list<cell> possible_dest <- cell where (each.materials_stock[m]+each.material_flow(m) < each.max_materials_stock[m]);
-				//	list<cell> possible_dest <- cell where (each.materials_stock[m]< each.max_materials_stock[m]);
-				//	write "dests "+possible_dest;
-					
-					if !empty(possible_sources-myself) and flip(recycle_probability){
-						try{
-						origin <- possible_sources closest_to myself;
-						origin.transports << self;
-						}catch{
-							write "erreur";
-							write int(myself);
-							write "set: "+possible_sources;
-							write "destination: "+destination;
-						}
+						do compute_path;
+	
 					}
-					do compute_path;
-
-				}
+				}	
 			}
-			
 		}
 	}
 	
@@ -452,42 +461,47 @@ grid cell width: grid_width height: grid_height {
 		max_materials_stock <- copy(world.get_buildings_info(type).materials_use);
 	}
 	
-	reflex destruct when: status = "destruction" and pop=0{
-		loop m over: materials.keys{
-			if (materials_stock[m]+material_flow(m)>0) and flip(0.2){
-				create transport{
-					//write 	myself.materials_stock[m]+myself.material_flow(m);
-					origin <- myself;
-					creation_time <- cycle;
-					myself.transports << self;
-					type <- m;
-					list<cell> possible_dest <-[];
-					loop c over: cell{
-						if (c.materials_stock[m]+c.material_flow(m) < c.max_materials_stock[m]){
-							possible_dest << c;
+	reflex destruct when: status = "destruction" and pop=0 {
+		if transport_cooldown >0{
+			transport_cooldown <- transport_cooldown - 1;
+		}else{
+			loop m over: materials.keys{
+				if (materials_stock[m]+material_flow(m)>0) and flip(0.2){
+			//	if (materials_stock[m]+material_flow(m)>0) {
+					transport_cooldown <- world.transport_cooldown;
+					create transport{
+						//write 	myself.materials_stock[m]+myself.material_flow(m);
+						origin <- myself;
+						myself.transports << self;
+						type <- m;
+						list<cell> possible_dest <-[];
+						loop c over: cell{
+							if (c.materials_stock[m]+c.material_flow(m) < c.max_materials_stock[m]){
+								possible_dest << c;
+							}
+						}		
+					//	list<cell> possible_dest <- cell where (each.materials_stock[m]+each.material_flow(m) < each.max_materials_stock[m]);
+					//	list<cell> possible_dest <- cell where (each.materials_stock[m]< each.max_materials_stock[m]);
+					//	write "dests "+possible_dest;
+						
+						if !empty(possible_dest-myself) and flip(recycle_probability){
+							try{
+							destination <- possible_dest closest_to myself;
+							destination.transports << self;
+							}catch{
+								write "erreur";
+								write int(myself);
+								write "set: "+possible_dest;
+								write "destination: "+destination;
+							}
 						}
-					}		
-				//	list<cell> possible_dest <- cell where (each.materials_stock[m]+each.material_flow(m) < each.max_materials_stock[m]);
-				//	list<cell> possible_dest <- cell where (each.materials_stock[m]< each.max_materials_stock[m]);
-				//	write "dests "+possible_dest;
-					
-					if !empty(possible_dest-myself) and flip(recycle_probability){
-						try{
-						destination <- possible_dest closest_to myself;
-						destination.transports << self;
-						}catch{
-							write "erreur";
-							write int(myself);
-							write "set: "+possible_dest;
-							write "destination: "+destination;
-						}
+						do compute_path;
+	
 					}
-					do compute_path;
-
 				}
 			}
-			
 		}
+
 	}
 	
 	reflex elapse_time when: time_counter > 0{
@@ -568,7 +582,7 @@ grid cell width: grid_width height: grid_height {
 			float y_offset <- 80.0;
 			//int i <- 0;
 			loop i from: 0 to: length(materials.keys) - 1{
-				draw ""+materials_stock[materials.keys[i]]  color:materials.values[i] font:font("SansSerif", 10, #bold) at: location + {30,-80.0+i*y_offset,0};
+				draw ""+materials_stock[materials.keys[i]]  color:materials.values[i] font:font("SansSerif", 10, #bold) at: location + {100,-80.0+i*y_offset,0};
 				i <- i+1;
 			}
 //			loop i from: 0 to: length(materials.keys) - 1{
@@ -751,15 +765,16 @@ species NetworkingAgent skills:[network] {
 }
 
 
-experiment ReUse type: gui autorun: true{
+experiment Screen type: gui autorun: true{
 	float minimum_cycle_duration <- 0.05;
+	parameter "Show all materials" var: show_all_materials;
 	output {
 		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:java2D  draw_env:false {
 		species transport transparency: 0.6;
 	  	species cell aspect: default;// refresh: on_modification_cells;
 	  	species legend aspect: default;
 //	  	species road aspect: default;
-	  	species people aspect: default;
+	//  	species people aspect: default;
 	  	species stock aspect: default;
 
 			
@@ -777,7 +792,7 @@ experiment ReUse type: gui autorun: true{
 	}
 }
 
-experiment cityScienceTableGCCV type: gui autorun: true{
+experiment Table type: gui autorun: true{
 	float minimum_cycle_duration <- 0.05;
 	output {
 		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:1 
