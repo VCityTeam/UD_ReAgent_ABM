@@ -219,6 +219,7 @@ global{
 					if id_matrix[j,i] = -1 {id_matrix[j,i]<-0;}	
 					string type <- buildings_info[id_matrix[j,i]].type;
 					cell[j,i].type <- type;
+					cell[j,i].old_type <- type;
 					cell[j,i].pop <- get_buildings_info(type).pop;
 					cell[j,i].max_pop <- get_buildings_info(type).pop;
 					cell[j,i].materials_stock <- copy(get_buildings_info(type).materials_use);
@@ -376,6 +377,7 @@ species transport{
 
 grid cell width: grid_width height: grid_height { 
 	string type;
+	string old_type;
 	string next_type;
 	int pop;
 	int max_pop;
@@ -532,6 +534,7 @@ grid cell width: grid_width height: grid_height {
 			match "idle"{
 				if type != t{
 					next_type <- t;
+					old_type <- type;
 					status <- "destruction";
 					max_pop <- 0;
 					max_materials_stock <- copy(null_map);
