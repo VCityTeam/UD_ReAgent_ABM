@@ -796,13 +796,13 @@ experiment Table type: gui autorun: true{
 	float minimum_cycle_duration <- 0.05;
 	output {
 		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:1 
-		keystone: [{0.06523620510074757,0.0648083320477677,0.0},{0.04029295020928528,0.876614906293673,0.0},{1.0,0.8155455164794305,0.0},{0.9357231508566163,0.03614310825740896,0.0}]
+		keystone: [{0.019187119147278664,0.10842932477222667,0.0},{-0.03837423829455741,0.9626105776647494,0.0},{0.9894470844689967,0.9401769242635991,0.0},{0.925170235325613,0.09098092768244315,0.0}]
 		{
 		species transport transparency: 0.6;
 	  	species cell aspect: default;// refresh: on_modification_cells;
 	  	species legend aspect: reverse;
 //	  	species road aspect: default;
-	  	species people aspect: default;
+	  	//species people aspect: default;
 	  	species stock aspect: default;
 	   
 		}	
