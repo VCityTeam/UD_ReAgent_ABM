@@ -5,7 +5,7 @@
 * Tags: Tag1, Tag2, TagN
 ***/
 
-model Urbam
+model ReUse
 	
 
 //import "common model.gaml"
@@ -18,6 +18,7 @@ global{
 	int nb_rand_changes <- 4;
 	float proba_change_mat <- 0.0;
 	bool show_all_materials <- false;
+	int subdivide_lines <- 1;
 		
 	//SIM PARAMETERS
 	int people_change_per_step <- 1;
@@ -27,9 +28,9 @@ global{
 	float material_flow_per_cycle <- 0.1;
 	float recycle_probability <- 0.9;
 	int transport_cooldown <- 30;
-	int transport_update_time <- 40;
-	int transport_time <- 40;
-	int transport_cycles_per_segment <- 2;
+	int transport_init_or_end_time <- 40;
+	int transport_time <- 70;
+	int transport_cycles_per_segment <- 3;
 	float line_width <- 20.0;
 	float cell_scale_factor <- 0.5;
 	
@@ -90,8 +91,6 @@ global{
 	string url <- "localhost";
 	
 	init {
-		
-		
 		cityIOUrl <- "https://cityio.media.mit.edu/api/table/urbam";
 		if(udpScannerReader){
 			create NetworkingAgent number: 1 {
@@ -128,11 +127,9 @@ global{
 			}
 		}
 		exits <- (lines accumulate(each.points)) where (each.x = 0 or each.y=0 or each.x = environment_width or each.y=environment_height) ;
-		//list<geometry> lines2 <- split_lines(lines) accumulate (split_line_in(each,2));
 		ask cell{
 			exits <- lines accumulate(each.points) where (sqrt((self.location.x-each.location.x)^2+(self.location.y-each.location.y)^2) < cell_w/2);
 		}
-		//list<geometry> lines3 <-[];
 		float x_offset <- scale/2*cell_w;
 		float y_offset <- scale/2*cell_h;
 		loop i from: 1 to: 2*(grid_width) {
@@ -145,10 +142,9 @@ global{
 				}
 			}
 		}
-		
-		
-		//create road from: lines2+lines3;
-		create road from: split_lines(lines);
+		//lines <- split_lines(lines);
+		lines <- split_lines(lines) accumulate (split_line_in(each,subdivide_lines));
+		create road from: lines;
 		the_graph <- as_edge_graph(road);
 	}
 	
@@ -194,11 +190,20 @@ global{
 		}
 	}
 	
-//	list<geometry> split_line_in(geometry l, int i){
-//		point p1 <- l.points[0];
-//		point p2 <- l.points[1];
-//		return [line([p1,(p1+p2)/2]),line([p2,(p1+p2)/2])];
-//	}
+	list<geometry> split_line_in(geometry l, int i){
+		point p1 <- l.points[0];
+		point p2 <- l.points[1];
+		if i<1{
+			write "Warning, trying to split lines in "+i+" parts. Doing nothing...";
+			return [l];
+		}else{
+			list<geometry> res <- [line([p1,p1+(p2-p1)/i])];
+			loop j from: 1 to: i-1 step: 1{
+				res << line([p1+(p2-p1)*j/i,p1+(p2-p1)*(j+1)/i]);
+			}
+			return res;
+		}
+	}
 	
 	buildings_info get_buildings_info(string s){
 		return first(buildings_info where (each.type = s));
@@ -303,18 +308,17 @@ species buildings_info {
 	map<string,int> materials_use <- [];
 }
 
-species transport{
+species transport control: fsm{
 	cell origin <- nil;
 	cell destination <- nil;
-	string status <- "init" among: ["init","transport","end"];
 	int timer <- 0;
 	string type;
 	int max_timer;
+	int max_timer_transporting;
 	path the_path;
 	list<point> path_points;
 	point po;
 	point pd;
-	
 	
 	action compute_path{
 		point origin_location <- origin=nil?the_stock.location:origin.location;
@@ -326,60 +330,74 @@ species transport{
 		loop r over: the_path.edges-first(the_path.edges){
 			path_points << first(r.points-last(path_points));
 		}
-		max_timer <- max(transport_update_time,length(the_path.edges)*transport_cycles_per_segment);
+		max_timer <- max(transport_init_or_end_time,length(the_path.edges)*transport_cycles_per_segment);
+		max_timer_transporting <- max(transport_time,length(the_path.edges));
 	}
 	
-	reflex update {
+	state init initial: true{
+		enter{
+			timer <- 0;
+		}
+		
 		timer <- timer+1;
-	}
-	
-	reflex start_transport when: status="init" and timer = max_timer{
-		if origin !=nil {
-			origin.materials_stock[type] <- origin.materials_stock[type] - 1;
-			origin.transports >> self;
-		}else{
-			put the_stock.materials_in[type]+1 at: type in: the_stock.materials_in;
-		}
-		status <- "transport";
-		timer <- 0;
-	}
-	
-	reflex end_transport when: status="transport" and timer = length(the_path.edges){
-		status <- "end";
-		timer <- 0;
-	}
-	
-	reflex close when: status="end" and timer = max_timer{
-		if destination !=nil {
-			destination.materials_stock[type] <- destination.materials_stock[type] + 1;
-			destination.transports >> self;
-			if origin != nil {
-				put the_stock.materials_recycle[type]+1 at: type in: the_stock.materials_recycle;
+		
+		transition to: transporting when: timer >= max_timer;
+		
+		exit{
+			if origin !=nil {
+				origin.materials_stock[type] <- origin.materials_stock[type] - 1;
+				origin.transports >> self;
+			}else{
+				put the_stock.materials_in[type]+1 at: type in: the_stock.materials_in;
 			}
-		}else{
-			put the_stock.materials_out[type]+1 at: type in: the_stock.materials_out;
 		}
-		do die;
 	}
+	
+	state transporting{
+		enter{
+			timer <- 0;
+		}
+		
+		timer <- timer+1;
+		
+		transition to: closing when: timer = max_timer_transporting;
+	}
+	
+	state closing{
+		enter{
+			timer <- 0;
+		}
+		
+		timer <- timer + 1;
+		
+		if timer = max_timer{
+			if destination !=nil {
+				destination.materials_stock[type] <- destination.materials_stock[type] + 1;
+				destination.transports >> self;
+				if origin != nil {
+					put the_stock.materials_recycle[type]+1 at: type in: the_stock.materials_recycle;
+				}
+			}else{
+				put the_stock.materials_out[type]+1 at: type in: the_stock.materials_out;
+			}
+			do die;
+		}
+	}
+
 	
 	
 	aspect default{
-//		point p1 <- origin=nil?first(stock).location:origin.location;
-//		point p2 <- destination=nil?first(stock).location:destination.location;
-//		draw line([p1,p2]) color: materials[type];
-//		draw circle(20) at: po color: #green;
-//		draw circle(20) at: pd color: #red;
 		if type = materials.keys[current_material]{
-			switch status{
+			switch state{
 				match "init"{
 					draw line(first(1+int(floor(timer/transport_cycles_per_segment)),path_points))+line_width color: materials[type];
 				}
-				match "end"{
+				match "closing"{
 					draw line(last(int(floor((max_timer-timer)/transport_cycles_per_segment)),path_points))+line_width color: materials[type];		
 				}	
-				match "transport"{
+				match "transporting"{
 					draw line(path_points)+line_width color: materials[type];
-					draw the_path.edges[mod(timer,length(the_path.edges))]+line_width color: rgb(200,200,200);
+					draw the_path.edges[mod(timer,length(the_path.edges))]+line_width color: rgb(150,150,150);
 				}		
 			} 
 		}	
@@ -391,7 +409,7 @@ species transport{
 }
 
 
-grid cell width: grid_width height: grid_height { 
+grid cell width: grid_width height: grid_height control: fsm{ 
 	string type;
 	string old_type;
 	int pop;
@@ -432,10 +450,6 @@ grid cell width: grid_width height: grid_height {
 								possible_sources << c;
 							}
 						}		
-					//	list<cell> possible_dest <- cell where (each.materials_stock[m]+each.material_flow(m) < each.max_materials_stock[m]);
-					//	list<cell> possible_dest <- cell where (each.materials_stock[m]< each.max_materials_stock[m]);
-					//	write "dests "+possible_dest;
-						
 						if !empty(possible_sources-myself) and flip(recycle_probability){
 							try{
 							origin <- possible_sources closest_to myself;
@@ -467,10 +481,8 @@ grid cell width: grid_width height: grid_height {
 		}else{
 			loop m over: materials.keys{
 				if (materials_stock[m]+material_flow(m)>0) and flip(0.2){
-			//	if (materials_stock[m]+material_flow(m)>0) {
 					transport_cooldown <- world.transport_cooldown;
 					create transport{
-						//write 	myself.materials_stock[m]+myself.material_flow(m);
 						origin <- myself;
 						myself.transports << self;
 						type <- m;
@@ -480,10 +492,6 @@ grid cell width: grid_width height: grid_height {
 								possible_dest << c;
 							}
 						}		
-					//	list<cell> possible_dest <- cell where (each.materials_stock[m]+each.material_flow(m) < each.max_materials_stock[m]);
-					//	list<cell> possible_dest <- cell where (each.materials_stock[m]< each.max_materials_stock[m]);
-					//	write "dests "+possible_dest;
-						
 						if !empty(possible_dest-myself) and flip(recycle_probability){
 							try{
 							destination <- possible_dest closest_to myself;
@@ -654,6 +662,8 @@ species people skills: [moving]{
 species road{	
 	aspect default{
 		draw shape color: #red;
+		draw circle(10) color: #yellow at: first(shape.points);
+		draw circle(10) color: #yellow at: last(shape.points);
 	}
 }
 
@@ -666,7 +676,7 @@ species stock{
 	map<string,int> materials_recycle <- copy(null_map);
 	
 	aspect default{
-		//draw circle(50) color: #purple at: location;
+		draw circle(50) color: #purple at: location;
 	}
 }
 
@@ -770,23 +780,12 @@ experiment Screen type: gui autorun: true{
 	parameter "Show all materials" var: show_all_materials;
 	output {
 		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:java2D  draw_env:false {
-		species transport transparency: 0.6;
-	  	species cell aspect: default;// refresh: on_modification_cells;
-	  	species legend aspect: default;
-//	  	species road aspect: default;
-	//  	species people aspect: default;
-	  	species stock aspect: default;
-
-			
-			/*graphics "landuse" {
-					point hpos <- {world.shape.width * 1.1, world.shape.height * 1.1};
-					float barH <- world.shape.width * 0.01;
-					float factor <-  world.shape.width * 0.1;
-					loop i from:0 to:length(color_per_id)-1{
-						draw square(world.shape.width*0.02) empty:false color: color_per_id.values[i] at: {i*world.shape.width*0.175+world.shape.width*0.05, 75};
-						draw fivefoods[i] color: color_per_id.values[i] at: {i*world.shape.width*0.175+world.shape.width*0.025+world.shape.width*0.05, 100} perspective: true font:font("Helvetica", 20 , #bold);
-					}
-			}*/
+			species transport transparency: 0.6;
+	  		species cell aspect: default;// refresh: on_modification_cells;
+	  		species legend aspect: default;
+//	  		species road aspect: default;
+//  		species people aspect: default;
+//	  		species stock aspect: default;
 		}
 				
 	}
@@ -798,25 +797,22 @@ experiment Table type: gui autorun: true{
 		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:1 
 		keystone: [{0.019187119147278664,0.10842932477222667,0.0},{-0.03837423829455741,0.9626105776647494,0.0},{0.9894470844689967,0.9401769242635991,0.0},{0.925170235325613,0.09098092768244315,0.0}]
 		{
-		species transport transparency: 0.6;
-	  	species cell aspect: default;// refresh: on_modification_cells;
-	  	species legend aspect: reverse;
-//	  	species road aspect: default;
-	  	//species people aspect: default;
-	  	species stock aspect: default;
-	   
+			species transport transparency: 0.6;
+	  		species cell aspect: default;// refresh: on_modification_cells;
+	  		species legend aspect: reverse;
+//	  		species road aspect: default;
+	  		species people aspect: default;
+//	  		species stock aspect: default;	   
 		}	
 		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 rotate:90
 		camera_location: {-996.391,7152.6832,5502.6118} camera_target: {2365.0787,2691.8624,-281.1955} camera_orientation: {0.4329,0.5745,0.6947}
 		{
-		species transport transparency: 0.6;
-	  	species cell aspect: default3D transparency:0.5;// refresh: on_modification_cells;
-	  	species legend aspect: map3D;
-//	  	species road aspect: default;
-	  	species people aspect: default;
-	  	species stock aspect: default;
-	   
-			
+			species transport transparency: 0.6;
+		  	species cell aspect: default3D transparency:0.5;// refresh: on_modification_cells;
+	  		species legend aspect: map3D;
+//	  		species road aspect: default;
+	  		species people aspect: default;
+//	  		species stock aspect: default;
 		}	
 	}
 }
