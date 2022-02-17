@@ -72,10 +72,8 @@ global control: fsm{
 	map<string,int> null_map <- [];
 	matrix<int> id_matrix <- matrix_with({grid_height,grid_width},0);
 	matrix<int> old_id_matrix <- matrix_with({grid_height,grid_width},0);
-	matrix<int> idle_id_matrix <- matrix_with({grid_height,grid_width},0);
 	matrix<int> rot_matrix <- matrix_with({grid_height,grid_width},0);
 	matrix<int> old_rot_matrix <- matrix_with({grid_height,grid_width},0);
-	matrix<int> idle_rot_matrix <- matrix_with({grid_height,grid_width},0);
 	list<point> exits <- [];
 	graph the_graph;
 	stock the_stock;
@@ -229,6 +227,7 @@ global control: fsm{
 	
 	
 	reflex gridInit when: init_map{
+   		int id;
    		if mode='auto'{
    			loop i from: 0 to: grid_width-1 {
 				loop j from: 0 to: grid_height-1 {
@@ -265,52 +264,7 @@ global control: fsm{
 		
 	}
 	
-	
-	reflex randomGridUpdateAuto when: mode = 'auto' and !init_map and !editionMode and !load_grid_file_from_cityIO and every(random_step#cycle){
-		do randomGridUpdate;
-//		loop times: rnd(nb_rand_changes) {
-//			int i <- rnd(grid_height-1);
-//			int j <- rnd(grid_width-1);
-//			id_matrix[i,j] <- rnd(nb_ids-1);
-//		}
-//		if flip(proba_change_mat){
-//			int i <- rnd(grid_height-1);
-//			int j <- rnd(grid_width-1);
-//			rot_matrix[i,j] <- mod(rot_matrix[i,j]+1,3);
-//		}
-//		do gridUpdate;
-	} 
-	
-	reflex gridUpdateInteractive when: mode = 'interactive' and !init_map and !editionMode and !load_grid_file_from_cityIO and every(scan_step#cycle){
-			do gridUpdate;
-	} 
-	
-	reflex gridUpdateExhibitionActive when: mode = 'exhibition' and !idle and !init_map and !editionMode and !load_grid_file_from_cityIO and every(scan_step#cycle){
-		if first(NetworkingAgent).has_changed = false {
-			idle_time_counter <- idle_time_counter + scan_step;
-			if idle_time_counter > max_idle_time{
-				idle <- true;
-			}
-		} else{
-			idle_time_counter <- 0;
-			do gridUpdate;
-		}
-	} 
-	
-	reflex gridUpdateExhibitionIdle when: mode = 'exhibition' and idle and !init_map and !editionMode and !load_grid_file_from_cityIO and every(random_step#cycle){
-		if first(NetworkingAgent).has_changed {
-			idle <- false;
-			idle_time_counter <- 0;
-			do gridUpdate;
-		} else{
-			do randomGridUpdate;
-		}
-		
-	} 
-	
-	
-	
-	action randomGridUpdate {
+	reflex randomGridUpdate when: (mode = 'interactive' or (mode = 'exhibition' and idle)) and !init_map and !editionMode and !load_grid_file_from_cityIO and every(random_step#cycle){
 		//do randomGrid;
 		loop times: rnd(nb_rand_changes) {
 			int i <- rnd(grid_height-1);
@@ -324,22 +278,35 @@ global control: fsm{
 		}
 		do gridUpdate;
 	} 
-
+	
+	reflex scanGrid when: mode != 'auto' and !init_map and !editionMode and !load_grid_file_from_cityIO and every(scan_step#cycle){
+		if mode = 'exhibition'{
+			idle_time_counter <- idle_time_counter + scan_step;
+		}
+		do gridUpdate;
+	} 
 	
 	action gridUpdate{	
+		bool has_been_updated <- false;
 		loop i from: 0 to: grid_height-1{
 			loop j from: 0 to: grid_width-1{
 				if id_matrix[i,j] != old_id_matrix[i,j] {
 					ask cell[i,j] {do changeTo(buildings_info[id_matrix[j,i]].type);}
+					has_been_updated <- true;
 				}
 			}
 		}	
 		if old_rot_matrix!=rot_matrix{
 			current_material <- mod(current_material+1,length(materials.keys));
+			has_been_updated <- true;
 			write "Changement de matériau : "+materials.keys[current_material];
 		}	
 		old_id_matrix <- copy(id_matrix);
 		old_rot_matrix <- copy(rot_matrix);
+		if has_been_updated and idle_time_counter > max_idle_time{
+			idle_time_counter <- 0;
+			
+		}
 	}
 		
 }
@@ -786,7 +753,6 @@ species legend {
 species NetworkingAgent skills:[network] {
 	string type;
 	string previousMess <-"";
-	bool has_changed <- true;
 	
 	reflex update_landuse when: type = "scanner"{
 		do read_scanner;
@@ -798,16 +764,21 @@ species NetworkingAgent skills:[network] {
 		    
 		    if (length(mailbox) > 0) {
 				message mes <- fetch_message();	
-	 			string m <- string(mes.contents);	
-	 			if m = previousMess{
-					has_changed <- true;
-				}else{
-					previousMess <- m;
-					has_changed <- false;
-				} 			
+	 			string m <- string(mes.contents);	 			
 	 			int nbcols<-8;
 	 			int nbrows<-8;
 	 			
+/* 	 			loop i from:0 to:nbrows-1{
+	 				loop j from:0 to: nbcols-1{
+	 					if (m at (i*(2*nbcols-1)*4+4*j) = 'x'){
+	 					  id_matrix[j,i]<-old_id_matrix[j,i];
+	 					  rot_matrix[j,i]<-old_rot_matrix[j,i];	
+	 					}else{
+	 					  id_matrix[j,i]<-int(m at (i*(2*nbcols-1)*4+4*j));
+	 					  rot_matrix[j,i]<-int(m at (i*(2*nbcols-1)*4+4*j+1));
+	 					 }
+	 				} 						
+	 			}*/
 	 			loop i from:0 to:nbrows-1{
 	 				loop j from:0 to: nbcols-1{
 	 					int i2 <- reverse?nbrows-1-i:i;
