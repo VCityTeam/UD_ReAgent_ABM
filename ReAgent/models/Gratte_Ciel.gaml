@@ -126,7 +126,7 @@ experiment GratteCiel type: gui {
 
 	
 	output {
-		display city_display type: opengl background:backgroundColor{
+		display city_display type: opengl background:backgroundColor fullscreen:1 rotate:90{
 			species amenities aspect: base visible:show_amenity;
 			species building aspect: base visible:show_building;
 			species leisure aspect: base visible: show_leisure;
