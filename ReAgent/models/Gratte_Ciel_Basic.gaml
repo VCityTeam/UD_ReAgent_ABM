@@ -15,9 +15,9 @@ import 'TUI.gaml'
 global {
 	string useCase<-"GratteCiel";
 
-	file shape_file_buildings <- file("../includes/"+useCase+"/Data/Data_cc46/New_Buildings_500_1000_3946.geojson");
-	file shape_file_roads <- file("../includes/"+useCase+"/Data/Data_cc46/Roads_500_1000_3946.geojson");
-	file shape_file_bounds <- file("../includes/"+useCase+"/Data/Data_cc46/Bounds_3946.geojson");
+	file shape_file_buildings <- file("../includes/"+useCase+"/Data_cc46/New_Buildings_500_1000_3946.geojson");
+	file shape_file_roads <- file("../includes/"+useCase+"/Data_cc46/Roads_500_1000_3946.geojson");
+	file shape_file_bounds <- file("../includes/"+useCase+"/Data_cc46/Bounds_3946.geojson");
 	geometry shape <- envelope(shape_file_buildings);
 	graph the_graph;
 
