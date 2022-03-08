@@ -28,10 +28,10 @@ global {
 	//UI
 	bool show_building<-true;
 	bool show_road<-true;
-	bool show_legend<-false;
+	bool show_legend<-true;
 	bool show_wireframe<-false;
 	rgb backgroundColor<-#white;
-	rgb textcolor<- (backgroundColor = #white) ? #black : #white;
+	rgb textcolor<- (backgroundColor = #white) ? #white : #black;
 	
 	init {
 		create building from: shape_file_buildings;
@@ -73,6 +73,11 @@ global {
 			size<-125#m;
 			nbCells<-8;
 			location<-{world.shape.width/1.8,world.shape.height/4+25#m};
+		}
+		
+		create legend{
+			location<-{world.shape.width*0.15, world.shape.height*0.85};
+			shape<-shape rotated_by 90;
 		}
 	}
 	}
@@ -132,6 +137,21 @@ species materials skills:[moving] {
 	}
 }
 
+species legend{
+	
+	aspect base{
+		float x<-location.x;
+		float y<-location.y;
+		loop type over: standard_color_per_type.keys
+		{
+			draw square(10#px) at: { x - 20#px, y } color: standard_color_per_type[type] border: #black;
+			draw type at: { x, y + 4#px} color: textcolor font: font("Helvetica", 16, #plain) perspective:true;
+			y <- y + 25#px;
+		}
+		//draw rectangle(150#m,300#m) color:#white border:#black at:{location.x,location.y,location.z-0.1};
+	}
+}
+
 
 
 
@@ -147,17 +167,18 @@ experiment GratteCielTable type: gui {
 			species road aspect: base visible:show_road;
 			species people aspect: base ;
 			species materials aspect: base ;
-			species TUI aspect:base refresh:false;		
+			species TUI aspect:base refresh:false;	
+			//species legend aspect: base position:{0,0,0.01};	
 			event["b"] {show_building<-!show_building;}
 			event["r"] {show_road<-!show_road;}
 			event["w"] {show_wireframe<-!show_wireframe;}
 					
-			overlay position: { 0 , 0 } size: { 0 #px, 0 #px } background: backgroundColor  transparency:0.0 border: backgroundColor rounded: true
+			overlay position: { 2500#px, 800#px } size: { 900 #px, 300 #px } background: #black  rounded: true
             {
             	if(show_legend){
             		
-					float y <- 100#px;
-					float x<- 100#px;
+					float y <- 50#px;
+					float x<- 50#px;
 					
 					draw "Type" at: { x, y } color: textcolor font: font("Helvetica", 20, #bold);
 					y <- y + 30 #px;
