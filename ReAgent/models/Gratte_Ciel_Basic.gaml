@@ -191,11 +191,12 @@ species legend{
 
 
 
-experiment GratteCielTable type: gui {
+experiment GratteCielErasme type: gui autorun:true{
 
 	
 	output {
-		display city_display type: opengl background:backgroundColor rotate:90 fullscreen:true 
+		display city_display type: opengl background:backgroundColor rotate:90 fullscreen:1 synchronized:false 
+		camera_location: {273.4481,501.1178,812.104} camera_target: {272.953,486.9384,0.0889} camera_orientation: {-0.0349,0.9992,0.0175}
 		{
 			species building aspect: base visible:show_building;
 			species projet aspect: base visible:show_projet;
@@ -203,7 +204,7 @@ experiment GratteCielTable type: gui {
 			species road aspect: base visible:show_road;
 			species people aspect: base visible:show_human;
 			species materials aspect: base visible:show_material;
-			species TUI aspect:base visible:show_TUI;	
+			//species TUI aspect:base refresh:false visible:show_TUI;	
 			event["b"] {show_building<-!show_building;}
 			event["p"] {show_projet<-!show_projet;}
 			event["e"] {show_existant<-!show_existant;}
@@ -213,62 +214,64 @@ experiment GratteCielTable type: gui {
 			event["t"] {show_TUI<-!show_TUI;}
 			event["w"] {show_wireframe<-!show_wireframe;}
 					
-			overlay position: { 2500#px, 800#px } size: { 900 #px, 300 #px } background: #black  rounded: true
+			overlay position: { 1500#px, 900#px } size: { 600 #px, 300 #px } background: #black  rounded: true
             {
             	if(show_legend){
             		
 					float y <- 50#px;
 					float x<- 50#px;
+					float textSize<-30.0;
+					float gapBetweenColum<-150#px;
 					
-					draw "Phase" at: { x, y } color: textcolor font: font("Helvetica", 20, #bold);
+					draw "Phase" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
 					y <- y + 30 #px;
 					loop phase over: project_color_per_phase.keys
 					{
 					    draw square(10#px) at: { x - 20#px, y } color: project_color_per_phase[phase] border: #white;
-					    draw string(phase) at: { x, y + 4#px } color: textcolor font: font("Helvetica", 16, #plain);
+					    draw string(phase) at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					    y <- y + 25#px;
 					}
 					
 					
 					y <- 50#px;
-					x<- 150#px;
+					x<- x+gapBetweenColum;
 					
-					draw "Agent" at: { x, y } color: textcolor font: font("Helvetica", 20, #bold);
+					draw "Agent" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
 					y <- y + 30 #px;
 			
 					draw circle(5#px) at: { x - 20#px, y } color: #white border: #white;
-					draw "people" at: { x, y + 4#px } color: textcolor font: font("Helvetica", 16, #plain);
+					draw "people" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
 					draw square(10#px) at: { x - 20#px, y } color: #white border: #white;
-					draw "materials" at: { x, y + 4#px } color: textcolor font: font("Helvetica", 16, #plain);
+					draw "materials" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					
 					y <- 50#px;
-					x<- 250#px;
+					x<- x+gapBetweenColum;
 					
-					draw "Keys" at: { x, y } color: textcolor font: font("Helvetica", 20, #bold);
+					draw "Keys" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
 					y <- y + 30 #px;
 			
 					
-					draw "(h)uman (" + show_human + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", 16, #plain);
+					draw "(h)uman (" + show_human + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(m)aterial (" + show_material + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", 16, #plain);
+					draw "(m)aterial (" + show_material + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(b)uilding (" + show_building + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", 16, #plain);
+					draw "(b)uilding (" + show_building + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(p)roject (" + show_projet + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", 16, #plain);
+					draw "(p)roject (" + show_projet + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(e)xistant (" + show_existant + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", 16, #plain);
+					draw "(e)xistant (" + show_existant + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(r)oad (" + show_road + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", 16, #plain);
+					draw "(r)oad (" + show_road + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(T)ui (" + show_TUI + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", 16, #plain);
+					draw "(T)ui (" + show_TUI + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 	
 				
