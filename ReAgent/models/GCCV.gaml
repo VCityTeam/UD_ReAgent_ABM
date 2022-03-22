@@ -8,9 +8,9 @@
 model tutorial_gis_city_traffic
 
 global {
-	file shape_file_bounds <- file("../includes/GratteCiel/Data_cc46/Emprise_500_1000.geojson");
-	file shape_file_buildings <- file("../includes/GratteCiel/Data_cc46/Buildings_3946.geojson");
-	file shape_file_roads <- file("../includes/GratteCiel/Data_cc46/Roads_3946.geojson");
+	file shape_file_bounds <- file("../includes/GratteCiel/Data/Data_cc46/Emprise_500_1000.geojson");
+	file shape_file_buildings <- file("../includes/GratteCiel/Data/Data_cc46/Buildings_3946.geojson");
+	file shape_file_roads <- file("../includes/GratteCiel/Data/Data_cc46/Roads_3946.geojson");
 	geometry shape <- envelope(shape_file_bounds);
 	float step <- 10 #sec;
 	date starting_date <- date("2019-09-01-00-00-00");
