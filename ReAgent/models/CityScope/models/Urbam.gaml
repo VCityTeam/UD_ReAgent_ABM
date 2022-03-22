@@ -540,25 +540,11 @@ species NetworkingAgent skills:[network] {
 
 
 
-experiment cityScienceTableGCCV_Debug type: gui autorun: true{
+experiment CityScopeTable type: gui autorun: true{
 	float minimum_cycle_duration <- 0.05;
 	output {
-		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false  
-		{
-	   species cell aspect:default;
-			species road ;
-			species people;
-			species building;
-		}		
-	}
-}
-
-
-experiment cityScienceTableGCCV type: gui autorun: true{
-	float minimum_cycle_duration <- 0.05;
-	output {
-		display map synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:1 
-		keystone: [{0.06523620510074757,0.0648083320477677,0.0},{0.04029295020928528,0.876614906293673,0.0},{1.0,0.8155455164794305,0.0},{0.9357231508566163,0.03614310825740896,0.0}]
+		display table synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:1 
+		keystone: [{0.020146475104642625,0.10718301069438496,0.0},{-0.029740034678281985,0.9850442310658998,0.0},{1.0028780678720919,0.9314527257187073,0.0},{0.9347637948992523,0.08724198544891815,0.0}]
 		{
 	   species cell aspect:default;// refresh: on_modification_cells;
 			//species road ;
@@ -615,8 +601,8 @@ experiment cityScienceTableGCCV type: gui autorun: true{
 			event["t"] action: {weight_pev<-weight_pev-0.1;}; 
 			event["y"] action: {weight_pev<-weight_pev+0.1;};
 		}	
-		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 rotate:90
-		camera_location: {-996.391,7152.6832,5502.6118} camera_target: {2365.0787,2691.8624,-281.1955} camera_orientation: {0.4329,0.5745,0.6947}
+		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 rotate:180
+		camera_location: {2500.0,7842.7613,3338.3981} camera_target: {2500.0,2500.0,0.0} camera_orientation: {0.0,0.5299,0.8481}
 		{
 	   species cell aspect:default;
 			species road ;
