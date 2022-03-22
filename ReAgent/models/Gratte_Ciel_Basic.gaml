@@ -20,10 +20,11 @@ global {
     file shape_file_existant <- file("../includes/"+useCase+"/Data_cc46/Existants.geojson");
 	file shape_file_roads <- file("../includes/"+useCase+"/Data_cc46/Roads_500_1000_3946.geojson");
 	file shape_file_bounds <- file("../includes/"+useCase+"/Data_cc46/Bounds_3946.geojson");
+	
+	image_file background_image <- image_file("../includes/"+useCase+"/images/heatmap.jpg");
 	geometry shape <- envelope(shape_file_buildings);
 	graph the_graph;
-
-	
+		
 	map<string,rgb> standard_color_per_type <- 
 	["road"::#gamablue,"building"::#gamared,"amenity"::#gamaorange,"shop"::#cyan, "leisure"::#darkcyan];
 	
@@ -36,13 +37,26 @@ global {
 	bool show_projet<-true;
 	bool show_existant<-true;
 	bool show_road<-true;
-	bool show_human<-true;
+	bool show_people<-true;
 	bool show_material<-true;
 	bool show_legend<-true;
+	bool show_heatmap<-true;
 	bool show_wireframe<-false;
 	bool show_TUI<-true;
 	rgb backgroundColor<-#white;
 	rgb textcolor<- (backgroundColor = #white) ? #white : #black;
+	
+	/*int size <- 100;
+	field heatmap <- field(size, size);
+	reflex update {
+		ask people {
+			loop i from: -(size/100) to: size/100 step: 2 {
+				loop j from:  -(size/100) to: size/100 step: 2 {
+					heatmap[location + {i, j}] <- heatmap[location + {i, j}] + 5 / (abs(i) + 1);
+				}
+			}
+		}
+	}*/
 	
 	init {
 		create building from: shape_file_buildings;
@@ -85,12 +99,16 @@ global {
 		create TUI{
 			size<-125#m;
 			nbCells<-8;
-			location<-{world.shape.width/1.8,world.shape.height/4+25#m};
+			location<-{world.shape.width*0.25,world.shape.height*0.75};
 		}
 		
 		create legend{
 			location<-{world.shape.width*0.15, world.shape.height*0.85};
 			shape<-shape rotated_by 90;
+		}
+		
+		create background{
+			location<-{world.shape.width/2, world.shape.height/2};
 		}
 	}
 	}
@@ -171,6 +189,12 @@ species materials skills:[moving] {
 	}
 }
 
+species background{
+	aspect base{
+		draw image_file(background_image) size:{world.shape.width, world.shape.height};
+	}
+}
+
 species legend{
 	
 	aspect base{
@@ -195,24 +219,27 @@ experiment GratteCielErasme type: gui autorun:true{
 
 	
 	output {
-		display city_display type: opengl background:backgroundColor rotate:90 fullscreen:1 synchronized:false 
+		display city_display type: opengl rotate:90 background:backgroundColor fullscreen:1 synchronized:false 
 		camera_location: {273.4481,501.1178,812.104} camera_target: {272.953,486.9384,0.0889} camera_orientation: {-0.0349,0.9992,0.0175}
 		{
+			species background aspect: base visible:show_heatmap;
 			species building aspect: base visible:show_building;
 			species projet aspect: base visible:show_projet;
 			species existant aspect: base visible:show_existant;
 			species road aspect: base visible:show_road;
-			species people aspect: base visible:show_human;
+			species people aspect: base visible:show_people;
 			species materials aspect: base visible:show_material;
-			//species TUI aspect:base refresh:false visible:show_TUI;	
+		
+			species TUI aspect:base refresh:false visible:show_TUI;	
 			event["b"] {show_building<-!show_building;}
-			event["p"] {show_projet<-!show_projet;}
+			event["f"] {show_projet<-!show_projet;}
 			event["e"] {show_existant<-!show_existant;}
 			event["r"] {show_road<-!show_road;}
-			event["h"] {show_human<-!show_human;}
+			event["p"] {show_people<-!show_people;}
 			event["m"] {show_material<-!show_material;}
 			event["t"] {show_TUI<-!show_TUI;}
 			event["w"] {show_wireframe<-!show_wireframe;}
+			event["h"] {show_heatmap<-!show_heatmap;}
 					
 			overlay position: { 1500#px, 900#px } size: { 600 #px, 300 #px } background: #black  rounded: true
             {
@@ -240,29 +267,22 @@ experiment GratteCielErasme type: gui autorun:true{
 					y <- y + 30 #px;
 			
 					draw circle(5#px) at: { x - 20#px, y } color: #white border: #white;
-					draw "people" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					draw "(p)eople (" + show_people + ")" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
 					draw square(10#px) at: { x - 20#px, y } color: #white border: #white;
-					draw "materials" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					draw "(m)aterial" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					
 					y <- 50#px;
 					x<- x+gapBetweenColum;
 					
 					draw "Keys" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
 					y <- y + 30 #px;
-			
-					
-					draw "(h)uman (" + show_human + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
-					
-					draw "(m)aterial (" + show_material + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
-					
+				
 					draw "(b)uilding (" + show_building + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(p)roject (" + show_projet + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					draw "(f)utur (" + show_projet + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
 					draw "(e)xistant (" + show_existant + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
@@ -272,6 +292,9 @@ experiment GratteCielErasme type: gui autorun:true{
 					y <- y + 25#px;
 					
 					draw "(T)ui (" + show_TUI + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+					
+					draw "(h)eatmap (" + show_heatmap + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 	
 				
