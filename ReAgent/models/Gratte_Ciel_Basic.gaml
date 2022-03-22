@@ -185,7 +185,7 @@ species materials skills:[moving] {
 	}
 	
 	aspect base {
-		draw square(4#m) color: color border: #black;
+		draw rectangle(3#m,9#m) rotate:heading+90 color: color border: #black;
 	}
 }
 
@@ -217,10 +217,11 @@ species legend{
 
 experiment GratteCielErasme type: gui autorun:true{
 
-	
+	float minimum_cycle_duration<-0.01;
 	output {
 		display city_display type: opengl rotate:90 background:backgroundColor fullscreen:1 synchronized:false 
 		camera_location: {273.4481,501.1178,812.104} camera_target: {272.953,486.9384,0.0889} camera_orientation: {-0.0349,0.9992,0.0175}
+
 		{
 			species background aspect: base visible:show_heatmap;
 			species building aspect: base visible:show_building;
@@ -229,7 +230,7 @@ experiment GratteCielErasme type: gui autorun:true{
 			species road aspect: base visible:show_road;
 			species people aspect: base visible:show_people;
 			species materials aspect: base visible:show_material;
-		
+
 			species TUI aspect:base refresh:false visible:show_TUI;	
 			event["b"] {show_building<-!show_building;}
 			event["f"] {show_projet<-!show_projet;}
