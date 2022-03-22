@@ -8,19 +8,22 @@
 model ReUse
 	
 
+	
 //import "common model.gaml"
 global control: fsm{
 	// SIMULATION SETTINGS
 	bool blackMirror parameter: 'Dark Room' category: 'Aspect' <- true;
-	bool reverse <- false;
-	string mode <- 'auto' among: ['interactive','auto','exhibition']; // interactive: only changes when the table is updated
+
+	bool reverse <- true;
+	string mode <- 'interactive' among: ['interactive','auto','exhibition']; // interactive: only changes when the table is updated
 																	  // auto: no table interaction, the model is updated randomly
 																	  // exhibition: if there is no interaction with the table for the long time, switch to auto mode
+
 	int scan_step <- 3;
 	float proba_change_mat <- 0.0;
 	bool show_all_materials <- false;
 	int subdivide_lines <- 1;
-	int max_idle_time <- 100;
+	int max_idle_time <- 250;
 	
 	// NETWORK SETTINGS
 	int scaningUDPPort <- 5000;
@@ -110,7 +113,7 @@ global control: fsm{
 //			     do connect to: url protocol: "udp_server" port: scaningUDPPort ;
 //			    }
 //		}
-		if mode != 'interactive'{
+		if mode != 'auto'{
 			create NetworkingAgent number: 1 {
 				 type <-"scanner";	
 			     do connect to: url protocol: "udp_server" port: scaningUDPPort ;
@@ -241,10 +244,11 @@ global control: fsm{
    			ask first(NetworkingAgent){
    				do read_scanner;
    				if id_matrix != old_id_matrix{
-   					init_map <- false;
+   					init_map <- false;		
    					write "Table initialisée";
    				}
    			}
+   			
    		}
 		if !init_map {
 			loop i from: 0 to: grid_width-1 {
@@ -266,7 +270,7 @@ global control: fsm{
 	}
 	
 	
-	reflex randomGridUpdateAuto when: mode = 'auto' and !init_map and !editionMode and !load_grid_file_from_cityIO and every(random_step#cycle){
+	reflex randomGridUpdateAuto when: mode = 'auto' and !editionMode and !load_grid_file_from_cityIO and every(random_step#cycle) and cycle>0{
 		do randomGridUpdate;
 //		loop times: rnd(nb_rand_changes) {
 //			int i <- rnd(grid_height-1);
@@ -286,6 +290,7 @@ global control: fsm{
 	} 
 	
 	reflex gridUpdateExhibitionActive when: mode = 'exhibition' and !idle and !init_map and !editionMode and !load_grid_file_from_cityIO and every(scan_step#cycle){
+		write "gridUpdateExhibitionActive " +first(NetworkingAgent).has_changed;
 		if first(NetworkingAgent).has_changed = false {
 			idle_time_counter <- idle_time_counter + scan_step;
 			if idle_time_counter > max_idle_time{
@@ -293,12 +298,20 @@ global control: fsm{
 			}
 		} else{
 			idle_time_counter <- 0;
+			write "le chagement";
 			do gridUpdate;
 		}
 	} 
 	
 	reflex gridUpdateExhibitionIdle when: mode = 'exhibition' and idle and !init_map and !editionMode and !load_grid_file_from_cityIO and every(random_step#cycle){
+		write "gridUpdateExhibitionIdle";
+		ask first(NetworkingAgent){
+			do read_scanner_idle;	
+			write "read_scanner_idle";
+		}
+		write first(NetworkingAgent).has_changed;
 		if first(NetworkingAgent).has_changed {
+			write "ca a changé";
 			idle <- false;
 			idle_time_counter <- 0;
 			do gridUpdate;
@@ -330,7 +343,7 @@ global control: fsm{
 		loop i from: 0 to: grid_height-1{
 			loop j from: 0 to: grid_width-1{
 				if id_matrix[i,j] != old_id_matrix[i,j] {
-					ask cell[i,j] {do changeTo(buildings_info[id_matrix[j,i]].type);}
+					ask cell[i,j] {do changeTo(buildings_info[id_matrix[i,j]].type);}
 				}
 			}
 		}	
@@ -788,21 +801,20 @@ species NetworkingAgent skills:[network] {
 	string previousMess <-"";
 	bool has_changed <- true;
 	
-	reflex update_landuse when: type = "scanner"{
+	reflex scan when: type = "scanner" and !idle{
 		do read_scanner;
 	}
 		
 	action read_scanner {
 		if has_more_message() { 
 			list<list<int>> scan_result <- [];    
-		    
 		    if (length(mailbox) > 0) {
 				message mes <- fetch_message();	
 	 			string m <- string(mes.contents);	
-	 			if m = previousMess{
+	 			if m != previousMess{
 					has_changed <- true;
-				}else{
 					previousMess <- m;
+				}else{
 					has_changed <- false;
 				} 			
 	 			int nbcols<-8;
@@ -821,9 +833,30 @@ species NetworkingAgent skills:[network] {
 	 					 }
 	 				} 						
 	 			}
+	 			write id_matrix;
  			
  			}		
-		} 
+		} else{
+			has_changed <- false;
+		}
+	} 
+	
+	
+		action read_scanner_idle {
+		if has_more_message() {    
+		    if (length(mailbox) > 0) {
+				message mes <- fetch_message();	
+	 			string m <- string(mes.contents);	
+	 			if m != previousMess{
+					has_changed <- true;
+					previousMess <- m;
+				}else{
+					has_changed <- false;
+				} 			
+ 			}		
+		} else{
+			has_changed <- false;
+		}
 	} 
 }
 
@@ -854,17 +887,17 @@ experiment Table type: gui autorun: true{
 	  		species cell aspect: default;// refresh: on_modification_cells;
 	  		species legend aspect: reverse;
 //	  		species road aspect: default;
-	  		species people aspect: default;
+	  		//species people aspect: default;
 //	  		species stock aspect: default;	   
 		}	
 		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 rotate:90
-		camera_location: {-996.391,7152.6832,5502.6118} camera_target: {2365.0787,2691.8624,-281.1955} camera_orientation: {0.4329,0.5745,0.6947}
+		camera_location: {-2910.1183,2691.8623,5787.0105} camera_target: {2365.0787,2691.8624,-281.1955} camera_orientation: {0.7547,0.0,0.6561}
 		{
 			species transport transparency: 0.6;
 		  	species cell aspect: default3D transparency:0.5;// refresh: on_modification_cells;
 	  		species legend aspect: map3D;
 //	  		species road aspect: default;
-	  		species people aspect: default;
+	  		//species people aspect: default;
 //	  		species stock aspect: default;
 		}	
 	}
