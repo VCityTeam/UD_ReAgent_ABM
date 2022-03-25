@@ -1,0 +1,9 @@
+**/idea/
+**/node_modules/
+**/TODO.txt
+TODO.txt
+**/dist
+**/lib
+.vs
+.vscode
+Test/**
