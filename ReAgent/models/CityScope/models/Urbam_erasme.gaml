@@ -10,7 +10,7 @@ model Urbam
 
 import "common model.gaml"
 global{
-	int population_level <- 40 parameter: 'Population level' min: 0 max: 300 category: "General";
+	int population_level <- 10 parameter: 'Population level' min: 0 max: 300 category: "General";
 	bool blackMirror parameter: 'Dark Room' category: 'Aspect' <- true;
 	
 	
@@ -46,6 +46,7 @@ global{
 	string imageFolder <- "../images/flat/";
 	string imageFolderLogo <- "../images/logo/";
 	string imageRemploiFolder <- "../images/images_reemploi/";
+	string imageErasmeFolder <- "../images/erasme/";
 	map<string,map<profile,float>> proportions_per_bd_type;
 	int action_type;
 	
@@ -81,6 +82,23 @@ global{
 		file(imageRemploiFolder +"metal.png"),
 		file(imageRemploiFolder +"wood.png")
 	]; 
+	
+	
+	//image erasme
+	list<file> images_erasme <- [
+		file(imageErasmeFolder +"bench.png"),
+		file(imageErasmeFolder +"drop.png"),
+		file(imageErasmeFolder +"leaves.png"),
+		file(imageErasmeFolder +"picnic-table.png"),
+		file(imageErasmeFolder +"road.png"),
+		file(imageErasmeFolder +"theater.png")
+	];
+	map<string,file> picture_per_id <- ["residentialS"::images_erasme[0],"residentialM"::images_erasme[1],"residentialL"::images_erasme[2],"officeS"::images_erasme[3],"officeM"::images_erasme[4],"officeL"::images_erasme[5]];
+	map<string,rgb> color_erasme__per_id <- ["residentialS"::#yellow,"residentialM"::#blue,"residentialL"::#green,"officeS"::#orange,"officeM"::#red,"officeL"::#green];
+	
+	
+	
+	
 	
 	//image des block
 	list<file> images_logo <- [
@@ -130,6 +148,10 @@ global{
 			 type <-"interface";	
 		     do connect to: url protocol: "udp_server" port: interfaceUDPPort ;
 		    }	   
+		}
+		create scene{
+			location<-{world.shape.width/2,world.shape.height/2};
+			shape<-rectangle(6000,2500);
 		}
 		
 		}
@@ -434,11 +456,15 @@ species building parent: poi {
 		color <- color_per_id[type+size];
 	}
 	aspect default {
-		if show_building {draw shape scaled_by 0.75 color: color;}
+		if show_building {
+			
+			draw shape scaled_by 0.75 color: color_erasme__per_id[type+size] texture:image_file(picture_per_id[type+size]) rotate:90;
+			//draw image_file(picture_per_id[type+size]) size:{shape.width,shape.height};
+		}
 	}
 	
 	aspect screen {
-		if show_building {draw shape scaled_by 0.75 color: color depth:depth_map[size];}
+		if show_building {draw shape scaled_by 0.75 color: color_erasme__per_id[type+size] depth:depth_map[size];}
 	}
 }
 
@@ -448,6 +474,12 @@ species people parent: basic_people skills: [moving]{
 		dest <- empty(offices) ? nil : offices.keys[rnd_choice(offices.values)];
 		target <- nil;
 	}
+}
+
+species scene{
+	aspect base{
+	  draw shape color: #white texture:image_file(imageErasmeFolder+"/screen/plan.png");	
+	}	
 }
 
 grid cell width: grid_width height: grid_height { 
@@ -615,7 +647,59 @@ experiment CityScopeTable type: gui autorun: true{
 			event["y"] action: {weight_pev<-weight_pev+0.1;};
 			
 		}	
-		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 rotate:180
+		
+		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 
+		//camera_location: {2500.0,7842.7613,3338.3981} camera_target: {2500.0,2500.0,0.0} camera_orientation: {0.0,0.5299,0.8481}
+		{
+	        /*species cell aspect:default;
+			species road ;
+			species people;
+			species building aspect:screen transparency:0.75;*/
+			species scene aspect:base;
+			overlay position: {150#px, 525#px } size: { 200 #px, 200 #px } background: #black  rounded: true
+            {
+            	if(show_legend){
+            		
+					float y <- 0#px;
+					float x<- 0#px;
+					float textSize<-10.0;
+					float gapBetweenColum<-150#px;	
+					draw "Bio Inspired WorkShop - Lyon - Erasme - 2022" at: { x+1400#px, y } color: #white font: font("Helvetica", textSize, #bold);
+					float x_logo_offset<-50#px;
+					draw image_file(images_logo[0]) at: { x, y } size:{1000#px/4,115#px/4};
+	            }
+            }
+            
+            chart "Biodiversité" background:#black type: pie style:ring size: {0.25,0.25} position: {world.shape.width*1,world.shape.height*0.75} color: #white axes: #yellow title_font: 'Helvetica' title_font_size: 12.0 
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
+			{
+				
+				  data "biodiversitré" value: 50 color:#white;
+				  data "eco" value: 35 color:#pink;
+				
+			}
+			
+			chart "Bien-Etre" background:#black type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0,world.shape.height*0.75} color: #white axes: #yellow title_font: 'Helvetica' title_font_size: 12.0 
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
+			{
+				
+				  data "biodiversitré" value: 50 color:#white;
+				  data "eco" value: 75 color:#pink;
+				
+			}
+			
+			chart "Lien Social" background:#black type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0.5,world.shape.height*0.75} color: #white axes: #yellow title_font: 'Helvetica' title_font_size: 12.0 
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
+			{
+				
+				  data "biodiversitré" value: 50 color:#white;
+				  data "eco" value: 25 color:#pink;
+				
+			}
+			
+		}
+		
+		/*display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 rotate:180
 		camera_location: {2500.0,7842.7613,3338.3981} camera_target: {2500.0,2500.0,0.0} camera_orientation: {0.0,0.5299,0.8481}
 		{
 	        species cell aspect:default;
@@ -637,7 +721,7 @@ experiment CityScopeTable type: gui autorun: true{
 	            }
             }
 			
-		}	
+		}	*/
 	}
 }
 
