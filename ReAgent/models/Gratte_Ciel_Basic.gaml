@@ -99,7 +99,7 @@ global {
 		create TUI{
 			size<-125#m;
 			nbCells<-8;
-			location<-{world.shape.width*0.25,world.shape.height*0.75};
+			location<-{world.shape.width*0.2,world.shape.height*0.5};
 		}
 		
 		create legend{
@@ -219,10 +219,11 @@ experiment GratteCielErasme type: gui autorun:true{
 
 	float minimum_cycle_duration<-0.01;
 	output {
-		display city_display type: opengl rotate:90 background:backgroundColor fullscreen:1 synchronized:false 
-		camera_location: {273.4481,501.1178,812.104} camera_target: {272.953,486.9384,0.0889} camera_orientation: {-0.0349,0.9992,0.0175}
+		display city_display type: opengl background:backgroundColor fullscreen:1 synchronized:false 
 
 		{
+			//rotation angle:90;
+			camera 'default' location: {254.0627,446.7955,986.6105} target: {254.0627,446.7803,0.0};
 			species background aspect: base visible:show_heatmap;
 			species building aspect: base visible:show_building;
 			species projet aspect: base visible:show_projet;
@@ -242,43 +243,40 @@ experiment GratteCielErasme type: gui autorun:true{
 			event["w"] {show_wireframe<-!show_wireframe;}
 			event["h"] {show_heatmap<-!show_heatmap;}
 					
-			overlay position: { 1500#px, 900#px } size: { 600 #px, 300 #px } background: #black  rounded: true
+			overlay position: { 200#px, 100#px } size: { 300 #px, 300 #px } background: #blue  rounded: true
             {
             	if(show_legend){
             		
 					float y <- 50#px;
 					float x<- 50#px;
 					float textSize<-30.0;
-					float gapBetweenColum<-150#px;
+					float gapBetweenColum<-250#px;
 					
-					draw "Phase" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
+					/*draw "Phase" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
 					y <- y + 30 #px;
 					loop phase over: project_color_per_phase.keys
 					{
 					    draw square(10#px) at: { x - 20#px, y } color: project_color_per_phase[phase] border: #white;
 					    draw string(phase) at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					    y <- y + 25#px;
-					}
+					}*/
 					
 					
 					y <- 50#px;
-					x<- x+gapBetweenColum;
-					
-					draw "Agent" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
-					y <- y + 30 #px;
-			
-					draw circle(5#px) at: { x - 20#px, y } color: #white border: #white;
-					draw "(p)eople (" + show_people + ")" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
-					
-					draw square(10#px) at: { x - 20#px, y } color: #white border: #white;
-					draw "(m)aterial" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					
-					y <- 50#px;
-					x<- x+gapBetweenColum;
+					//x<- x+gapBetweenColum;
 					
 					draw "Keys" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
 					y <- y + 30 #px;
+			
+					//draw circle(5#px) at: { x - 20#px, y } color: #white border: #white;
+					draw "(p)eople (" + show_people + ")" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+					
+					//draw square(10#px) at: { x - 20#px, y } color: #white border: #white;
+					draw "(m)aterial(" + show_material + ")" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 30 #px;
+					
+				
 				
 					draw "(b)uilding (" + show_building + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
@@ -297,6 +295,9 @@ experiment GratteCielErasme type: gui autorun:true{
 					
 					draw "(h)eatmap (" + show_heatmap + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
+					
+					y <- y + 300#px;
+					draw image_file('../images/logo_table_white.png') at: { x+300#px, y } size:{1000#px,115#px};
 	
 				
 	            }
