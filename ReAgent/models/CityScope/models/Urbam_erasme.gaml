@@ -45,7 +45,6 @@ global{
 	map<building, float> offices;
 	string imageFolder <- "../images/flat/";
 	string imageFolderLogo <- "../images/logo/";
-	string imageRemploiFolder <- "../images/images_reemploi/";
 	string imageErasmeFolder <- "../images/erasme/";
 	map<string,map<profile,float>> proportions_per_bd_type;
 	int action_type;
@@ -72,17 +71,6 @@ global{
 		file(imageFolder +"office_L.png"),
 		file(imageFolder +"empty.png")
 	]; 
-	
-	
-	//image des block
-	list<file> images_reemploi <- [
-		file(imageRemploiFolder +"concrete.png"),
-		file(imageRemploiFolder +"glass.png"),
-		file(imageRemploiFolder +"grass.png"),
-		file(imageRemploiFolder +"metal.png"),
-		file(imageRemploiFolder +"wood.png")
-	]; 
-	
 	
 	//image erasme
 	list<file> images_erasme <- [
@@ -181,15 +169,29 @@ global{
 		if length(building where (each.id=1))>=6{
 			phase2_Star[1]<-1;
 		}
-		if length(building where (each.id=4))>=4{
+		if length(building where (each.id=4))>=3{
 			phase2_Star[2]<-1;
 		}
 		if length(building where (each.id=2))>=5{
 			phase2_Star[3]<-1;
 		}
 		
-		
-		
+		phase3_Star<-[0,0,0,0,0];
+		if length(building where (each.id=3))>=12{
+			phase3_Star[0]<-1;
+		}
+		if length(building where (each.id=1))>=20{
+			phase3_Star[1]<-1;
+		}
+		if length(building where (each.id=4))>=4{
+			phase3_Star[2]<-1;
+		}
+		if length(building where (each.id=2))>=10{
+			phase3_Star[3]<-1;
+		}
+		if length(building where (each.id=6))>=10{
+			phase3_Star[3]<-1;
+		}
 	}	
 
 	
@@ -523,21 +525,58 @@ species scene{
 	  //PHASE 1	  
 	  point phase1<-{-750,1000};
 	  float starSize<-40#px;
-	  loop i from:0 to:length(phase1_Star){
+	  loop i from:0 to:length(phase1_Star)-1{
+	  	if(i=0){
+	  	  draw image_file(images_erasme[0]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
+	  	}
+	  	if(i=1){
+	  	  draw image_file(images_erasme[2]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
+	  	}
+	  	if(i=2){
+	  	  draw image_file(images_erasme[3]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
+	  	}
+	  	
 	  	draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow wireframe:phase1_Star[i]=0 ? true: false;
 	    draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow rotate:180 wireframe:phase1_Star[i]=0 ? true: false;
 	    phase1<-{phase1.x+starSize*1.1,phase1.y};	
 	  }
 	  //PHASE 2	  
 	  point phase2<-{1300,1000};
-	  loop i from:0 to:length(phase2_Star){
+	  loop i from:0 to:length(phase2_Star)-1{
+	    if(i=0){
+	  	  draw image_file(images_erasme[0]) at:{phase2.x,phase2.y-starSize} size:{starSize,starSize};	
+	  	}
+	  	if(i=1){
+	  	  draw image_file(images_erasme[2]) at:{phase2.x,phase2.y-starSize} size:{starSize,starSize};	
+	  	}
+	  	if(i=2){
+	  	  draw image_file(images_erasme[3]) at:{phase2.x,phase2.y-starSize} size:{starSize,starSize};	
+	  	}
+	  	if(i=3){
+	  	  draw image_file(images_erasme[1]) at:{phase2.x,phase2.y-starSize} size:{starSize,starSize};	
+	  	}
 	  	draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? #white: #yellow border:phase2_Star[i]=0 ? #black: #yellow wireframe:phase2_Star[i]=0 ? true: false ;
 	    draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? #white: #yellow border:phase2_Star[i]=0 ? #black: #yellow  rotate:180 wireframe:phase2_Star[i]=0 ? true: false;
 	    phase2<-{phase2.x+starSize*1.1,phase2.y};	
 	  }
 	  //PHASE 3	  
 	  point phase3<-{3200,1000};
-	  loop i from:0 to:length(phase3_Star){
+	  loop i from:0 to:length(phase3_Star)-1{
+	  	if(i=0){
+	  	  draw image_file(images_erasme[0]) at:{phase3.x,phase3.y-starSize} size:{starSize,starSize};	
+	  	}
+	  	if(i=1){
+	  	  draw image_file(images_erasme[2]) at:{phase3.x,phase3.y-starSize} size:{starSize,starSize};	
+	  	}
+	  	if(i=2){
+	  	  draw image_file(images_erasme[3]) at:{phase3.x,phase3.y-starSize} size:{starSize,starSize};	
+	  	}
+	  	if(i=3){
+	  	  draw image_file(images_erasme[1]) at:{phase3.x,phase3.y-starSize} size:{starSize,starSize};	
+	  	}
+	  	if(i=4){
+	  	  draw image_file(images_erasme[5]) at:{phase3.x,phase3.y-starSize} size:{starSize,starSize};	
+	  	}
 	  	draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ? #white: #yellow border:phase3_Star[i]=0 ? #black: #yellow wireframe:phase3_Star[i]=0 ? true: false ;
 	    draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ? #white: #yellow border:phase3_Star[i]=0 ? #black: #yellow  rotate:180 wireframe:phase3_Star[i]=0 ? true: false;
 	    phase3<-{phase3.x+starSize*1.1,phase3.y};	
@@ -786,7 +825,7 @@ experiment CityScopeEdition type: gui autorun: true{
 			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
 			{
 				
-				  data "biodiversitré" value: 75 color:rgb(0,255,0);
+				  data "biodiversitré" value:length(building where (each.id=2)) + length(building where (each.id=3)) color:rgb(0,255,0);
 				  data "" value: 25 color:#white;
 				
 			}
@@ -795,7 +834,7 @@ experiment CityScopeEdition type: gui autorun: true{
 			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
 			{
 				
-				  data "Bien Etre" value: 25 color:rgb(0,255,0);
+				  data "Bien Etre" value: phase1_Star count (each = 1) + phase2_Star count (each = 1) + phase3_Star count (each = 1) color:rgb(0,255,0);
 				  data "" value: 75 color:#white;
 				
 			}
@@ -804,7 +843,7 @@ experiment CityScopeEdition type: gui autorun: true{
 			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' y_tick_values_visible:false
 			{
 				
-				  data "Lien Social" value: 50 color:rgb(0,255,0);
+				  data "Lien Social" value: length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6)) color:rgb(0,255,0);
 				  data "eco" value: 50 color:#white;
 				
 			}
