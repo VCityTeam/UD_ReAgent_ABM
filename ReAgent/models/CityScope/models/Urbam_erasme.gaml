@@ -93,6 +93,7 @@ global{
 		file(imageErasmeFolder +"road.png"),
 		file(imageErasmeFolder +"masks.png")
 	];
+	
 	map<string,file> picture_per_id <- ["residentialS"::images_erasme[0],"residentialM"::images_erasme[1],"residentialL"::images_erasme[2],"officeS"::images_erasme[3],"officeM"::images_erasme[4],"officeL"::images_erasme[5]];
 	map<string,rgb> color_erasme__per_id <- ["residentialS"::rgb(225,103,172),"residentialM"::rgb(63,169,245),"residentialL"::rgb(34,181,115),"officeS"::rgb(252,238,33),"officeM"::rgb(140,140,140),"officeL"::rgb(241,48,36)];
 	
@@ -243,13 +244,13 @@ global{
 	action build_buildings {
 		cell selected_cell <- first(cell overlapping (circle(sqrt(shape.area)/100.0) at_location #user_location));
 		if (selected_cell != nil) and (selected_cell.is_active) {
-			if (action_type = 3) {ask selected_cell {do new_residential("S");}} 
-			if (action_type = 4) {ask selected_cell {do new_office("S");}} 
+			if (action_type = 3) {ask selected_cell {do new_residential("S",-1);}} 
+			if (action_type = 4) {ask selected_cell {do new_office("S",-1);}} 
 			if (action_type = 5) {ask selected_cell {do erase_building;}} 
-			if (action_type = 6) {ask selected_cell {do new_residential("M");}} 
-			if (action_type = 7) {ask selected_cell {do new_office("M");}} 
-			if (action_type = 9) {ask selected_cell {do new_residential("L");}} 
-			if (action_type = 10) {ask selected_cell {do new_office("L");}} 
+			if (action_type = 6) {ask selected_cell {do new_residential("M",-1);}} 
+			if (action_type = 7) {ask selected_cell {do new_office("M",-1);}} 
+			if (action_type = 9) {ask selected_cell {do new_residential("L",-1);}} 
+			if (action_type = 10) {ask selected_cell {do new_office("L",-1);}} 
 		}
 		on_modification_bds <- true;
 	}
@@ -266,9 +267,11 @@ global{
 		}
 		if (new_building) {
 			if (type = "residential") {
-				ask current_cell {do new_residential(size);}
+				ask current_cell {
+					do new_residential(size,id);
+				}
 			} else if (type = "office") {
-				ask current_cell {do new_office(size);}
+				ask current_cell {do new_office(size,id);}
 			}
 		}
 	} 
@@ -392,19 +395,43 @@ global{
 			 } 		
        }	
 	}
+	list<int> phase1_Star<-[0,0,0,0,0];
+	list<int> phase2_Star<-[0,0,0,0,0];
+	list<int> phase3_Star<-[0,0,0,0,0];
+	
+	reflex updateGame{
+		if length(building where (each.id=1))>3{
+			phase1_Star[0]<-1;
+		}
+		if length(building where (each.id=2))>5{
+			phase1_Star[1]<-1;
+		}
+		if length(building where (each.id=3))>2{
+			phase1_Star[2]<-1;
+		}
+		if length(building where (each.id=4))>2{
+			phase1_Star[3]<-1;
+		}
+		if length(building where (each.id=5))>2{
+			phase1_Star[4]<-1;
+		}
+	}
 		
 }
 
 
 species building parent: poi {
+	int id;
 	string size <- "S" among: ["S", "M", "L"];
 	string type <- "residential" among: ["residential", "office"];
+	string typeSize;
 	list<people> inhabitants;
 	rgb color;
 	int typeId;
 
-	action initialize(cell the_cell, string the_type, string the_size) {
+	action initialize(cell the_cell, string the_type, string the_size,int the_id) {
 		the_cell.my_building <- self;
+		id<-the_id;
 		type <- the_type;
 		size <- the_size;
 		typeId<-rnd(4);
@@ -478,7 +505,30 @@ species people parent: basic_people skills: [moving]{
 
 species scene{
 	aspect base{
-	  draw shape color: #white texture:image_file(imageErasmeFolder+"/screen/plan.png");	
+	  draw shape color: #white texture:image_file(imageErasmeFolder+"/screen/plan.png");
+	  //PHASE 1	  
+	  point phase1<-{-750,1000};
+	  float starSize<-40#px;
+	  loop i from:0 to:4{
+	  	draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow ;
+	    draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow rotate:180;
+	    phase1<-{phase1.x+starSize*1.1,phase1.y};	
+	  }
+	  //PHASE 2	  
+	  point phase2<-{1300,1000};
+	  loop i from:0 to:4{
+	  	draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? #white: #yellow border:phase2_Star[i]=0 ? #black: #yellow  ;
+	    draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? #white: #yellow border:phase2_Star[i]=0 ? #black: #yellow  rotate:180;
+	    phase2<-{phase2.x+starSize*1.1,phase2.y};	
+	  }
+	  //PHASE 3	  
+	  point phase3<-{3200,1000};
+	  loop i from:0 to:4{
+	  	draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ? #white: #yellow border:phase3_Star[i]=0 ? #black: #yellow  ;
+	    draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ? #white: #yellow border:phase3_Star[i]=0 ? #black: #yellow  rotate:180;
+	    phase3<-{phase3.x+starSize*1.1,phase3.y};	
+	  }
+	  
 	}	
 }
 
@@ -486,24 +536,24 @@ grid cell width: grid_width height: grid_height {
 	building my_building;
 	bool is_active <- true;
 	//rgb color <- #white;
-	action new_residential(string the_size) {
+	action new_residential(string the_size, int _id) {
 		if (my_building != nil and (my_building.type = "residential") and (my_building.size = the_size)) {
 			return;
 		} else {
 			if (my_building != nil ) {ask my_building {do remove;}}
 			create building returns: bds{
-				do initialize(myself, "residential", the_size);
+				do initialize(myself, "residential", the_size, _id);
 			}
 		}
 		
 	}
-	action new_office (string the_size) {
+	action new_office (string the_size, int _id) {
 		if (my_building != nil and (my_building.type = "office") and (my_building.size = the_size)) {
 			return;
 		} else {
 			if (my_building != nil) {ask my_building {do remove;}}
 			create building returns: bds{
-				do initialize(myself, "office",the_size);
+				do initialize(myself, "office",the_size,_id);
 			}
 			ask people {
 				do reinit_destination;
@@ -698,30 +748,54 @@ experiment CityScopeTable type: gui autorun: true{
 			}
 			
 		}
-		
-		/*display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 rotate:180
-		camera_location: {2500.0,7842.7613,3338.3981} camera_target: {2500.0,2500.0,0.0} camera_orientation: {0.0,0.5299,0.8481}
+	}
+}
+
+
+experiment CityScopeEdition type: gui autorun: true{
+	float minimum_cycle_duration <- 0.05;
+	output {
+		display table synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:true  
 		{
-	        species cell aspect:default;
-			species road ;
+	    species cell aspect:default;// refresh: on_modification_cells;
+			//species road ;
 			species people;
-			species building aspect:screen transparency:0.75;
-			overlay position: {150#px, 525#px } size: { 200 #px, 200 #px } background: #black  rounded: true
-            {
-            	if(show_legend){
-            		
-					float y <- 0#px;
-					float x<- 0#px;
-					float textSize<-10.0;
-					float gapBetweenColum<-150#px;	
-					draw "Bio Inspired WorkShop - Lyon - Erasme - 2022" at: { x+1400#px, y } color: #white font: font("Helvetica", textSize, #bold);
-					float x_logo_offset<-50#px;
-					//y<-y+50#px;
-					draw image_file(images_logo[0]) at: { x, y } size:{1000#px/4,115#px/4};
-	            }
-            }
+			species building;// refresh: on_modification_bds;
+		}	
+		
+		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:true 
+		//camera_location: {2500.0,7842.7613,3338.3981} camera_target: {2500.0,2500.0,0.0} camera_orientation: {0.0,0.5299,0.8481}
+		{
+	
+			species scene aspect:base;        
+            chart "Biodiversité" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*1,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
+			{
+				
+				  data "biodiversitré" value: 75 color:rgb(0,255,0);
+				  data "" value: 25 color:#white;
+				
+			}
 			
-		}	*/
+			chart "Bien-Etre" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
+			{
+				
+				  data "Bien Etre" value: 25 color:rgb(0,255,0);
+				  data "" value: 75 color:#white;
+				
+			}
+			
+			chart "Lien Social" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0.5,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' y_tick_values_visible:false
+			{
+				
+				  data "Lien Social" value: 50 color:rgb(0,255,0);
+				  data "eco" value: 50 color:#white;
+				
+			}
+			
+		}
 	}
 }
 
