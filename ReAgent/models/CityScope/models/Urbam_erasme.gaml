@@ -86,12 +86,12 @@ global{
 	
 	//image erasme
 	list<file> images_erasme <- [
-		file(imageErasmeFolder +"bench.png"),
-		file(imageErasmeFolder +"drop.png"),
-		file(imageErasmeFolder +"leaves.png"),
-		file(imageErasmeFolder +"compost.png"),
-		file(imageErasmeFolder +"road.png"),
-		file(imageErasmeFolder +"masks.png")
+		file(imageErasmeFolder +"amenagement.png"),
+		file(imageErasmeFolder +"eau.png"),
+		file(imageErasmeFolder +"biodiversite.png"),
+		file(imageErasmeFolder +"composte.png"),
+		file(imageErasmeFolder +"bitume.png"),
+		file(imageErasmeFolder +"culture.png")
 	];
 	
 	map<string,file> picture_per_id <- ["residentialS"::images_erasme[0],"residentialM"::images_erasme[1],"residentialL"::images_erasme[2],"officeS"::images_erasme[3],"officeM"::images_erasme[4],"officeL"::images_erasme[5]];
@@ -155,8 +155,42 @@ global{
 			shape<-rectangle(1920*4.6,1080*4.6);
 		}
 		
+    }
+	list<int> phase1_Star<-[0,0,0];
+	list<int> phase2_Star<-[0,0,0,0];
+	list<int> phase3_Star<-[0,0,0,0,0];
+	
+	reflex updateGame{
+		phase1_Star<-[0,0,0];
+		if length(building where (each.id=1))>=3{
+			phase1_Star[0]<-1;
+		}
+		if length(building where (each.id=3))>=5{
+			phase1_Star[1]<-1;
+		}
+		if length(building where (each.id=4))>=2{
+			phase1_Star[2]<-1;
 		}
 		
+		
+		
+		phase2_Star<-[0,0,0,0];
+		if length(building where (each.id=3))>=10{
+			phase2_Star[0]<-1;
+		}
+		if length(building where (each.id=1))>=6{
+			phase2_Star[1]<-1;
+		}
+		if length(building where (each.id=4))>=4{
+			phase2_Star[2]<-1;
+		}
+		if length(building where (each.id=2))>=5{
+			phase2_Star[3]<-1;
+		}
+		
+		
+		
+	}	
 
 	
 	action init_buttons	{
@@ -395,27 +429,7 @@ global{
 			 } 		
        }	
 	}
-	list<int> phase1_Star<-[0,0,0,0,0];
-	list<int> phase2_Star<-[0,0,0,0,0];
-	list<int> phase3_Star<-[0,0,0,0,0];
-	
-	reflex updateGame{
-		if length(building where (each.id=1))>3{
-			phase1_Star[0]<-1;
-		}
-		if length(building where (each.id=2))>5{
-			phase1_Star[1]<-1;
-		}
-		if length(building where (each.id=3))>2{
-			phase1_Star[2]<-1;
-		}
-		if length(building where (each.id=4))>2{
-			phase1_Star[3]<-1;
-		}
-		if length(building where (each.id=5))>2{
-			phase1_Star[4]<-1;
-		}
-	}
+
 		
 }
 
@@ -485,7 +499,7 @@ species building parent: poi {
 	aspect default {
 		if show_building {
 			
-			draw shape scaled_by 0.75 color: color_erasme__per_id[type+size] /*texture:image_file(picture_per_id[type+size])*/ rotate:90;
+			draw shape scaled_by 0.75 color: color_erasme__per_id[type+size] texture:image_file(picture_per_id[type+size]) rotate:90;
 			//draw image_file(picture_per_id[type+size]) size:{shape.width,shape.height};
 		}
 	}
@@ -509,23 +523,23 @@ species scene{
 	  //PHASE 1	  
 	  point phase1<-{-750,1000};
 	  float starSize<-40#px;
-	  loop i from:0 to:4{
-	  	draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow ;
-	    draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow rotate:180;
+	  loop i from:0 to:length(phase1_Star){
+	  	draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow wireframe:phase1_Star[i]=0 ? true: false;
+	    draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow rotate:180 wireframe:phase1_Star[i]=0 ? true: false;
 	    phase1<-{phase1.x+starSize*1.1,phase1.y};	
 	  }
 	  //PHASE 2	  
 	  point phase2<-{1300,1000};
-	  loop i from:0 to:4{
-	  	draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? #white: #yellow border:phase2_Star[i]=0 ? #black: #yellow  ;
-	    draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? #white: #yellow border:phase2_Star[i]=0 ? #black: #yellow  rotate:180;
+	  loop i from:0 to:length(phase2_Star){
+	  	draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? #white: #yellow border:phase2_Star[i]=0 ? #black: #yellow wireframe:phase2_Star[i]=0 ? true: false ;
+	    draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? #white: #yellow border:phase2_Star[i]=0 ? #black: #yellow  rotate:180 wireframe:phase2_Star[i]=0 ? true: false;
 	    phase2<-{phase2.x+starSize*1.1,phase2.y};	
 	  }
 	  //PHASE 3	  
 	  point phase3<-{3200,1000};
-	  loop i from:0 to:4{
-	  	draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ? #white: #yellow border:phase3_Star[i]=0 ? #black: #yellow  ;
-	    draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ? #white: #yellow border:phase3_Star[i]=0 ? #black: #yellow  rotate:180;
+	  loop i from:0 to:length(phase3_Star){
+	  	draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ? #white: #yellow border:phase3_Star[i]=0 ? #black: #yellow wireframe:phase3_Star[i]=0 ? true: false ;
+	    draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ? #white: #yellow border:phase3_Star[i]=0 ? #black: #yellow  rotate:180 wireframe:phase3_Star[i]=0 ? true: false;
 	    phase3<-{phase3.x+starSize*1.1,phase3.y};	
 	  }
 	  
