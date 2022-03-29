@@ -89,12 +89,12 @@ global{
 		file(imageErasmeFolder +"bench.png"),
 		file(imageErasmeFolder +"drop.png"),
 		file(imageErasmeFolder +"leaves.png"),
-		file(imageErasmeFolder +"picnic-table.png"),
+		file(imageErasmeFolder +"compost.png"),
 		file(imageErasmeFolder +"road.png"),
-		file(imageErasmeFolder +"theater.png")
+		file(imageErasmeFolder +"masks.png")
 	];
 	map<string,file> picture_per_id <- ["residentialS"::images_erasme[0],"residentialM"::images_erasme[1],"residentialL"::images_erasme[2],"officeS"::images_erasme[3],"officeM"::images_erasme[4],"officeL"::images_erasme[5]];
-	map<string,rgb> color_erasme__per_id <- ["residentialS"::#yellow,"residentialM"::#blue,"residentialL"::#green,"officeS"::#orange,"officeM"::#red,"officeL"::#green];
+	map<string,rgb> color_erasme__per_id <- ["residentialS"::rgb(225,103,172),"residentialM"::rgb(63,169,245),"residentialL"::rgb(34,181,115),"officeS"::rgb(252,238,33),"officeM"::rgb(140,140,140),"officeL"::rgb(241,48,36)];
 	
 	
 	
