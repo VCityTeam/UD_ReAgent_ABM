@@ -151,7 +151,7 @@ global{
 		}
 		create scene{
 			location<-{world.shape.width/2,world.shape.height/2};
-			shape<-rectangle(6000,2500);
+			shape<-rectangle(1920*4.6,1080*4.6);
 		}
 		
 		}
@@ -458,7 +458,7 @@ species building parent: poi {
 	aspect default {
 		if show_building {
 			
-			draw shape scaled_by 0.75 color: color_erasme__per_id[type+size] texture:image_file(picture_per_id[type+size]) rotate:90;
+			draw shape scaled_by 0.75 color: color_erasme__per_id[type+size] /*texture:image_file(picture_per_id[type+size])*/ rotate:90;
 			//draw image_file(picture_per_id[type+size]) size:{shape.width,shape.height};
 		}
 	}
@@ -656,7 +656,7 @@ experiment CityScopeTable type: gui autorun: true{
 			species people;
 			species building aspect:screen transparency:0.75;*/
 			species scene aspect:base;
-			overlay position: {150#px, 525#px } size: { 200 #px, 200 #px } background: #black  rounded: true
+			/*overlay position: {150#px, 525#px } size: { 200 #px, 200 #px } background: #black  rounded: true
             {
             	if(show_legend){
             		
@@ -668,32 +668,32 @@ experiment CityScopeTable type: gui autorun: true{
 					float x_logo_offset<-50#px;
 					draw image_file(images_logo[0]) at: { x, y } size:{1000#px/4,115#px/4};
 	            }
-            }
+            }*/
             
-            chart "Biodiversité" background:#black type: pie style:ring size: {0.25,0.25} position: {world.shape.width*1,world.shape.height*0.75} color: #white axes: #yellow title_font: 'Helvetica' title_font_size: 12.0 
+            chart "Biodiversité" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*1,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
 			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
 			{
 				
-				  data "biodiversitré" value: 50 color:#white;
-				  data "eco" value: 35 color:#pink;
+				  data "biodiversitré" value: 75 color:rgb(0,255,0);
+				  data "" value: 25 color:#white;
 				
 			}
 			
-			chart "Bien-Etre" background:#black type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0,world.shape.height*0.75} color: #white axes: #yellow title_font: 'Helvetica' title_font_size: 12.0 
+			chart "Bien-Etre" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
 			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
 			{
 				
-				  data "biodiversitré" value: 50 color:#white;
-				  data "eco" value: 75 color:#pink;
+				  data "Bien Etre" value: 25 color:rgb(0,255,0);
+				  data "" value: 75 color:#white;
 				
 			}
 			
-			chart "Lien Social" background:#black type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0.5,world.shape.height*0.75} color: #white axes: #yellow title_font: 'Helvetica' title_font_size: 12.0 
-			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
+			chart "Lien Social" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0.5,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' y_tick_values_visible:false
 			{
 				
-				  data "biodiversitré" value: 50 color:#white;
-				  data "eco" value: 25 color:#pink;
+				  data "Lien Social" value: 50 color:rgb(0,255,0);
+				  data "eco" value: 50 color:#white;
 				
 			}
 			
