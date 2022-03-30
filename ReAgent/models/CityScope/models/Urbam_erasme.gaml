@@ -527,17 +527,23 @@ species scene{
 	  float starSize<-40#px;
 	  loop i from:0 to:length(phase1_Star)-1{
 	  	if(i=0){
-	  	  draw image_file(images_erasme[0]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
+	  	 // draw image_file(images_erasme[0]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};
+	  	  draw square(starSize) at:{phase1.x,phase1.y-starSize} texture:image_file(images_erasme[0]) color:#yellow;	
+	  	 // draw circle(starSize) at:{phase1.x,phase1.y-starSize} texture:image_file(images_erasme[0]) color:#yellow;	
 	  	}
 	  	if(i=1){
-	  	  draw image_file(images_erasme[2]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
+	  	  //draw image_file(images_erasme[2]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
+	  	  draw circle(starSize) texture:image_file(images_erasme[2]);
 	  	}
 	  	if(i=2){
-	  	  draw image_file(images_erasme[3]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
+	  	  //draw image_file(images_erasme[3]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};
+	  	  draw circle(starSize) texture:image_file(images_erasme[3]);	
 	  	}
 	  	
 	  	draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow wireframe:phase1_Star[i]=0 ? true: false;
 	    draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow rotate:180 wireframe:phase1_Star[i]=0 ? true: false;
+	    
+	    
 	    phase1<-{phase1.x+starSize*1.1,phase1.y};	
 	  }
 	  //PHASE 2	  
@@ -777,8 +783,8 @@ experiment CityScopeTable type: gui autorun: true{
 			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
 			{
 				
-				  data "biodiversitré" value: 75 color:rgb(0,255,0);
-				  data "" value: 25 color:#white;
+				  data "biodiversitré" value:length(building where (each.id=2)) + length(building where (each.id=3)) color:rgb(0,255,0);
+				  data "" value: 30- (length(building where (each.id=2)) + length(building where (each.id=3))) color:#white;
 				
 			}
 			
@@ -786,8 +792,8 @@ experiment CityScopeTable type: gui autorun: true{
 			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
 			{
 				
-				  data "Bien Etre" value: 25 color:rgb(0,255,0);
-				  data "" value: 75 color:#white;
+				  data "Bien Etre" value: phase1_Star count (each = 1) + phase2_Star count (each = 1) + phase3_Star count (each = 1) color:rgb(0,255,0);
+				  data "" value: 12 -(phase1_Star count (each = 1) + phase2_Star count (each = 1) + phase3_Star count (each = 1)) color:#white;
 				
 			}
 			
@@ -795,8 +801,8 @@ experiment CityScopeTable type: gui autorun: true{
 			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' y_tick_values_visible:false
 			{
 				
-				  data "Lien Social" value: 50 color:rgb(0,255,0);
-				  data "eco" value: 50 color:#white;
+				  data "Lien Social" value: length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6)) color:rgb(0,255,0);
+				  data "eco" value: 42 - (length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6))) color:#white;
 				
 			}
 			
@@ -826,7 +832,7 @@ experiment CityScopeEdition type: gui autorun: true{
 			{
 				
 				  data "biodiversitré" value:length(building where (each.id=2)) + length(building where (each.id=3)) color:rgb(0,255,0);
-				  data "" value: 25 color:#white;
+				  data "" value: 30-length(building where (each.id=2)) + length(building where (each.id=3)) color:#white;
 				
 			}
 			
@@ -835,7 +841,7 @@ experiment CityScopeEdition type: gui autorun: true{
 			{
 				
 				  data "Bien Etre" value: phase1_Star count (each = 1) + phase2_Star count (each = 1) + phase3_Star count (each = 1) color:rgb(0,255,0);
-				  data "" value: 75 color:#white;
+				  data "" value: 42 color:#white;
 				
 			}
 			
@@ -844,7 +850,7 @@ experiment CityScopeEdition type: gui autorun: true{
 			{
 				
 				  data "Lien Social" value: length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6)) color:rgb(0,255,0);
-				  data "eco" value: 50 color:#white;
+				  data "eco" value: 42 - length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6)) color:#white;
 				
 			}
 			
