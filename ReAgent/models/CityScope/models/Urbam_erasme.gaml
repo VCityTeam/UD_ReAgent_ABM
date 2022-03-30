@@ -147,6 +147,9 @@ global{
 	list<int> phase1_Star<-[0,0,0];
 	list<int> phase2_Star<-[0,0,0,0];
 	list<int> phase3_Star<-[0,0,0,0,0];
+	bool P1<-false;
+	bool P2<-false;
+	bool P3<-false;
 	
 	reflex updateGame{
 		phase1_Star<-[0,0,0];
@@ -159,7 +162,9 @@ global{
 		if length(building where (each.id=4))>=2{
 			phase1_Star[2]<-1;
 		}
-		
+		if(phase1_Star count (each = 1)=3){
+			P1<-true;
+		}
 		
 		
 		phase2_Star<-[0,0,0,0];
@@ -174,6 +179,9 @@ global{
 		}
 		if length(building where (each.id=2))>=5{
 			phase2_Star[3]<-1;
+		}
+		if(phase2_Star count (each = 1)=4){
+			P2<-true;
 		}
 		
 		phase3_Star<-[0,0,0,0,0];
@@ -191,6 +199,9 @@ global{
 		}
 		if length(building where (each.id=6))>=10{
 			phase3_Star[3]<-1;
+		}
+		if(phase3_Star count (each = 1)=5){
+			P3<-true;
 		}
 	}	
 
@@ -525,25 +536,19 @@ species scene{
 	  //PHASE 1	  
 	  point phase1<-{-750,1000};
 	  float starSize<-40#px;
+	  bool drawStar<-true;
 	  loop i from:0 to:length(phase1_Star)-1{
 	  	if(i=0){
-	  	 // draw image_file(images_erasme[0]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};
-	  	  draw square(starSize) at:{phase1.x,phase1.y-starSize} texture:image_file(images_erasme[0]) color:#yellow;	
-	  	 // draw circle(starSize) at:{phase1.x,phase1.y-starSize} texture:image_file(images_erasme[0]) color:#yellow;	
+	  	 draw image_file(images_erasme[0]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
 	  	}
 	  	if(i=1){
-	  	  //draw image_file(images_erasme[2]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
-	  	  draw circle(starSize) texture:image_file(images_erasme[2]);
+	  	 draw image_file(images_erasme[2]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
 	  	}
 	  	if(i=2){
-	  	  //draw image_file(images_erasme[3]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};
-	  	  draw circle(starSize) texture:image_file(images_erasme[3]);	
-	  	}
-	  	
+	  	 draw image_file(images_erasme[3]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
+	  	} 	
 	  	draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow wireframe:phase1_Star[i]=0 ? true: false;
 	    draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow rotate:180 wireframe:phase1_Star[i]=0 ? true: false;
-	    
-	    
 	    phase1<-{phase1.x+starSize*1.1,phase1.y};	
 	  }
 	  //PHASE 2	  
@@ -805,6 +810,13 @@ experiment CityScopeTable type: gui autorun: true{
 				  data "eco" value: 42 - (length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6))) color:#white;
 				
 			}
+			chart "World Limit" type: radar x_serie_labels: ["Novel Entities", "Stratospheric Ozone", "Atmospheric Aerosol", "Ocean Acidification", "Biogeochemical flows", "Freshwater use", "Land-System Change", "Biosphere Integrity", "Climate Change"] series_label_position: xaxis
+			position: {world.shape.width*0.8,world.shape.height*0.25} size: {0.5,0.5}
+			{
+				data "Safe Operating" value: [0.7, 0.8, 1.15 ,0.7, 0.4, 0.6,1.2,1.2, 1.1] color: # green;
+				data "LIMIT" value: [6, 7, 8 ,4,10, 13 ,12, 8, 9] color: # orange;
+				data "US" value: [(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6)))] color: # blue;
+			}
 			
 		}
 	}
@@ -852,6 +864,13 @@ experiment CityScopeEdition type: gui autorun: true{
 				  data "Lien Social" value: length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6)) color:rgb(0,255,0);
 				  data "eco" value: 42 - length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6)) color:#white;
 				
+			}
+			chart "World Limit" type: radar x_serie_labels: ["Novel Entities", "Stratospheric Ozone", "Atmospheric Aerosol", "Ocean Acidification", "Biogeochemical flows", "Freshwater use", "Land-System Change", "Biosphere Integrity", "Climate Change"] series_label_position: xaxis
+			position: {world.shape.width*0.8,world.shape.height*0.25} size: {0.5,0.5}
+			{
+				data "Safe Operating" value: [0.7, 0.8, 1.15 ,0.7, 0.4, 0.6,1.2,1.2, 1.1] color: # green;
+				data "LIMIT" value: [6, 7, 8 ,4,10, 13 ,12, 8, 9] color: # orange;
+				data "US" value: [(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6)))] color: # blue;
 			}
 			
 		}
