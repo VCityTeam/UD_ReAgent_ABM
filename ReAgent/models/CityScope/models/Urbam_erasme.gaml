@@ -162,9 +162,7 @@ global{
 		if length(building where (each.id=4))>=2{
 			phase1_Star[2]<-1;
 		}
-		if(phase1_Star count (each = 1)=3){
-			P1<-true;
-		}
+		P1<-(phase1_Star count (each = 1)=3) ? true:false;
 		
 		
 		phase2_Star<-[0,0,0,0];
@@ -180,9 +178,9 @@ global{
 		if length(building where (each.id=2))>=5{
 			phase2_Star[3]<-1;
 		}
-		if(phase2_Star count (each = 1)=4){
-			P2<-true;
-		}
+
+		P2<-(phase2_Star count (each = 1)=4) ? true:false;
+		
 		
 		phase3_Star<-[0,0,0,0,0];
 		if length(building where (each.id=3))>=12{
@@ -198,11 +196,9 @@ global{
 			phase3_Star[3]<-1;
 		}
 		if length(building where (each.id=6))>=10{
-			phase3_Star[3]<-1;
+			phase3_Star[4]<-1;
 		}
-		if(phase3_Star count (each = 1)=5){
-			P3<-true;
-		}
+		P3<-(phase3_Star count (each = 1)=5) ? true:false;
 	}	
 
 	
@@ -535,7 +531,7 @@ species scene{
 	  draw shape color: #white texture:image_file(imageErasmeFolder+"/screen/plan.png");
 	  //PHASE 1	  
 	  point phase1<-{-750,1000};
-	  float starSize<-40#px;
+	  float starSize<-50#px;
 	  bool drawStar<-true;
 	  loop i from:0 to:length(phase1_Star)-1{
 	  	if(i=0){
@@ -770,6 +766,7 @@ experiment CityScopeTable type: gui autorun: true{
 			species people;
 			species building aspect:screen transparency:0.75;*/
 			species scene aspect:base;
+			//species building;
 			/*overlay position: {150#px, 525#px } size: { 200 #px, 200 #px } background: #black  rounded: true
             {
             	if(show_legend){
@@ -810,12 +807,12 @@ experiment CityScopeTable type: gui autorun: true{
 				  data "eco" value: 42 - (length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6))) color:#white;
 				
 			}
-			chart "World Limit" type: radar x_serie_labels: ["Novel Entities", "Stratospheric Ozone", "Atmospheric Aerosol", "Ocean Acidification", "Biogeochemical flows", "Freshwater use", "Land-System Change", "Biosphere Integrity", "Climate Change"] series_label_position: xaxis
-			position: {world.shape.width*0.8,world.shape.height*0.25} size: {0.5,0.5}
+			chart "Limit Planetaire" type: radar x_serie_labels: ["Pollution", "Azote", "Eau", "Sols", "Biodiversité", "Climat"] series_label_position: xaxis
+			position: {world.shape.width*0.95,world.shape.height*0.3} size: {0.4,0.4} label_font_size: 12 
 			{
-				data "Safe Operating" value: [0.7, 0.8, 1.15 ,0.7, 0.4, 0.6,1.2,1.2, 1.1] color: # green;
-				data "LIMIT" value: [6, 7, 8 ,4,10, 13 ,12, 8, 9] color: # orange;
-				data "US" value: [(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6)))] color: # blue;
+				data "Espace Sûr" value: [3, 3, 3,3,3,3] color: # green;
+				data "Présent" value: [ 10,10, 2 ,5, 10, 5] color: # orange;
+				data "Design" value: [  (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6)))] color: # blue;
 			}
 			
 		}
