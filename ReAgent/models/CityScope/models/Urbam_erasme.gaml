@@ -79,7 +79,9 @@ global{
 		file(imageErasmeFolder +"biodiversite.png"),
 		file(imageErasmeFolder +"composte.png"),
 		file(imageErasmeFolder +"bitume.png"),
-		file(imageErasmeFolder +"culture.png")
+		file(imageErasmeFolder +"culture.png"),
+		file(imageErasmeFolder +"walker.png"),
+		file(imageErasmeFolder +"man.png")
 	];
 	
 	map<string,file> picture_per_id <- ["residentialS"::images_erasme[0],"residentialM"::images_erasme[1],"residentialL"::images_erasme[2],"officeS"::images_erasme[3],"officeM"::images_erasme[4],"officeL"::images_erasme[5]];
@@ -142,6 +144,7 @@ global{
 			location<-{world.shape.width/2,world.shape.height/2};
 			shape<-rectangle(1920*4.6,1080*4.6);
 		}
+		create player;
 		
     }
 	list<int> phase1_Star<-[0,0,0];
@@ -166,10 +169,11 @@ global{
 		
 		
 		phase2_Star<-[0,0,0,0];
-		if length(building where (each.id=3))>=10{
+		
+		if length(building where (each.id=1))>=6{
 			phase2_Star[0]<-1;
 		}
-		if length(building where (each.id=1))>=6{
+		if length(building where (each.id=3))>=10{
 			phase2_Star[1]<-1;
 		}
 		if length(building where (each.id=4))>=3{
@@ -183,10 +187,10 @@ global{
 		
 		
 		phase3_Star<-[0,0,0,0,0];
-		if length(building where (each.id=3))>=12{
+		if length(building where (each.id=1))>=12{
 			phase3_Star[0]<-1;
 		}
-		if length(building where (each.id=1))>=20{
+		if length(building where (each.id=3))>=20{
 			phase3_Star[1]<-1;
 		}
 		if length(building where (each.id=4))>=4{
@@ -508,7 +512,7 @@ species building parent: poi {
 	aspect default {
 		if show_building {
 			
-			draw shape scaled_by 0.75 color: color_erasme__per_id[type+size] texture:image_file(picture_per_id[type+size]) rotate:90;
+			draw shape scaled_by 0.75 color: color_erasme__per_id[type+size] /*texture:image_file(picture_per_id[type+size])*/ rotate:90;
 			//draw image_file(picture_per_id[type+size]) size:{shape.width,shape.height};
 		}
 	}
@@ -523,6 +527,14 @@ species people parent: basic_people skills: [moving]{
 	action reinit_destination {
 		dest <- empty(offices) ? nil : offices.keys[rnd_choice(offices.values)];
 		target <- nil;
+	}
+}
+
+species player{
+	aspect base{
+		float pos<-(P1 and P2 and P3 ? 5.25 : (P1 and P2 ? 3 :(P1 ? 2: 0)));
+		draw image_file((P1 and P2 and P3)? images_erasme[7] :images_erasme[6]) at:{-1000+(pos*1000),world.shape.height/2} size:{100#px,100#px};
+		
 	}
 }
 
@@ -543,8 +555,8 @@ species scene{
 	  	if(i=2){
 	  	 draw image_file(images_erasme[3]) at:{phase1.x,phase1.y-starSize} size:{starSize,starSize};	
 	  	} 	
-	  	draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow wireframe:phase1_Star[i]=0 ? true: false;
-	    draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? #white: #yellow border:phase1_Star[i]=0 ? #black: #yellow rotate:180 wireframe:phase1_Star[i]=0 ? true: false;
+	  	draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? rgb(175,175,175): #yellow ;
+	    draw triangle(starSize) at_location phase1 color:phase1_Star[i]=0 ? rgb(175,175,175): #yellow rotate:180;
 	    phase1<-{phase1.x+starSize*1.1,phase1.y};	
 	  }
 	  //PHASE 2	  
@@ -562,8 +574,8 @@ species scene{
 	  	if(i=3){
 	  	  draw image_file(images_erasme[1]) at:{phase2.x,phase2.y-starSize} size:{starSize,starSize};	
 	  	}
-	  	draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? #white: #yellow border:phase2_Star[i]=0 ? #black: #yellow wireframe:phase2_Star[i]=0 ? true: false ;
-	    draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? #white: #yellow border:phase2_Star[i]=0 ? #black: #yellow  rotate:180 wireframe:phase2_Star[i]=0 ? true: false;
+	  	draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? rgb(175,175,175): #yellow;
+	    draw triangle(starSize) at_location phase2 color:phase2_Star[i]=0 ? rgb(175,175,175): #yellow rotate:180;
 	    phase2<-{phase2.x+starSize*1.1,phase2.y};	
 	  }
 	  //PHASE 3	  
@@ -584,8 +596,8 @@ species scene{
 	  	if(i=4){
 	  	  draw image_file(images_erasme[5]) at:{phase3.x,phase3.y-starSize} size:{starSize,starSize};	
 	  	}
-	  	draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ? #white: #yellow border:phase3_Star[i]=0 ? #black: #yellow wireframe:phase3_Star[i]=0 ? true: false ;
-	    draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ? #white: #yellow border:phase3_Star[i]=0 ? #black: #yellow  rotate:180 wireframe:phase3_Star[i]=0 ? true: false;
+	  	draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ?rgb(175,175,175): #yellow ;
+	    draw triangle(starSize) at_location phase3 color:phase3_Star[i]=0 ? rgb(175,175,175): #yellow rotate:180 ;
 	    phase3<-{phase3.x+starSize*1.1,phase3.y};	
 	  }
 	  
@@ -699,12 +711,14 @@ experiment CityScopeTable type: gui autorun: true{
 	float minimum_cycle_duration <- 0.05;
 	output {
 		display table synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:1 
-		keystone: [{0.020146475104642625,0.10718301069438496,0.0},{-0.029740034678281985,0.9850442310658998,0.0},{1.0028780678720919,0.9314527257187073,0.0},{0.9347637948992523,0.08724198544891815,0.0}]
+		//keystone: [{0.020146475104642625,0.10718301069438496,0.0},{-0.029740034678281985,0.9850442310658998,0.0},{1.0028780678720919,0.9314527257187073,0.0},{0.9347637948992523,0.08724198544891815,0.0}]
+		keystone: [{0.025902610848826224,0.10344406846085996,0.0},{-0.030699390635645918,0.9813052888323748,0.0},{1.0057561357441838,0.9364379820300742,0.0},{0.9347637948992522,0.09845881214949326,0.0}]
 		{
 	   species cell aspect:default;// refresh: on_modification_cells;
 			//species road ;
 			species people;
 			species building;// refresh: on_modification_bds;
+			
 			
 			
 			/*graphics "mobilityMode"{
@@ -756,7 +770,7 @@ experiment CityScopeTable type: gui autorun: true{
 			event["t"] action: {weight_pev<-weight_pev-0.1;}; 
 			event["y"] action: {weight_pev<-weight_pev+0.1;};
 			
-		}	
+		}
 		
 		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 
 		//camera_location: {2500.0,7842.7613,3338.3981} camera_target: {2500.0,2500.0,0.0} camera_orientation: {0.0,0.5299,0.8481}
@@ -766,6 +780,7 @@ experiment CityScopeTable type: gui autorun: true{
 			species people;
 			species building aspect:screen transparency:0.75;*/
 			species scene aspect:base;
+			species player aspect:base;
 			//species building;
 			/*overlay position: {150#px, 525#px } size: { 200 #px, 200 #px } background: #black  rounded: true
             {
@@ -781,16 +796,9 @@ experiment CityScopeTable type: gui autorun: true{
 	            }
             }*/
             
-            chart "Biodiversité" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*1,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
-			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
-			{
-				
-				  data "biodiversitré" value:length(building where (each.id=2)) + length(building where (each.id=3)) color:rgb(0,255,0);
-				  data "" value: 30- (length(building where (each.id=2)) + length(building where (each.id=3))) color:#white;
-				
-			}
+           
 			
-			chart "Bien-Etre" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
+			chart "Bien-Etre" background:#white type: pie style:ring size: {0.18,0.18} position: {world.shape.width*0,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
 			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
 			{
 				
@@ -799,7 +807,7 @@ experiment CityScopeTable type: gui autorun: true{
 				
 			}
 			
-			chart "Lien Social" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0.5,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
+			chart "Lien Social" background:#white type: pie style:ring size: {0.18,0.18} position: {world.shape.width*0.25,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
 			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' y_tick_values_visible:false
 			{
 				
@@ -807,12 +815,31 @@ experiment CityScopeTable type: gui autorun: true{
 				  data "eco" value: 42 - (length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6))) color:#white;
 				
 			}
-			chart "Limit Planetaire" type: radar x_serie_labels: ["Pollution", "Azote", "Eau", "Sols", "Biodiversité", "Climat"] series_label_position: xaxis
+			 chart "Biodiv" background:#white type: pie style:ring size: {0.18,0.18} position: {world.shape.width*0.5,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' 
+			{
+				
+				  data "biodiversité" value:length(building where (each.id=2)) + length(building where (each.id=3)) color:rgb(0,255,0);
+				  data "" value: 30- (length(building where (each.id=2)) + length(building where (each.id=3))) color:#white;
+				
+			}
+			chart "IMPACT" title_font_size:24 type: radar x_serie_labels: ["Biochimie", "Pollution", "Eau", "Perméabilité", "Biodiv", "Climat"] series_label_position: xaxis
 			position: {world.shape.width*0.95,world.shape.height*0.3} size: {0.4,0.4} label_font_size: 12 
 			{
-				data "Espace Sûr" value: [3, 3, 3,3,3,3] color: # green;
-				data "Présent" value: [ 10,10, 2 ,5, 10, 5] color: # orange;
-				data "Design" value: [  (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 5: 6)))] color: # blue;
+				data "Espace Sûr" value: [3, 3, 3,3,3,3] color: #green;
+				data "Actuellement" value: [9,9,9,9,9,9] color: # orange;
+				data "Impact Presqu'ile" value: [  (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 6: 9))),(P1 and P2 and P3 ? 6 : (P1 and P2 ? 7 :(P1 ? 8: 9))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 5 :(P1 ? 7: 9))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 5 :(P1 ? 6: 9))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 5 :(P1 ? 7: 9))), (P1 and P2 and P3 ? 4 : (P1 and P2 ? 5 :(P1 ? 7: 9)))] color: # blue;
+			}
+			
+			graphics mask{
+				 draw rectangle(98#px,280#px) at:{world.shape.width*0,world.shape.height*0.85} color:#white;
+				 draw rectangle(98#px,280#px) at:{world.shape.width*0+262#px,world.shape.height*0.85} color:#white;
+				 
+				 draw rectangle(98#px,280#px) at:{world.shape.width*0.25,world.shape.height*0.85} color:#white;
+				 draw rectangle(98#px,280#px) at:{world.shape.width*0.25+262#px,world.shape.height*0.85} color:#white;
+				 
+				  draw rectangle(98#px,280#px) at:{world.shape.width*0.5,world.shape.height*0.85} color:#white;
+				 draw rectangle(98#px,280#px) at:{world.shape.width*0.5+262#px,world.shape.height*0.85} color:#white;
 			}
 			
 		}
