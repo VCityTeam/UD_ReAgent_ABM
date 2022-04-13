@@ -2,6 +2,7 @@
 
 import * as udviz from 'ud-viz';
 
+
 const app = new udviz.Templates.AllWidget();
 
 app.start('../assets/config/config.json').then((config) => {
@@ -140,4 +141,18 @@ app.start('../assets/config/config.json').then((config) => {
   ///// SLIDESHOW MODULE
   const slideShow = new udviz.Widgets.SlideShow(app, inputManager);
   app.addModuleView('slideShow', slideShow);
+
+
+  let pos_x = parseInt(app.config['camera']['coordinates']['position']['x']);
+  let pos_y = parseInt(app.config['camera']['coordinates']['position']['y']);
+  let pos_z = parseInt(app.config['camera']['coordinates']['position']['z']);
+  let quat_x = parseFloat(app.config['camera']['coordinates']['quaternion']['x']);
+  let quat_y = parseFloat(app.config['camera']['coordinates']['quaternion']['y']);
+  let quat_z = parseFloat(app.config['camera']['coordinates']['quaternion']['z']);
+  let quat_w = parseFloat(app.config['camera']['coordinates']['quaternion']['w']);
+
+  console.log(app.view.camera.camera3D);
+  app.view.camera.camera3D.position.set(pos_x, pos_y, pos_z);
+  app.view.camera.camera3D.quaternion.set(quat_x, quat_y, quat_z, quat_w);
+
 });
