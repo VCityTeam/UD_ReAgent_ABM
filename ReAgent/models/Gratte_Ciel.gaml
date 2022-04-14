@@ -8,7 +8,7 @@
 
 model HelloWorld
 
-import 'TUI.gaml'
+//import 'TUI.gaml'
 
 /* Insert your model definition here */
 
@@ -51,11 +51,11 @@ global {
 			color<-rnd_color(255);
 			mode<-rnd(2);
 		}
-		create TUI{
+		/*create TUI{
 			size<-250#m;
 			nbCells<-8;
 			location<-{world.shape.width/2,world.shape.height/2};
-		}
+		}*/
 	}
 	}
 	
@@ -133,7 +133,7 @@ experiment GratteCiel type: gui {
 			species shop aspect: base visible:show_shop;
 			species road aspect: base visible:show_road;
 			species people aspect: base ;
-			species TUI aspect:base;
+			//species TUI aspect:base;
 			
 			event["b"] {show_building<-!show_building;}
 			event["r"] {show_road<-!show_road;}

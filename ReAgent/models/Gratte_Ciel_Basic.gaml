@@ -8,7 +8,7 @@
 
 model HelloWorld
 
-import 'TUI.gaml'
+//import 'TUI.gaml'
 
 /* Insert your model definition here */
 
@@ -96,11 +96,11 @@ global {
 			}
 		}
 		
-		create TUI{
+		/*create TUI{
 			size<-125#m;
 			nbCells<-8;
 			location<-{world.shape.width*0.2,world.shape.height*0.5};
-		}
+		}*/
 		
 		create legend{
 			location<-{world.shape.width*0.15, world.shape.height*0.85};
@@ -196,7 +196,6 @@ species background{
 }
 
 species legend{
-	
 	aspect base{
 		float x<-location.x;
 		float y<-location.y;
@@ -222,7 +221,7 @@ experiment GratteCielErasme type: gui autorun:true{
 		display city_display type: opengl background:backgroundColor fullscreen:1 synchronized:false 
 
 		{
-			//rotation angle:90;
+			rotation angle:90;
 			camera 'default' location: {254.0627,446.7955,986.6105} target: {254.0627,446.7803,0.0};
 			species background aspect: base visible:show_heatmap;
 			species building aspect: base visible:show_building;
@@ -232,7 +231,7 @@ experiment GratteCielErasme type: gui autorun:true{
 			species people aspect: base visible:show_people;
 			species materials aspect: base visible:show_material;
 
-			species TUI aspect:base refresh:false visible:show_TUI;	
+			//species TUI aspect:base refresh:false visible:show_TUI;	
 			event["b"] {show_building<-!show_building;}
 			event["f"] {show_projet<-!show_projet;}
 			event["e"] {show_existant<-!show_existant;}
