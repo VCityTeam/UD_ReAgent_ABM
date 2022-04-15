@@ -205,7 +205,7 @@ species legend{
 			draw type at: { x, y + 4#px} color: textcolor font: font("Helvetica", 16, #plain) perspective:true;
 			y <- y + 25#px;
 		}
-		//draw rectangle(150#m,300#m) color:#white border:#black at:{location.x,location.y,location.z-0.1};
+		draw rectangle(260#px*1.8,30#px*1.8) rotated_by 90 texture:image_file("./../images/logo_table_white.png") color:#yellow border:#black at:{location.x-110#px,location.y};
 	}
 }
 
@@ -230,6 +230,7 @@ experiment GratteCielErasme type: gui autorun:true{
 			species road aspect: base visible:show_road;
 			species people aspect: base visible:show_people;
 			species materials aspect: base visible:show_material;
+			species legend aspect:base;
 
 			//species TUI aspect:base refresh:false visible:show_TUI;	
 			event["b"] {show_building<-!show_building;}
@@ -296,7 +297,7 @@ experiment GratteCielErasme type: gui autorun:true{
 					y <- y + 25#px;
 					
 					y <- y + 300#px;
-					draw image_file('../images/logo_table_white.png') at: { x+300#px, y } size:{1000#px,115#px};
+					//draw image_file('../images/logo_table_white.png') at: { x+300#px, y } size:{1000#px,115#px};
 	
 				
 	            }
