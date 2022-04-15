@@ -40,7 +40,7 @@ global {
 	bool show_people<-true;
 	bool show_material<-true;
 	bool show_legend<-true;
-	bool show_heatmap<-true;
+	bool show_heatmap<-false;
 	bool show_wireframe<-false;
 	bool show_TUI<-true;
 	rgb backgroundColor<-#white;
@@ -222,7 +222,8 @@ experiment GratteCielErasme type: gui autorun:true{
 
 		{
 			rotation angle:90;
-			camera 'default' location: {254.0627,446.7955,986.6105} target: {254.0627,446.7803,0.0};
+			//camera 'default' location: {254.0627,446.7955,986.6105} target: {254.0627,446.7803,0.0};
+			camera 'default' location: {256.0359,459.6214,986.6105} target: {256.0359,459.6062,0.0};
 			species background aspect: base visible:show_heatmap;
 			species building aspect: base visible:show_building;
 			species projet aspect: base visible:show_projet;
