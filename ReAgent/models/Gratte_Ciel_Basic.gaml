@@ -66,19 +66,23 @@ global {
 		the_graph <- as_edge_graph(road);
 		
 		
-		create people number: 100 {
+		create people number: 1000 {
 			location <- any_location_in (one_of(building)); 
 			color<-rnd_color(255);
 			mode<-rnd(2);
 			if(flip(0.25)){
 				my_speed<-0.1#m/#sec;
+				type<-"car";
 			}else{
 				if(flip(0.25)){
 				my_speed<-0.05#m/#sec;	
+				type<-"bike";
 				}else{
-				my_speed<-0.01#m/#sec;		
+				my_speed<-0.01#m/#sec;
+				type<-"pedestrian";		
 				}
 			}
+			my_speed<-my_speed*10;
 		}
 		
 		create materials number: 100 {
@@ -160,7 +164,7 @@ species road  {
 species people skills:[moving] {
     rgb color;
     int mode;
-	int type;
+	string type;
 	list<point> locs;
 	float my_speed;
 	 
@@ -196,16 +200,17 @@ species background{
 }
 
 species legend{
+	
 	aspect base{
 		float x<-location.x;
 		float y<-location.y;
 		loop type over: standard_color_per_type.keys
 		{
 			draw square(10#px) at: { x - 20#px, y } color: standard_color_per_type[type] border: #black;
-			draw type at: { x, y + 4#px} color: textcolor font: font("Helvetica", 16, #plain) perspective:true;
+			draw type at: { x, y + 4#px} color: #black font: font("Helvetica", 16, #plain) perspective:true;
 			y <- y + 25#px;
 		}
-		draw rectangle(260#px*1.8,30#px*1.8) rotated_by 90 texture:image_file("./../images/logo_table_white.png") color:#yellow border:#black at:{location.x-110#px,location.y};
+		//draw rectangle(260#px*1.8,30#px*1.8) rotated_by 90 texture:image_file("./../images/logo_table_white.png") color:#yellow border:#black at:{location.x-110#px,location.y};
 	}
 }
 
@@ -218,7 +223,7 @@ experiment GratteCielErasme type: gui autorun:true{
 
 	float minimum_cycle_duration<-0.01;
 	output {
-		display city_display type: opengl background:backgroundColor fullscreen:1 synchronized:false 
+		display city_display type: opengl background:backgroundColor fullscreen:false synchronized:false 
 
 		{
 			rotation angle:90;
@@ -244,7 +249,7 @@ experiment GratteCielErasme type: gui autorun:true{
 			event["w"] {show_wireframe<-!show_wireframe;}
 			event["h"] {show_heatmap<-!show_heatmap;}
 					
-			overlay position: { 200#px, 100#px } size: { 300 #px, 300 #px } background: #blue  rounded: true
+			/*overlay position: { -200#px, 100#px } size: { 300 #px, 300 #px } background: #blue  rounded: true
             {
             	if(show_legend){
             		
@@ -253,14 +258,14 @@ experiment GratteCielErasme type: gui autorun:true{
 					float textSize<-30.0;
 					float gapBetweenColum<-250#px;
 					
-					/*draw "Phase" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
+					draw "Phase" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
 					y <- y + 30 #px;
 					loop phase over: project_color_per_phase.keys
 					{
 					    draw square(10#px) at: { x - 20#px, y } color: project_color_per_phase[phase] border: #white;
 					    draw string(phase) at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					    y <- y + 25#px;
-					}*/
+					}
 					
 					
 					y <- 50#px;
@@ -302,7 +307,7 @@ experiment GratteCielErasme type: gui autorun:true{
 	
 				
 	            }
-          }
+          }*/
 		}
 	}
 }
