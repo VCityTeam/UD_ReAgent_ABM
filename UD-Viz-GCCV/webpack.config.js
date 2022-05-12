@@ -1,5 +1,6 @@
 /** @format */
 const path = require('path');
+const WebSocket = require('websocket');
 const mode = process.env.NODE_ENV;
 const debugBuild = mode === 'development';
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -35,13 +36,14 @@ module.exports = (env) => {
   ];
 
   const plugins = [];
-  if (debugBuild)
+  if (debugBuild) 
     plugins.push(
       new HtmlWebpackPlugin({
         title: 'Demo debug',
         filename: 'index.html',
       })
     );
+  
 
   const config = {
     mode,

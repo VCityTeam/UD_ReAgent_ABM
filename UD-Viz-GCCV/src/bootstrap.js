@@ -2,6 +2,11 @@
 
 import * as udviz from 'ud-viz';
 
+//itowns
+import * as itowns from 'itowns';
+export { itowns };
+
+
 
 const app = new udviz.Templates.AllWidget();
 
@@ -156,3 +161,128 @@ app.start('../assets/config/config.json').then((config) => {
   app.view.camera.camera3D.quaternion.set(quat_x, quat_y, quat_z, quat_w);
 
 });
+
+var ws = new WebSocket('ws://localhost:6868/');
+
+
+WebSocket.prototype.sendMessage = function (message) {
+  this.send(message);
+  console.log('Message sent: ' + message);
+}
+
+
+function log(e) {
+  console.log(e);
+}
+var modelPath = 'C:\\git\\UD_ReAgent_ABM\\ReAgent\\models\\Gratte_Ciel_Basic.gaml';
+var experimentName = 'GratteCielErasme';
+var species1Name = 'people';
+var attribute1Name = 'type';
+
+var geojson;
+var marne;
+
+
+
+
+
+var queue = [];
+var a_request = "";
+var result = "";
+var socket_id = 0;
+var exp_id = 0;
+var executor_speed = 1;
+var executor = setInterval(() => {
+  if (queue.length > 0 && a_request === "") {
+    a_request = queue.shift();
+    a_request.exp_id = exp_id;
+    a_request.socket_id = socket_id;
+    ws.send(JSON.stringify(a_request));
+    log("request " + JSON.stringify(a_request));
+    ws.onmessage = function (event) {
+      var msg = event.data;
+      if (event.data instanceof Blob) { } else {
+        if (a_request.callback) {
+          a_request.callback(msg);
+        } else {
+          a_request = "";
+        }
+      }
+    }
+  }
+
+}, executor_speed);
+ws.onclose = function (event) {
+  clearInterval(executor);
+};
+
+
+
+ws.onopen = function (event) {
+
+  var cmd = {
+    "type": "launch",
+    "model": modelPath,
+    "experiment": experimentName,
+    "callback": function (e) {
+      log(e);
+      result = JSON.parse(e);
+      if (result.exp_id) exp_id = result.exp_id;
+      if (result.socket_id) socket_id = result.socket_id;
+      a_request = "";
+    }
+  };
+  queue.push(cmd);
+
+  cmd = {
+    'type': 'output',
+    'species': species1Name,
+    'attributes': [attribute1Name],
+    'socket_id': socket_id,
+    'exp_id': exp_id,
+    "callback": function (message) {
+      if (typeof event.data == "object") {
+
+      } else {
+        geojson = null;
+        geojson = JSON.parse(message);
+        console.log(geojson);
+        marne = new itowns.FeatureGeometryLayer('Marne', {
+          // Use a FileSource to load a single file once
+          source: 
+          
+          new itowns.FileSource({
+            url: 'https://raw.githubusercontent.com/iTowns/iTowns2-sample-data/master/multipolygon.geojson',
+            crs: 'EPSG:4326',
+            format: 'application/json',
+          })
+          ,
+          transparent: true,
+          opacity: 0.7,
+          zoom: { min: 10 },
+          style: new itowns.Style({
+            fill: {
+              // color: new itowns.THREE.Color(0xbbffbb),
+              extrusion_height: 80,
+            }
+          })
+        });
+
+        app.view.addLayer(marne).then(function menu(layer) {
+          var gui = debug.GeometryDebug.createGeometryDebugUI(menuGlobe.gui, view, layer);
+          debug.GeometryDebug.addWireFrameCheckbox(gui, view, layer);
+        });
+        // map.getSource('source1').setData(geojson);
+
+      }
+      a_request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
+    }
+  };
+  queue.push(cmd);
+
+}
+
+ws.onerror = function (event) {
+  console.log('An error occurred. Sorry for that.');
+}
+

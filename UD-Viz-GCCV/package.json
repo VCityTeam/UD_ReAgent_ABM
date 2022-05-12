@@ -19,7 +19,8 @@
     "timsort": "^0.3.0",
     "ud-viz": "^2.36.5",
     "uuid": "^8.3.2",
-    "vis-util": "^5.0.2"
+    "vis-util": "^5.0.2",
+    "websocket": "^1.0.34"
   },
   "devDependencies": {
     "child-process-promise": "^2.2.1",
