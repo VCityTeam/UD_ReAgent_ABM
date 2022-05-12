@@ -5,6 +5,9 @@ import * as udviz from 'ud-viz';
 //itowns
 import * as itowns from 'itowns';
 export { itowns };
+//itowns
+import * as debug from 'debug';
+export { debug };
 
 
 
@@ -180,12 +183,13 @@ var species1Name = 'people';
 var attribute1Name = 'type';
 
 var geojson;
-var marne;
+var gama_layer;
 
 
 
 
 
+var updateSource;
 var queue = [];
 var a_request = "";
 var result = "";
@@ -214,6 +218,7 @@ var executor = setInterval(() => {
 }, executor_speed);
 ws.onclose = function (event) {
   clearInterval(executor);
+  clearInterval(updateSource);
 };
 
 
@@ -233,56 +238,75 @@ ws.onopen = function (event) {
     }
   };
   queue.push(cmd);
-
   cmd = {
-    'type': 'output',
-    'species': species1Name,
-    'attributes': [attribute1Name],
-    'socket_id': socket_id,
-    'exp_id': exp_id,
-    "callback": function (message) {
-      if (typeof event.data == "object") {
-
-      } else {
-        geojson = null;
-        geojson = JSON.parse(message);
-        console.log(geojson);
-        marne = new itowns.FeatureGeometryLayer('Marne', {
-          // Use a FileSource to load a single file once
-          source: 
-          
-          new itowns.FileSource({
-            url: 'https://raw.githubusercontent.com/iTowns/iTowns2-sample-data/master/multipolygon.geojson',
-            crs: 'EPSG:4326',
-            format: 'application/json',
-          })
-          ,
-          transparent: true,
-          opacity: 0.7,
-          zoom: { min: 10 },
-          style: new itowns.Style({
-            fill: {
-              // color: new itowns.THREE.Color(0xbbffbb),
-              extrusion_height: 80,
-            }
-          })
-        });
-
-        app.view.addLayer(marne).then(function menu(layer) {
-          var gui = debug.GeometryDebug.createGeometryDebugUI(menuGlobe.gui, view, layer);
-          debug.GeometryDebug.addWireFrameCheckbox(gui, view, layer);
-        });
-        // map.getSource('source1').setData(geojson);
-
-      }
-      a_request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
-    }
+    "type": "play",
+    "socket_id": socket_id,
+    "exp_id": exp_id
   };
   queue.push(cmd);
 
-}
 
+  updateSource = setInterval(() => {
+    cmd = {
+      'type': 'output',
+      'species': "people",
+      'attributes': [],
+      'socket_id': socket_id,
+      'exp_id': exp_id,
+      "callback": function (message) {
+        if (typeof event.data == "object") {
+
+        } else {
+          geojson = null;
+          geojson = JSON.parse(message);
+
+
+          // if (added) { app.view.removeLayer(marne); }
+          if (added) {
+
+
+ 
+            app.view.removeLayer("GAMA");
+          }  
+            added = 1;
+            _source = new itowns.FileSource({
+              fetchedData: geojson,
+              crs: 'EPSG:3946',
+              format: 'application/json',
+            });
+            gama_layer = new itowns.FeatureGeometryLayer('GAMA', {
+              // Use a FileSource to load a single file once
+              source: _source
+              ,
+              transparent: true,
+              opacity: 1,
+              // zoom: { min: 10 },
+              style: new itowns.Style({
+                fill: {
+                  // color: new itowns.THREE.Color(0xbbffbb),
+                }
+              })
+            });
+            app.view.addLayer(gama_layer);
+          
+          app.update3DView();
+
+
+        }
+        a_request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
+      }
+    };
+    queue.push(cmd);
+  }, 1);
+}
+var _source;
+var added = 0;
 ws.onerror = function (event) {
   console.log('An error occurred. Sorry for that.');
 }
 
+
+function onReceiveMsg(e) {
+  console.log(e);
+  a_request = "";
+}

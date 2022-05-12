@@ -23,12 +23,12 @@
     "file": "file",
     "guidedTour": "guidedTour",
     "link": "link"
-  },
+  }, 
   "extents": {
-    "min_x": "1845869.7865",
+    "min_x": "1845869.7865", 
     "max_x": "1846369.7865",
-    "min_y": "5175547.8019000003",
-    "max_y": "5176547.8019000003"
+    "min_y": "5175599.9548497945",
+    "max_y": "5176547.801899999"
   },
   "projection": "EPSG:3946",
   "background_image_layer": {

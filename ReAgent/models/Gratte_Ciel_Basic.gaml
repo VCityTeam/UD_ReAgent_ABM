@@ -167,7 +167,7 @@ species people skills:[moving] {
 	string type;
 	list<point> locs;
 	float my_speed;
-	 
+	 geometry shape<-circle(2#m);
 	reflex move {
 		do wander on:the_graph speed:my_speed;
 	}
