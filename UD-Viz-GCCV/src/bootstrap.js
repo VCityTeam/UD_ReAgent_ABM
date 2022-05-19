@@ -177,7 +177,7 @@ WebSocket.prototype.sendMessage = function (message) {
 function log(e) {
   console.log(e);
 }
-var modelPath = 'C:\\git\\UD_ReAgent_ABM\\ReAgent\\models\\Gratte_Ciel_Basic.gaml';
+var modelPath = '/Users/hqn88/git/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Basic.gaml';
 var experimentName = 'GratteCielErasme';
 var species1Name = 'people';
 var attribute1Name = 'type';
@@ -251,6 +251,7 @@ ws.onopen = function (event) {
       'type': 'output',
       'species': "people",
       'attributes': [],
+      "crs":'EPSG:3946',
       'socket_id': socket_id,
       'exp_id': exp_id,
       "callback": function (message) {
