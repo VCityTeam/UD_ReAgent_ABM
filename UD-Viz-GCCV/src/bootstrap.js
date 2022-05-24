@@ -177,26 +177,26 @@ WebSocket.prototype.sendMessage = function (message) {
 function log(e) {
   console.log(e);
 }
-var modelPath = '/Users/hqn88/git/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Basic.gaml';
-var experimentName = 'GratteCielErasme';
-var species1Name = 'people';
-var attribute1Name = 'type';
+const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Basic.gaml';
+const experimentName = 'GratteCielErasme';
+const species1Name = 'people';
+const attribute1Name = 'type';
 
-var geojson;
-var gama_layer;
-
-
+let geojson;
+let gama_layer;
 
 
 
-var updateSource;
-var queue = [];
-var a_request = "";
-var result = "";
-var socket_id = 0;
-var exp_id = 0;
-var executor_speed = 1;
-var executor = setInterval(() => {
+let updateSource;
+let queue = [];
+let a_request = "";
+let result = "";
+let socket_id = 0;
+let exp_id = 0;
+let executor_speed = 1;
+
+
+let executor = setInterval(() => {
   if (queue.length > 0 && a_request === "") {
     a_request = queue.shift();
     a_request.exp_id = exp_id;
@@ -204,7 +204,7 @@ var executor = setInterval(() => {
     ws.send(JSON.stringify(a_request));
     log("request " + JSON.stringify(a_request));
     ws.onmessage = function (event) {
-      var msg = event.data;
+      let msg = event.data;
       if (event.data instanceof Blob) { } else {
         if (a_request.callback) {
           a_request.callback(msg);
@@ -225,7 +225,7 @@ ws.onclose = function (event) {
 
 ws.onopen = function (event) {
 
-  var cmd = {
+  let cmd = {
     "type": "launch",
     "model": modelPath,
     "experiment": experimentName,
@@ -263,18 +263,17 @@ ws.onopen = function (event) {
 
 
           // if (added) { app.view.removeLayer(marne); }
-          if (added) {
-
-
- 
-            app.view.removeLayer("GAMA");
-          }  
+            if (added) {
+              app.view.removeLayer("GAMA");
+            }  
             added = 1;
+
             _source = new itowns.FileSource({
               fetchedData: geojson,
               crs: 'EPSG:3946',
               format: 'application/json',
             });
+
             gama_layer = new itowns.FeatureGeometryLayer('GAMA', {
               // Use a FileSource to load a single file once
               source: _source
@@ -298,7 +297,7 @@ ws.onopen = function (event) {
       }
     };
     queue.push(cmd);
-  }, 1);
+  },    1);
 }
 var _source;
 var added = 0;
