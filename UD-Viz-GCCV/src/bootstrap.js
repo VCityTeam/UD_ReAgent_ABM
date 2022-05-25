@@ -26,10 +26,6 @@ app.start('../assets/config/config.json').then((config) => {
   const about = new udviz.Widgets.AboutWindow();
   app.addModuleView('about', about);
 
-  ////// HELP MODULE
-  const help = new udviz.Widgets.Extensions.HelpWindow(config.helpWindow);
-  app.addModuleView('help', help);
-
   ////// AUTHENTICATION MODULE
   const authenticationService =
     new udviz.Widgets.Extensions.AuthenticationService(
@@ -124,14 +120,6 @@ app.start('../assets/config/config.json').then((config) => {
     app.controls,
     app.config
   );
-
-  ////// 3DTILES DEBUG
-  const debug3dTilesWindow = new udviz.Widgets.Extensions.Debug3DTilesWindow(
-    app.layerManager
-  );
-  app.addModuleView('3dtilesDebug', debug3dTilesWindow, {
-    name: '3DTiles Debug',
-  });
 
   ////// CAMERA POSITIONER
   const cameraPosition = new udviz.Widgets.CameraPositionerView(
