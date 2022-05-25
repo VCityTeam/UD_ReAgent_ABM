@@ -10,7 +10,6 @@ import * as debug from 'debug';
 export { debug };
 
 
-
 const app = new udviz.Templates.AllWidget();
 
 app.start('../assets/config/config.json').then((config) => {
@@ -165,14 +164,13 @@ app.start('../assets/config/config.json').then((config) => {
 
 });
 
-var ws = new WebSocket('ws://localhost:6868/');
+let wSocket = new WebSocket('ws://localhost:6868/');
 
 
 WebSocket.prototype.sendMessage = function (message) {
   this.send(message);
   console.log('Message sent: ' + message);
 }
-
 
 function log(e) {
   console.log(e);
@@ -185,45 +183,41 @@ const attribute1Name = 'type';
 let geojson;
 let gama_layer;
 
-
-
-let updateSource;
-let queue = [];
-let a_request = "";
-let result = "";
 let socket_id = 0;
 let exp_id = 0;
+
+
+let queue = [];
+let request = "";
+let result = "";
+let updateSource;
 let executor_speed = 1;
-
-
 let executor = setInterval(() => {
-  if (queue.length > 0 && a_request === "") {
-    a_request = queue.shift();
-    a_request.exp_id = exp_id;
-    a_request.socket_id = socket_id;
-    ws.send(JSON.stringify(a_request));
-    log("request " + JSON.stringify(a_request));
-    ws.onmessage = function (event) {
+  if (queue.length > 0 && request === "") {
+    request = queue.shift();
+    request.exp_id = exp_id;
+    request.socket_id = socket_id;
+    wSocket.send(JSON.stringify(request));
+    log("request " + JSON.stringify(request));
+    wSocket.onmessage = function (event) {
       let msg = event.data;
       if (event.data instanceof Blob) { } else {
-        if (a_request.callback) {
-          a_request.callback(msg);
+        if (request.callback) {
+          request.callback(msg);
         } else {
-          a_request = "";
+          request = "";
         }
       }
     }
   }
 
 }, executor_speed);
-ws.onclose = function (event) {
+wSocket.onclose = function (event) {
   clearInterval(executor);
   clearInterval(updateSource);
 };
 
-
-
-ws.onopen = function (event) {
+wSocket.onopen = function (event) {
 
   let cmd = {
     "type": "launch",
@@ -234,7 +228,7 @@ ws.onopen = function (event) {
       result = JSON.parse(e);
       if (result.exp_id) exp_id = result.exp_id;
       if (result.socket_id) socket_id = result.socket_id;
-      a_request = "";
+      request = "";
     }
   };
   queue.push(cmd);
@@ -260,8 +254,6 @@ ws.onopen = function (event) {
         } else {
           geojson = null;
           geojson = JSON.parse(message);
-
-
           // if (added) { app.view.removeLayer(marne); }
             if (added) {
               app.view.removeLayer("GAMA");
@@ -283,7 +275,7 @@ ws.onopen = function (event) {
               // zoom: { min: 10 },
               style: new itowns.Style({
                 fill: {
-                  // color: new itowns.THREE.Color(0xbbffbb),
+                     //color: new itowns.THREE.Color(0xbbffbb),
                 }
               })
             });
@@ -293,7 +285,7 @@ ws.onopen = function (event) {
 
 
         }
-        a_request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
+        request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
       }
     };
     queue.push(cmd);
@@ -301,12 +293,12 @@ ws.onopen = function (event) {
 }
 var _source;
 var added = 0;
-ws.onerror = function (event) {
+wSocket.onerror = function (event) {
   console.log('An error occurred. Sorry for that.');
 }
 
 
 function onReceiveMsg(e) {
   console.log(e);
-  a_request = "";
+  request = "";
 }
