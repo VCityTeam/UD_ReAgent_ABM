@@ -13,11 +13,11 @@ export { debug };
 const app = new udviz.Templates.AllWidget();
 
 app.start('../assets/config/config.json').then((config) => {
-  app.addBaseMapLayer();
+  //app.addBaseMapLayer();
 
-  app.addElevationLayer();
+ // app.addElevationLayer();
 
-  app.setupAndAdd3DTilesLayers();
+  //app.setupAndAdd3DTilesLayers();
 
   ////// REQUEST SERVICE
   const requestService = new udviz.Components.RequestService();
@@ -121,6 +121,7 @@ app.start('../assets/config/config.json').then((config) => {
     app.config
   );
 
+
   ////// CAMERA POSITIONER
   const cameraPosition = new udviz.Widgets.CameraPositionerView(
     app.view,
@@ -174,6 +175,8 @@ let gama_layer;
 let socket_id = 0;
 let exp_id = 0;
 
+let added = 0;
+
 
 let queue = [];
 let request = "";
@@ -186,7 +189,7 @@ let executor = setInterval(() => {
     request.exp_id = exp_id;
     request.socket_id = socket_id;
     wSocket.send(JSON.stringify(request));
-    log("request " + JSON.stringify(request));
+    //log("request " + JSON.stringify(request));
     wSocket.onmessage = function (event) {
       let msg = event.data;
       if (event.data instanceof Blob) { } else {
@@ -232,18 +235,20 @@ wSocket.onopen = function (event) {
     cmd = {
       'type': 'output',
       'species': "people",
-      'attributes': [],
+      'attributes': [attribute1Name],
       "crs":'EPSG:3946',
       'socket_id': socket_id,
       'exp_id': exp_id,
       "callback": function (message) {
         if (typeof event.data == "object") {
-
         } else {
           geojson = null;
           geojson = JSON.parse(message);
+          //log("geojson -----> " + message);
           // if (added) { app.view.removeLayer(marne); }
             if (added) {
+              log("layer removed");
+
               app.view.removeLayer("GAMA");
             }  
             added = 1;
@@ -256,18 +261,19 @@ wSocket.onopen = function (event) {
 
             gama_layer = new itowns.FeatureGeometryLayer('GAMA', {
               // Use a FileSource to load a single file once
-              source: _source
-              ,
+              source: _source,
               transparent: true,
               opacity: 1,
               // zoom: { min: 10 },
               style: new itowns.Style({
                 fill: {
-                     //color: new itowns.THREE.Color(0xbbffbb),
+                     color: 'red' ,
                 }
               })
             });
-            app.view.addLayer(gama_layer);
+
+            
+          app.view.addLayer(gama_layer);
           
           app.update3DView();
 
@@ -277,10 +283,10 @@ wSocket.onopen = function (event) {
       }
     };
     queue.push(cmd);
-  },    1);
+  },    10);
 }
 var _source;
-var added = 0;
+
 wSocket.onerror = function (event) {
   console.log('An error occurred. Sorry for that.');
 }
