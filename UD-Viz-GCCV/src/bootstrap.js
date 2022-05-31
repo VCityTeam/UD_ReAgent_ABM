@@ -182,11 +182,26 @@ function setPeopleColor(properties) {
   }
 }
 
+function setBuildingColor(properties) {
+  if (properties.type === "apartments"){
+    return 'blue';//new itowns.THREE.Color(0xaaaaaa);
+  }
+  if (properties.type === "school"){
+    return 'green';//new itowns.THREE.Color(0xaaaaaa);
+  }
+  if (properties.type === "construction"){
+    return 'yellow';//new itowns.THREE.Color(0xaaaaaa);
+  }
+  return 'blue';
+}
+
 
 const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Basic.gaml';
 const experimentName = 'GratteCielErasme';
 const species1Name = 'people';
 const attribute1Name = 'type';
+const species2Name = 'building';
+const attribute2Name = 'type';
 
 let geojson;
 let gama_layer;
@@ -194,7 +209,8 @@ let gama_layer;
 let socket_id = 0;
 let exp_id = 0;
 
-let added = 0;
+let layer0added = 0;
+let layer1added = 0;
 
 
 let queue = [];
@@ -253,7 +269,7 @@ wSocket.onopen = function (event) {
   updateSource = setInterval(() => {
     cmd = {
       'type': 'output',
-      'species': "people",
+      'species': species1Name,
       'attributes': [attribute1Name],
       "crs":'EPSG:3946',
       'socket_id': socket_id,
@@ -263,11 +279,11 @@ wSocket.onopen = function (event) {
         } else {
         geojson = null;
         geojson = JSON.parse(message);
-        if (added) {
+        if (layer0added) {
           log("layer removed");
           app.view.removeLayer("GAMA");
         }  
-        added = 1;
+        layer0added = 1;
 
         _source = new itowns.FileSource({
           fetchedData: geojson,
@@ -280,7 +296,6 @@ wSocket.onopen = function (event) {
           source: _source,
           transparent: true,
           opacity: 1,
-          //zoom: { min: 10 },
           style: new itowns.Style({
             fill: {
                   //base_altitude: setAltitude,
@@ -289,11 +304,55 @@ wSocket.onopen = function (event) {
             }
           })
         });
-
-            
-          app.view.addLayer(gama_layer);
+    
+        app.view.addLayer(gama_layer);
           
-          app.update3DView();
+        app.update3DView();
+        }
+        request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
+      }
+    };
+    queue.push(cmd);
+    cmd = {
+      'type': 'output',
+      'species': species2Name,
+      'attributes': [attribute2Name],
+      "crs":'EPSG:3946',
+      'socket_id': socket_id,
+      'exp_id': exp_id,
+      "callback": function (message) {
+        if (typeof event.data == "object") {
+        } else {
+        geojson = null;
+        geojson = JSON.parse(message);
+        if (layer1added) {
+          log("layer removed");
+          app.view.removeLayer("building");
+        }  
+        layer1added = 1;
+
+        _source = new itowns.FileSource({
+          fetchedData: geojson,
+          crs: 'EPSG:3946',
+          format: 'application/json',
+        });
+
+        gama_layer = new itowns.FeatureGeometryLayer('building', {
+          // Use a FileSource to load a single file once
+          source: _source,
+          transparent: true,
+          opacity: 1,
+          style: new itowns.Style({
+            fill: {
+                  extrusion_height: 10,
+                  color: setBuildingColor ,
+            }
+          })
+        });
+      
+        app.view.addLayer(gama_layer);
+          
+        app.update3DView();
         }
         request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
       }
