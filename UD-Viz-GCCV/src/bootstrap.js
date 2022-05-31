@@ -164,6 +164,25 @@ WebSocket.prototype.sendMessage = function (message) {
 function log(e) {
   console.log(e);
 }
+
+function setAltitude(properties) {
+  console.log("properties");
+  console.log(properties);
+}
+
+function setPeopleColor(properties) {
+  if (properties.type === "car"){
+    return 'red';//new itowns.THREE.Color(0xaaaaaa);
+  }
+  if (properties.type === "bike"){
+    return 'green';//new itowns.THREE.Color(0xaaaaaa);
+  }
+  if (properties.type === "pedestrian"){
+    return 'blue';//new itowns.THREE.Color(0xaaaaaa);
+  }
+}
+
+
 const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Basic.gaml';
 const experimentName = 'GratteCielErasme';
 const species1Name = 'people';
@@ -242,42 +261,39 @@ wSocket.onopen = function (event) {
       "callback": function (message) {
         if (typeof event.data == "object") {
         } else {
-          geojson = null;
-          geojson = JSON.parse(message);
-          //log("geojson -----> " + message);
-          // if (added) { app.view.removeLayer(marne); }
-            if (added) {
-              log("layer removed");
+        geojson = null;
+        geojson = JSON.parse(message);
+        if (added) {
+          log("layer removed");
+          app.view.removeLayer("GAMA");
+        }  
+        added = 1;
 
-              app.view.removeLayer("GAMA");
-            }  
-            added = 1;
+        _source = new itowns.FileSource({
+          fetchedData: geojson,
+          crs: 'EPSG:3946',
+          format: 'application/json',
+        });
 
-            _source = new itowns.FileSource({
-              fetchedData: geojson,
-              crs: 'EPSG:3946',
-              format: 'application/json',
-            });
-
-            gama_layer = new itowns.FeatureGeometryLayer('GAMA', {
-              // Use a FileSource to load a single file once
-              source: _source,
-              transparent: true,
-              opacity: 1,
-              // zoom: { min: 10 },
-              style: new itowns.Style({
-                fill: {
-                     color: 'red' ,
-                }
-              })
-            });
+        gama_layer = new itowns.FeatureGeometryLayer('GAMA', {
+          // Use a FileSource to load a single file once
+          source: _source,
+          transparent: true,
+          opacity: 1,
+          //zoom: { min: 10 },
+          style: new itowns.Style({
+            fill: {
+                  //base_altitude: setAltitude,
+                  extrusion_height: 1,
+                  color: setPeopleColor ,
+            }
+          })
+        });
 
             
           app.view.addLayer(gama_layer);
           
           app.update3DView();
-
-
         }
         request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
       }
