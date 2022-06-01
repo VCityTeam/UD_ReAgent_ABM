@@ -40,88 +40,7 @@ app.start('../assets/config/config.json').then((config) => {
     type: udviz.Templates.AllWidget.AUTHENTICATION_MODULE,
   });
 
-  ////// DOCUMENTS MODULE
-  let documentModule = new udviz.Widgets.DocumentModule(
-    requestService,
-    app.config
-  );
-  app.addModuleView('documents', documentModule.view);
-
-  ////// DOCUMENTS VISUALIZER EXTENSION (to orient the document)
-  const imageOrienter = new udviz.Widgets.DocumentVisualizerWindow(
-    documentModule,
-    app.view,
-    app.controls
-  );
-
-  ////// CONTRIBUTE EXTENSION
-  new udviz.Widgets.Extensions.ContributeModule(
-    documentModule,
-    imageOrienter,
-    requestService,
-    app.view,
-    app.controls,
-    app.config
-  );
-
-  ////// VALIDATION EXTENSION
-  new udviz.Widgets.Extensions.DocumentValidationModule(
-    documentModule,
-    requestService,
-    app.config
-  );
-
-  ////// DOCUMENT COMMENTS
-  new udviz.Widgets.Extensions.DocumentCommentsModule(
-    documentModule,
-    requestService,
-    app.config
-  );
-
-  ////// GUIDED TOURS MODULE
-  const guidedtour = new udviz.Widgets.GuidedTourController(
-    documentModule,
-    requestService,
-    app.config
-  );
-  app.addModuleView('guidedTour', guidedtour, {
-    name: 'Guided Tours',
-  });
-
-  ////// GEOCODING EXTENSION
-  const geocodingService = new udviz.Widgets.Extensions.GeocodingService(
-    requestService,
-    app.extent,
-    app.config
-  );
-  const geocodingView = new udviz.Widgets.Extensions.GeocodingView(
-    geocodingService,
-    app.controls,
-    app.view
-  );
-  app.addModuleView('geocoding', geocodingView, {
-    binding: 's',
-    name: 'Address Search',
-  });
-
-  ////// CITY OBJECTS MODULE
-  let cityObjectModule = new udviz.Widgets.CityObjectModule(
-    app.layerManager,
-    app.config
-  );
-  app.addModuleView('cityObjects', cityObjectModule.view);
-
-  ////// LINKS MODULE
-  new udviz.Widgets.LinkModule(
-    documentModule,
-    cityObjectModule,
-    requestService,
-    app.view,
-    app.controls,
-    app.config
-  );
-
-
+ 
   ////// CAMERA POSITIONER
   const cameraPosition = new udviz.Widgets.CameraPositionerView(
     app.view,
@@ -191,6 +110,15 @@ function setBuildingColor(properties) {
   }
   if (properties.type === "construction"){
     return 'yellow';//new itowns.THREE.Color(0xaaaaaa);
+  }
+  if (properties.type === "civic"){
+    return 'orange';//new itowns.THREE.Color(0xaaaaaa);
+  }
+  if (properties.type === "church"){
+    return 'white';//new itowns.THREE.Color(0xaaaaaa);
+  }
+  if (properties.type === "service"){
+    return 'pink';//new itowns.THREE.Color(0xaaaaaa);
   }
   return 'blue';
 }
@@ -280,8 +208,10 @@ wSocket.onopen = function (event) {
         geojson = null;
         geojson = JSON.parse(message);
         if (layer0added) {
-          log("layer removed");
+          //debugger;
+          //app.view.getLayerById("GAMA").delete();
           app.view.removeLayer("GAMA");
+          
         }  
         layer0added = 1;
 
@@ -291,7 +221,7 @@ wSocket.onopen = function (event) {
           format: 'application/json',
         });
 
-        gama_layer = new itowns.FeatureGeometryLayer('GAMA', {
+        gama_layer = new itowns.FeatureGeometryLayer("GAMA", {
           // Use a FileSource to load a single file once
           source: _source,
           transparent: true,
@@ -345,7 +275,7 @@ wSocket.onopen = function (event) {
           style: new itowns.Style({
             fill: {
                   extrusion_height: 10,
-                  color: setBuildingColor ,
+                  color: setBuildingColor,
             }
           })
         });
