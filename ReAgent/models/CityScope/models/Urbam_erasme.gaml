@@ -799,7 +799,7 @@ experiment CityScopeTable type: gui autorun: true{
            
 			
 			chart "Bien-Etre" background:#white type: pie style:ring size: {0.18,0.18} position: {world.shape.width*0,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
-			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' series_label_position: "none"
 			{
 				
 				  data "Bien Etre" value: phase1_Star count (each = 1) + phase2_Star count (each = 1) + phase3_Star count (each = 1) color:rgb(0,255,0);
@@ -808,7 +808,7 @@ experiment CityScopeTable type: gui autorun: true{
 			}
 			
 			chart "Lien Social" background:#white type: pie style:ring size: {0.18,0.18} position: {world.shape.width*0.25,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
-			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' y_tick_values_visible:false
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' y_tick_values_visible:false series_label_position: "none"
 			{
 				
 				  data "Lien Social" value: length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6)) color:rgb(0,255,0);
@@ -816,7 +816,7 @@ experiment CityScopeTable type: gui autorun: true{
 				
 			}
 			 chart "Biodiv" background:#white type: pie style:ring size: {0.18,0.18} position: {world.shape.width*0.5,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
-			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' 
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' series_label_position: "none" 
 			{
 				
 				  data "biodiversité" value:length(building where (each.id=2)) + length(building where (each.id=3)) color:rgb(0,255,0);
@@ -850,13 +850,13 @@ experiment CityScopeTable type: gui autorun: true{
 experiment CityScopeEdition type: gui autorun: true{
 	float minimum_cycle_duration <- 0.05;
 	output {
-		display table synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:true  
+		/*display table synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:true  
 		{
 	    species cell aspect:default;// refresh: on_modification_cells;
 			//species road ;
 			species people;
 			species building;// refresh: on_modification_bds;
-		}	
+		}	*/
 		
 		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:true 
 		//camera_location: {2500.0,7842.7613,3338.3981} camera_target: {2500.0,2500.0,0.0} camera_orientation: {0.0,0.5299,0.8481}
@@ -864,7 +864,7 @@ experiment CityScopeEdition type: gui autorun: true{
 	
 			species scene aspect:base;        
             chart "Biodiversité" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*1,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
-			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' series_label_position: "none"
 			{
 				
 				  data "biodiversitré" value:length(building where (each.id=2)) + length(building where (each.id=3)) color:rgb(0,255,0);
@@ -872,8 +872,8 @@ experiment CityScopeEdition type: gui autorun: true{
 				
 			}
 			
-			chart "Bien-Etre" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
-			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel'
+			chart "Bien-Etre" background:#white type: pie style:ring size: {0.25,0.25} position: {-world.shape.width*0.25,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' series_label_position: "none"
 			{
 				
 				  data "Bien Etre" value: phase1_Star count (each = 1) + phase2_Star count (each = 1) + phase3_Star count (each = 1) color:rgb(0,255,0);
@@ -882,7 +882,7 @@ experiment CityScopeEdition type: gui autorun: true{
 			}
 			
 			chart "Lien Social" background:#white type: pie style:ring size: {0.25,0.25} position: {world.shape.width*0.5,world.shape.height*0.75} color: #black axes: #white title_font: 'Helvetica' title_font_size: 12.0 
-			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' y_tick_values_visible:false
+			tick_font: 'Monospaced' tick_font_size: 10 tick_font_style: 'bold' label_font: 'Arial' label_font_size: 32 label_font_style: 'bold' x_label: 'Nice Xlabel' y_label:'Nice Ylabel' y_tick_values_visible:false series_label_position: "none"
 			{
 				
 				  data "Lien Social" value: length(building where (each.id=3)) + length(building where (each.id=1)) + length(building where (each.id=6)) color:rgb(0,255,0);
