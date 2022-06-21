@@ -829,19 +829,7 @@ experiment CityScopeTable type: gui autorun: true{
 				data "Espace Sûr" value: [3, 3, 3,3,3,3] color: #green;
 				data "Actuellement" value: [9,9,9,9,9,9] color: # orange;
 				data "Impact Presqu'ile" value: [  (P1 and P2 and P3 ? 3 : (P1 and P2 ? 4 :(P1 ? 6: 9))),(P1 and P2 and P3 ? 6 : (P1 and P2 ? 7 :(P1 ? 8: 9))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 5 :(P1 ? 7: 9))),(P1 and P2 and P3 ? 3 : (P1 and P2 ? 5 :(P1 ? 6: 9))), (P1 and P2 and P3 ? 3 : (P1 and P2 ? 5 :(P1 ? 7: 9))), (P1 and P2 and P3 ? 4 : (P1 and P2 ? 5 :(P1 ? 7: 9)))] color: # blue;
-			}
-			
-			graphics mask{
-				 draw rectangle(98#px,280#px) at:{world.shape.width*0,world.shape.height*0.85} color:#white;
-				 draw rectangle(98#px,280#px) at:{world.shape.width*0+262#px,world.shape.height*0.85} color:#white;
-				 
-				 draw rectangle(98#px,280#px) at:{world.shape.width*0.25,world.shape.height*0.85} color:#white;
-				 draw rectangle(98#px,280#px) at:{world.shape.width*0.25+262#px,world.shape.height*0.85} color:#white;
-				 
-				  draw rectangle(98#px,280#px) at:{world.shape.width*0.5,world.shape.height*0.85} color:#white;
-				 draw rectangle(98#px,280#px) at:{world.shape.width*0.5+262#px,world.shape.height*0.85} color:#white;
-			}
-			
+			}			
 		}
 	}
 }
