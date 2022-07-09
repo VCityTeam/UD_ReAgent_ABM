@@ -15,7 +15,7 @@ const app = new udviz.Templates.AllWidget();
 app.start('../assets/config/config.json').then((config) => {
   //app.addBaseMapLayer();
 
- // app.addElevationLayer();
+  // app.addElevationLayer();
 
   //app.setupAndAdd3DTilesLayers();
 
@@ -40,7 +40,7 @@ app.start('../assets/config/config.json').then((config) => {
     type: udviz.Templates.AllWidget.AUTHENTICATION_MODULE,
   });
 
- 
+
   ////// CAMERA POSITIONER
   const cameraPosition = new udviz.Widgets.CameraPositionerView(
     app.view,
@@ -90,42 +90,45 @@ function setAltitude(properties) {
 }
 
 function setPeopleColor(properties) {
-  if (properties.type === "car"){
+  if (properties.type === "car") {
     return 'red';//new itowns.THREE.Color(0xaaaaaa);
   }
-  if (properties.type === "bike"){
+  if (properties.type === "bike") {
     return 'green';//new itowns.THREE.Color(0xaaaaaa);
   }
-  if (properties.type === "pedestrian"){
+  if (properties.type === "pedestrian") {
     return 'blue';//new itowns.THREE.Color(0xaaaaaa);
   }
 }
 
 function setBuildingColor(properties) {
-  if (properties.type === "apartments"){
+  if (properties.type === "apartments") {
     return 'blue';//new itowns.THREE.Color(0xaaaaaa);
   }
-  if (properties.type === "school"){
+  if (properties.type === "school") {
     return 'green';//new itowns.THREE.Color(0xaaaaaa);
   }
-  if (properties.type === "construction"){
+  if (properties.type === "construction") {
     return 'yellow';//new itowns.THREE.Color(0xaaaaaa);
   }
-  if (properties.type === "civic"){
+  if (properties.type === "civic") {
     return 'orange';//new itowns.THREE.Color(0xaaaaaa);
   }
-  if (properties.type === "church"){
+  if (properties.type === "church") {
     return 'white';//new itowns.THREE.Color(0xaaaaaa);
   }
-  if (properties.type === "service"){
+  if (properties.type === "service") {
     return 'pink';//new itowns.THREE.Color(0xaaaaaa);
   }
   return 'blue';
 }
 
 
+// var modelPath = 'C:\\git\\UD_ReAgent_ABM\\ReAgent\\models\\Gratte_Ciel_Basic.gaml';
+// var experimentName = 'GratteCielErasme';
 const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Basic.gaml';
 const experimentName = 'GratteCielErasme';
+
 const species1Name = 'people';
 const attribute1Name = 'type';
 const species2Name = 'building';
@@ -194,71 +197,22 @@ wSocket.onopen = function (event) {
   queue.push(cmd);
 
 
-  updateSource = setInterval(() => {
-    cmd = {
-      'type': 'output',
-      'species': species1Name,
-      'attributes': [attribute1Name],
-      "crs":'EPSG:3946',
-      'socket_id': socket_id,
-      'exp_id': exp_id,
-      "callback": function (message) {
-        if (typeof event.data == "object") {
-        } else {
-        geojson = null;
-        geojson = JSON.parse(message);
-        if (layer0added) {
-          //debugger;
-          //app.view.getLayerById("GAMA").delete();
-          app.view.removeLayer("GAMA");
-          
-        }  
-        layer0added = 1;
-
-        _source = new itowns.FileSource({
-          fetchedData: geojson,
-          crs: 'EPSG:3946',
-          format: 'application/json',
-        });
-
-        gama_layer = new itowns.FeatureGeometryLayer("GAMA", {
-          // Use a FileSource to load a single file once
-          source: _source,
-          transparent: true,
-          opacity: 1,
-          style: new itowns.Style({
-            fill: {
-                  //base_altitude: setAltitude,
-                  extrusion_height: 1,
-                  color: setPeopleColor ,
-            }
-          })
-        });
-    
-        app.view.addLayer(gama_layer);
-          
-        app.update3DView();
-        }
-        request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
-      }
-    };
-    queue.push(cmd);
-    cmd = {
-      'type': 'output',
-      'species': species2Name,
-      'attributes': [attribute2Name],
-      "crs":'EPSG:3946',
-      'socket_id': socket_id,
-      'exp_id': exp_id,
-      "callback": function (message) {
-        if (typeof event.data == "object") {
-        } else {
+  cmd = {
+    'type': 'output',
+    'species': species2Name,
+    'attributes': [attribute2Name],
+    "crs": 'EPSG:3946',
+    'socket_id': socket_id,
+    'exp_id': exp_id,
+    "callback": function (message) {
+      if (typeof event.data == "object") {
+      } else {
         geojson = null;
         geojson = JSON.parse(message);
         if (layer1added) {
-          log("layer removed");
+          // log("layer removed");
           app.view.removeLayer("building");
-        }  
+        }
         layer1added = 1;
 
         _source = new itowns.FileSource({
@@ -274,21 +228,71 @@ wSocket.onopen = function (event) {
           opacity: 1,
           style: new itowns.Style({
             fill: {
-                  extrusion_height: 10,
-                  color: setBuildingColor,
+              extrusion_height: 10,
+              color: setBuildingColor,
             }
           })
         });
-      
+
         app.view.addLayer(gama_layer);
-          
+
         app.update3DView();
+      }
+      request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
+    }
+  };
+  queue.push(cmd);
+  
+  updateSource = setInterval(() => {
+    cmd = {
+      'type': 'output',
+      'species': species1Name,
+      'attributes': [attribute1Name],
+      "crs": 'EPSG:3946',
+      'socket_id': socket_id,
+      'exp_id': exp_id,
+      "callback": function (message) {
+        if (typeof event.data == "object") {
+        } else {
+          geojson = null;
+          geojson = JSON.parse(message);
+          if (layer0added) {
+            //debugger;
+            // app.view.getLayerById("GAMA").delete(); 
+            gama_layer.delete();
+            app.view.removeLayer("GAMA");
+ 
+          }
+          layer0added = 1;
+
+          _source = new itowns.FileSource({
+            fetchedData: geojson,
+            crs: 'EPSG:3946',
+            format: 'application/json',
+          });
+          gama_layer = new itowns.FeatureGeometryLayer("GAMA", {
+            // Use a FileSource to load a single file once
+            source: _source,
+            transparent: true,
+            opacity: 1,
+            style: new itowns.Style({
+              fill: {
+                //base_altitude: setAltitude,
+                extrusion_height: 1,
+                color: setPeopleColor,
+              }
+            })
+          });
+          app.view.addLayer(gama_layer);
+
+
+          app.update3DView();
         }
         request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
       }
     };
     queue.push(cmd);
-  },    10);
+  }, 1);
 }
 var _source;
 
