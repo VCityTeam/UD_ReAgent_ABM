@@ -123,6 +123,13 @@ function setBuildingColor(properties) {
   return 'blue';
 }
 
+function setRoadColor(properties) {
+  if (properties.type === "road") {
+    return 'white';//new itowns.THREE.Color(0xaaaaaa);
+  }
+  return 'blue';
+}
+
 
 // var modelPath = 'C:\\git\\UD_ReAgent_ABM\\ReAgent\\models\\Gratte_Ciel_Basic.gaml';
 // var experimentName = 'GratteCielErasme';
@@ -133,6 +140,8 @@ const species1Name = 'people';
 const attribute1Name = 'type';
 const species2Name = 'building';
 const attribute2Name = 'type';
+const species3Name = 'road';
+const attribute3Name = 'type';
 
 let geojson;
 let gama_layer;
@@ -142,6 +151,7 @@ let exp_id = 0;
 
 let layer0added = 0;
 let layer1added = 0;
+let layer2added = 0;
 
 
 let queue = [];
@@ -196,7 +206,8 @@ wSocket.onopen = function (event) {
   };
   queue.push(cmd);
 
-
+  // STATIC LAYER
+  //Building
   cmd = {
     'type': 'output',
     'species': species2Name,
@@ -211,7 +222,7 @@ wSocket.onopen = function (event) {
         geojson = JSON.parse(message);
         if (layer1added) {
           // log("layer removed");
-          app.view.removeLayer("building");
+          app.view.removeLayer("BUILDING");
         }
         layer1added = 1;
 
@@ -221,7 +232,7 @@ wSocket.onopen = function (event) {
           format: 'application/json',
         });
 
-        gama_layer = new itowns.FeatureGeometryLayer('building', {
+        gama_layer = new itowns.FeatureGeometryLayer('BUILDING', {
           // Use a FileSource to load a single file once
           source: _source,
           transparent: true,
@@ -242,7 +253,53 @@ wSocket.onopen = function (event) {
     }
   };
   queue.push(cmd);
+  //road
+  cmd = {
+    'type': 'output',
+    'species': species3Name,
+    'attributes': [attribute3Name],
+    "crs": 'EPSG:3946',
+    'socket_id': socket_id,
+    'exp_id': exp_id,
+    "callback": function (message) {
+      if (typeof event.data == "object") {
+      } else {
+        geojson = null;
+        geojson = JSON.parse(message);
+        if (layer2added) {
+          // log("layer removed");
+          app.view.removeLayer("ROAD");
+        }
+        layer2added = 1;
+
+        _source = new itowns.FileSource({
+          fetchedData: geojson,
+          crs: 'EPSG:3946',
+          format: 'application/json',
+        });
+
+        gama_layer = new itowns.FeatureGeometryLayer('ROAD', {
+          // Use a FileSource to load a single file once
+          source: _source,
+          transparent: true,
+          opacity: 1,
+          style: new itowns.Style({
+            stroke: {
+              color: setRoadColor,
+            }
+          })
+        });
+
+        app.view.addLayer(gama_layer);
+
+        app.update3DView();
+      }
+      request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
+    }
+  };
+  queue.push(cmd);
   
+  //DYNAMIC LAYER (PEOPLE)
   updateSource = setInterval(() => {
     cmd = {
       'type': 'output',
@@ -257,11 +314,8 @@ wSocket.onopen = function (event) {
           geojson = null;
           geojson = JSON.parse(message);
           if (layer0added) {
-            //debugger;
-            // app.view.getLayerById("GAMA").delete(); 
-            gama_layer.delete();
-            app.view.removeLayer("GAMA");
- 
+            //gama_layer.delete();
+            app.view.removeLayer("PEOPLE");
           }
           layer0added = 1;
 
@@ -270,7 +324,7 @@ wSocket.onopen = function (event) {
             crs: 'EPSG:3946',
             format: 'application/json',
           });
-          gama_layer = new itowns.FeatureGeometryLayer("GAMA", {
+          gama_layer = new itowns.FeatureGeometryLayer("PEOPLE", {
             // Use a FileSource to load a single file once
             source: _source,
             transparent: true,
@@ -278,21 +332,19 @@ wSocket.onopen = function (event) {
             style: new itowns.Style({
               fill: {
                 //base_altitude: setAltitude,
-                extrusion_height: 1,
+                extrusion_height: 10,
                 color: setPeopleColor,
               }
             })
           });
           app.view.addLayer(gama_layer);
-
-
           app.update3DView();
         }
         request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
       }
     };
     queue.push(cmd);
-  }, 1);
+  }, 100);
 }
 var _source;
 
