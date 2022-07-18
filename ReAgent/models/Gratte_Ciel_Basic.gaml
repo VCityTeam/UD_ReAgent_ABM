@@ -66,7 +66,7 @@ global {
 		the_graph <- as_edge_graph(road);
 		
 		
-		create people number: 1000 {
+		create people number: 100 {
 			location <- any_location_in (one_of(building)); 
 			color<-rnd_color(255);
 			mode<-rnd(2);
@@ -84,6 +84,7 @@ global {
 			}
 			my_speed<-my_speed*10;
 		}
+		save people to:"../results/people_in.geojson" type: "json" attributes: ["ID"::name, "TYPE"::self.type];
 		
 		create materials number: 100 {
 			location <- any_location_in (one_of(building)); 
@@ -113,6 +114,11 @@ global {
 		
 		create background{
 			location<-{world.shape.width/2, world.shape.height/2};
+		}
+	}
+	reflex u{
+		if (cycle=500){
+			save people to:"../results/people_out.geojson" type: "json" attributes: ["ID"::name, "TYPE"::self.type];
 		}
 	}
 	}
