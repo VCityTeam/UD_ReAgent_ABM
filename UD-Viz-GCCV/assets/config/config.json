@@ -11,6 +11,13 @@
       "color": "0xFFFFFF"
     }
   ],
+  "dynamic_layer":{
+    "geojsonCollectionUrl": "./../assets/data/",
+    "crs": "EPSG:3946",
+    "format": "application/json",
+    "delay":"h",
+    "step":"10"
+  },
   "server": {
     "url": "http://rict.liris.cnrs.fr:1525/",
     "login": "login",
