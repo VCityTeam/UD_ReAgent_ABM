@@ -84,7 +84,7 @@ global {
 			}
 			my_speed<-my_speed*10;
 		}
-		save people to:"../results/people_in.geojson" type: "json" attributes: ["ID"::name, "TYPE"::self.type];
+		//save people to:"../results/people_in.geojson" type: "json" attributes: ["ID"::name, "TYPE"::self.type];
 		
 		create materials number: 100 {
 			location <- any_location_in (one_of(building)); 
@@ -116,11 +116,11 @@ global {
 			location<-{world.shape.width/2, world.shape.height/2};
 		}
 	}
-	reflex u{
+	/*reflex u{
 		if (cycle=500){
 			save people to:"../results/people_out.geojson" type: "json" attributes: ["ID"::name, "TYPE"::self.type];
 		}
-	}
+	}*/
 	}
 	
 
