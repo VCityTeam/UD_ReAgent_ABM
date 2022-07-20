@@ -12,33 +12,13 @@ export { debug };
 
 const app = new udviz.Templates.AllWidget();
 
-app.start('../assets/config/config.json').then((config) => {
+//app.start('../assets/config/config.json').then((config) => {
+app.start('../assets/config/config_world_map.json').then((config) => {  
   //app.addBaseMapLayer();
 
   // app.addElevationLayer();
 
   //app.setupAndAdd3DTilesLayers();
-
-  ////// REQUEST SERVICE
-  const requestService = new udviz.Components.RequestService();
-
-  ////// ABOUT MODULE
-  const about = new udviz.Widgets.AboutWindow();
-  app.addModuleView('about', about);
-
-  ////// AUTHENTICATION MODULE
-  const authenticationService =
-    new udviz.Widgets.Extensions.AuthenticationService(
-      requestService,
-      app.config
-    );
-
-  const authenticationView = new udviz.Widgets.Extensions.AuthenticationView(
-    authenticationService
-  );
-  app.addModuleView('authentication', authenticationView, {
-    type: udviz.Templates.AllWidget.AUTHENTICATION_MODULE,
-  });
 
 
   ////// CAMERA POSITIONER
