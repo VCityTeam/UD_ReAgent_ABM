@@ -20,24 +20,11 @@ app.start('../assets/config/config_world_map.json').then((config) => {
 
   //app.setupAndAdd3DTilesLayers();
 
-
-  ////// CAMERA POSITIONER
-  const cameraPosition = new udviz.Widgets.CameraPositionerView(
-    app.view,
-    app.controls
-  );
-  app.addModuleView('cameraPositioner', cameraPosition);
-
   ////// LAYER CHOICE MODULE
   const layerChoice = new udviz.Widgets.LayerChoice(app.layerManager);
   app.addModuleView('layerChoice', layerChoice);
 
-  const inputManager = new udviz.Components.InputManager();
-  ///// SLIDESHOW MODULE
-  const slideShow = new udviz.Widgets.SlideShow(app, inputManager);
-  app.addModuleView('slideShow', slideShow);
-
-
+  //CAMERA SETTINGS
   let pos_x = parseInt(app.config['camera']['coordinates']['position']['x']);
   let pos_y = parseInt(app.config['camera']['coordinates']['position']['y']);
   let pos_z = parseInt(app.config['camera']['coordinates']['position']['z']);
@@ -45,28 +32,15 @@ app.start('../assets/config/config_world_map.json').then((config) => {
   let quat_y = parseFloat(app.config['camera']['coordinates']['quaternion']['y']);
   let quat_z = parseFloat(app.config['camera']['coordinates']['quaternion']['z']);
   let quat_w = parseFloat(app.config['camera']['coordinates']['quaternion']['w']);
-
-  console.log(app.view.camera.camera3D);
   app.view.camera.camera3D.position.set(pos_x, pos_y, pos_z);
   app.view.camera.camera3D.quaternion.set(quat_x, quat_y, quat_z, quat_w);
-
 });
 
 let wSocket = new WebSocket('ws://localhost:6868/');
 
-
 WebSocket.prototype.sendMessage = function (message) {
   this.send(message);
   console.log('Message sent: ' + message);
-}
-
-function log(e) {
-  console.log(e);
-}
-
-function setAltitude(properties) {
-  console.log("properties");
-  console.log(properties);
 }
 
 function setPeopleColor(properties) {
@@ -111,8 +85,6 @@ function setRoadColor(properties) {
 }
 
 
-// var modelPath = 'C:\\git\\UD_ReAgent_ABM\\ReAgent\\models\\Gratte_Ciel_Basic.gaml';
-// var experimentName = 'GratteCielErasme';
 const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Basic.gaml';
 const experimentName = 'GratteCielErasme';
 
@@ -145,7 +117,6 @@ let executor = setInterval(() => {
     request.exp_id = exp_id;
     request.socket_id = socket_id;
     wSocket.send(JSON.stringify(request));
-    //log("request " + JSON.stringify(request));
     wSocket.onmessage = function (event) {
       let msg = event.data;
       if (event.data instanceof Blob) { } else {
@@ -171,7 +142,6 @@ wSocket.onopen = function (event) {
     "model": modelPath,
     "experiment": experimentName,
     "callback": function (e) {
-      log(e);
       result = JSON.parse(e);
       if (result.exp_id) exp_id = result.exp_id;
       if (result.socket_id) socket_id = result.socket_id;
@@ -201,7 +171,6 @@ wSocket.onopen = function (event) {
         geojson = null;
         geojson = JSON.parse(message);
         if (layer1added) {
-          // log("layer removed");
           app.view.removeLayer("BUILDING");
         }
         layer1added = 1;
@@ -247,7 +216,6 @@ wSocket.onopen = function (event) {
         geojson = null;
         geojson = JSON.parse(message);
         if (layer2added) {
-          // log("layer removed");
           app.view.removeLayer("ROAD");
         }
         layer2added = 1;
@@ -259,7 +227,6 @@ wSocket.onopen = function (event) {
         });
 
         gama_layer = new itowns.FeatureGeometryLayer('ROAD', {
-          // Use a FileSource to load a single file once
           source: _source,
           transparent: true,
           opacity: 1,
