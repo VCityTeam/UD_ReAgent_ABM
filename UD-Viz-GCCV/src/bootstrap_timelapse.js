@@ -8,22 +8,21 @@ export { itowns };
 //itowns
 import * as debug from "debug";
 export { debug };
+import { Utils } from './Utils';
 const app = new udviz.Templates.AllWidget();
 var sources;
 var dynamicLayer;
+const myUtils = new Utils();
 
 app.start("../assets/config/config.json").then((config) => {
-  //app.addBaseMapLayer();
-
+  // app.addBaseMapLayer();
   // app.addElevationLayer();
-
-  //app.setupAndAdd3DTilesLayers();
+  // app.setupAndAdd3DTilesLayers();
 
   ////// LAYER CHOICE MODULE
   const layerChoice = new udviz.Widgets.LayerChoice(app.layerManager);
   app.addModuleView("layerChoice", layerChoice);
 
-  
   //CAMERA SETTINGS
   let pos_x = parseInt(app.config['camera']['coordinates']['position']['x']);
   let pos_y = parseInt(app.config['camera']['coordinates']['position']['y']);
@@ -36,8 +35,8 @@ app.start("../assets/config/config.json").then((config) => {
   app.view.camera.camera3D.quaternion.set(quat_x, quat_y, quat_z, quat_w);
 
   sources = getSourceListfromGeojsonCollection(app.config["dynamic_layer"]);
-  log("Nb intial sources " + sources.length);
-  
+  log("Nb initial sources " + sources.length);
+  myUtils.foo(app.view);
   setTimeout(() => { 
     runTimelapse(app.view,dynamicLayer,sources,1000);
   }, 200);
@@ -60,7 +59,6 @@ function runTimelapse(itownsView,layer,_sources,stepTime){
       if (step>0){
         itownsView.removeLayer("current_layer"+(step-1));
       }
-      
       layer = new itowns.FeatureGeometryLayer("current_layer"+step, {
         source: _sources[step],
         transparent: true,
@@ -70,7 +68,7 @@ function runTimelapse(itownsView,layer,_sources,stepTime){
         style: new itowns.Style({
           fill: {
             extrusion_height: 1,
-            color: setPeopleColor,
+            color: myUtils.setPeopleColor,
           },
         }),
       });
@@ -196,19 +194,7 @@ function log(e) {
   console.log(e);
 }
 
-function setAltitude(properties) {
-  console.log("properties");
-  console.log(properties);
-}
 
-function setPeopleColor(properties) {
-  if (properties.type === "car") {
-    return "red"; //new itowns.THREE.Color(0xaaaaaa);
-  }
-  if (properties.type === "bike") {
-    return "green"; //new itowns.THREE.Color(0xaaaaaa);
-  }
-  if (properties.type === "pedestrian") {
-    return "blue"; //new itowns.THREE.Color(0xaaaaaa);
-  }
-}
+
+
+

@@ -46,6 +46,8 @@ global {
 	rgb backgroundColor<-#white;
 	rgb textcolor<- (backgroundColor = #white) ? #white : #black;
 	
+	int curSnap<-0;
+	
 	/*int size <- 100;
 	field heatmap <- field(size, size);
 	reflex update {
@@ -117,8 +119,9 @@ global {
 		}
 	}
 	/*reflex u{
-		if (cycle=500){
-			save people to:"../results/people_out.geojson" type: "json" attributes: ["ID"::name, "TYPE"::self.type];
+		if (cycle mod 10 =0){
+			save people to:"../results/"+curSnap+".geojson" type: "json" attributes: ["id"::name, "type"::self.type];
+			curSnap<-curSnap+1;
 		}
 	}*/
 	}

@@ -8,9 +8,11 @@ export { itowns };
 //itowns
 import * as debug from 'debug';
 export { debug };
+import { Utils } from './Utils';
 
 
 const app = new udviz.Templates.AllWidget();
+const myUtils = new Utils();
 
 //app.start('../assets/config/config.json').then((config) => {
 app.start('../assets/config/config_world_map.json').then((config) => {  
@@ -42,48 +44,6 @@ WebSocket.prototype.sendMessage = function (message) {
   this.send(message);
   console.log('Message sent: ' + message);
 }
-
-function setPeopleColor(properties) {
-  if (properties.type === "car") {
-    return 'red';//new itowns.THREE.Color(0xaaaaaa);
-  }
-  if (properties.type === "bike") {
-    return 'green';//new itowns.THREE.Color(0xaaaaaa);
-  }
-  if (properties.type === "pedestrian") {
-    return 'blue';//new itowns.THREE.Color(0xaaaaaa);
-  }
-}
-
-function setBuildingColor(properties) {
-  if (properties.type === "apartments") {
-    return 'blue';//new itowns.THREE.Color(0xaaaaaa);
-  }
-  if (properties.type === "school") {
-    return 'green';//new itowns.THREE.Color(0xaaaaaa);
-  }
-  if (properties.type === "construction") {
-    return 'yellow';//new itowns.THREE.Color(0xaaaaaa);
-  }
-  if (properties.type === "civic") {
-    return 'orange';//new itowns.THREE.Color(0xaaaaaa);
-  }
-  if (properties.type === "church") {
-    return 'white';//new itowns.THREE.Color(0xaaaaaa);
-  }
-  if (properties.type === "service") {
-    return 'pink';//new itowns.THREE.Color(0xaaaaaa);
-  }
-  return 'blue';
-}
-
-function setRoadColor(properties) {
-  if (properties.type === "road") {
-    return 'white';//new itowns.THREE.Color(0xaaaaaa);
-  }
-  return 'blue';
-}
-
 
 const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Basic.gaml';
 const experimentName = 'GratteCielErasme';
@@ -189,7 +149,7 @@ wSocket.onopen = function (event) {
           style: new itowns.Style({
             fill: {
               extrusion_height: 10,
-              color: setBuildingColor,
+              color: myUtils.setBuildingColor,
             }
           })
         });
@@ -203,7 +163,7 @@ wSocket.onopen = function (event) {
   };
   queue.push(cmd);
   //road
-  cmd = {
+  /*cmd = {
     'type': 'output',
     'species': species3Name,
     'attributes': [attribute3Name],
@@ -232,7 +192,7 @@ wSocket.onopen = function (event) {
           opacity: 1,
           style: new itowns.Style({
             stroke: {
-              color: setRoadColor,
+              color: myUtils.setRoadColor,
             }
           })
         });
@@ -243,7 +203,7 @@ wSocket.onopen = function (event) {
       }
       request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
     }
-  };
+  };*/
   queue.push(cmd);
   
   //DYNAMIC LAYER (PEOPLE)
@@ -280,7 +240,7 @@ wSocket.onopen = function (event) {
               fill: {
                 //base_altitude: setAltitude,
                 extrusion_height: 10,
-                color: setPeopleColor,
+                color: myUtils.setPeopleColor,
               }
             })
           });
@@ -291,7 +251,7 @@ wSocket.onopen = function (event) {
       }
     };
     queue.push(cmd);
-  }, 100);
+  }, 200);
 }
 var _source;
 
@@ -304,3 +264,4 @@ function onReceiveMsg(e) {
   console.log(e);
   request = "";
 }
+
