@@ -229,7 +229,7 @@ species legend{
 
 
 
-experiment GratteCielErasme type: gui autorun:true{
+experiment Demo type: gui autorun:true{
 
 	float minimum_cycle_duration<-0.01;
 	output {
