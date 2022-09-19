@@ -45,8 +45,8 @@ WebSocket.prototype.sendMessage = function (message) {
   console.log('Message sent: ' + message);
 }
 
-const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Basic.gaml';
-const experimentName = 'GratteCielErasme';
+const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Demo.gaml';
+const experimentName = 'Demo';
 
 const species1Name = 'people';
 const attribute1Name = 'type';
