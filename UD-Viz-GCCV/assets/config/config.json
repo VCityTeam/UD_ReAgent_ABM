@@ -53,11 +53,6 @@
     "layer_name": "wms_elevation_test"
   },
   "camera": {
-    "position": {
-      "range": "3000",
-      "heading": "-49.6",
-      "tilt": "17"
-    },
     "coordinates":{
       "position": {
           "x": "1846672.8180720613",
@@ -71,12 +66,6 @@
           "w": "0.8135401557656416"
       }
     }
-  },
-  "3DTilesLayer": {
-    "id": "3d-tiles-layer-building",
-    "url": "https://dataset-dl.liris.cnrs.fr/three-d-tiles-lyon-metropolis/Lyon_2015-gltf-repaired_TileSet/tileset.json",
-    "color": "0xFFFFFF",
-    "initTilesManager": "true"
   },
   "temporalModule": {
     "view": "SLIDERWINDOW",

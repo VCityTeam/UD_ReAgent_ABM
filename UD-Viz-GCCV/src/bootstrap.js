@@ -12,7 +12,8 @@ import { Utils } from './Utils';
 
 const app = new udviz.Templates.AllWidget();
 const myUtils = new Utils();
-var streaming = Boolean(true);
+var streaming = Boolean(false);
+//Replay
 var sources;
 var dynamicLayer;
 
@@ -21,7 +22,7 @@ app.start('../assets/config/config.json').then((config) => {
 
 
   ////// LAYER CHOICE MODULE
-  const layerChoice = new udviz.Widgets.LayerChoice(app.layerManager);
+  const layerChoice = new udviz.Widgets.LayerChoice(app.view3D.getLayerManager());
   app.addModuleView('layerChoice', layerChoice);
 
   //CAMERA SETTINGS
@@ -32,14 +33,16 @@ app.start('../assets/config/config.json').then((config) => {
   let quat_y = parseFloat(app.config['camera']['coordinates']['quaternion']['y']);
   let quat_z = parseFloat(app.config['camera']['coordinates']['quaternion']['z']);
   let quat_w = parseFloat(app.config['camera']['coordinates']['quaternion']['w']);
-  app.view.camera.camera3D.position.set(pos_x, pos_y, pos_z);
-  app.view.camera.camera3D.quaternion.set(quat_x, quat_y, quat_z, quat_w);
+  app.view3D.getCamera().position.set(pos_x, pos_y, pos_z);
+  app.view3D.getCamera().quaternion.set(quat_x, quat_y, quat_z, quat_w);
+  //app.view3D.getCamera().updateProjectionMatrix();
+  
   if(!streaming){
     sources = getSourceListfromGeojsonCollection(app.config["dynamic_layer"]);
     console.log("Nb initial sources " + sources.length);
-    myUtils.foo(app.view);
+    myUtils.foo(app.view3D.getItownsView());
     setTimeout(() => { 
-      runTimelapse(app.view,dynamicLayer,sources,1000);
+      runTimelapse(app.view3D.getItownsView(),dynamicLayer,sources,1000);
     }, 200);
   }
 });
@@ -138,7 +141,7 @@ if(streaming){
           geojson = null;
           geojson = JSON.parse(message);
           if (layer1added) {
-            app.view.removeLayer("BUILDING");
+            app.view3D.getItownsView().removeLayer("BUILDING");
           }
           layer1added = 1;
 
@@ -161,7 +164,7 @@ if(streaming){
             })
           });
 
-          app.view.addLayer(gama_layer);
+          app.view3D.getItownsView().addLayer(gama_layer);
 
           app.update3DView();
         }
@@ -183,7 +186,7 @@ if(streaming){
           geojson = null;
           geojson = JSON.parse(message);
           if (layer2added) {
-            app.view.removeLayer("ROAD");
+            app.view3D.getItownsView().removeLayer("ROAD");
           }
           layer2added = 1;
 
@@ -204,7 +207,7 @@ if(streaming){
             })
           });
 
-          app.view.addLayer(gama_layer);
+          app.view3D.getItownsView().addLayer(gama_layer);
 
           app.update3DView();
         }
@@ -229,7 +232,7 @@ if(streaming){
             geojson = JSON.parse(message);
             if (layer0added) {
               //gama_layer.delete();
-              app.view.removeLayer("PEOPLE");
+              app.view3D.getItownsView().removeLayer("PEOPLE");
             }
             layer0added = 1;
 
@@ -251,7 +254,7 @@ if(streaming){
                 }
               })
             });
-            app.view.addLayer(gama_layer);
+            app.view3D.getItownsView().addLayer(gama_layer);
             app.update3DView();
           }
           request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
@@ -264,8 +267,6 @@ if(streaming){
   wSocket.onerror = function (event) {
     console.log('An error occurred. Sorry for that.');
   }
-}else{
-
 }
 
 
@@ -297,7 +298,7 @@ function getSourceListfromGeojsonCollection(parameters){
   let interval = setInterval( () => {
     if(step > _sources.length-1){
      clearInterval(interval);
-     log("Simulation Done with " + step + " Steps");
+     console.log("Simulation Done with " + step + " Steps");
     }
     else{
       if (step>0){
