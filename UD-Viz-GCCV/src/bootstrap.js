@@ -10,17 +10,12 @@ import * as debug from 'debug';
 export { debug };
 import { Utils } from './Utils';
 
-
 const app = new udviz.Templates.AllWidget();
 const myUtils = new Utils();
 
 //app.start('../assets/config/config.json').then((config) => {
-app.start('../assets/config/config_world_map.json').then((config) => {  
-  //app.addBaseMapLayer();
+app.start('../assets/config/config.json').then((config) => {  
 
-  // app.addElevationLayer();
-
-  //app.setupAndAdd3DTilesLayers();
 
   ////// LAYER CHOICE MODULE
   const layerChoice = new udviz.Widgets.LayerChoice(app.layerManager);
