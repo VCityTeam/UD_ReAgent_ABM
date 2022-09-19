@@ -4,19 +4,12 @@
     "imageFolder": "./assets/img",
     "logos": ["logo-liris.png", "logo-univ-lyon.png"]
   },
-  "3DTilesLayers": [
-    {
-      "id": "Villeurbanne",
-      "url": "https://dataset-dl.liris.cnrs.fr/three-d-tiles-lyon-metropolis/Villeurbanne_2018_TileSet/tileset.json",
-      "color": "0xFFFFFF"
-    }
-  ],
-  "dynamic_layer":{
+  "dynamic_layer": {
     "geojsonCollectionUrl": "./../assets/data/",
     "crs": "EPSG:3946",
     "format": "application/json",
-    "delay":"h",
-    "step":"10"
+    "delay": "h",
+    "step": "10"
   },
   "server": {
     "url": "http://rict.liris.cnrs.fr:1525/",
@@ -30,9 +23,9 @@
     "file": "file",
     "guidedTour": "guidedTour",
     "link": "link"
-  }, 
+  },
   "extents": {
-    "min_x": "1845869.7865", 
+    "min_x": "1845869.7865",
     "max_x": "1846369.7865",
     "min_y": "5175599.9548497945",
     "max_y": "5176547.801899999"
@@ -50,20 +43,22 @@
     "url": "https://download.data.grandlyon.com/wms/grandlyon",
     "name": "MNT2018_Altitude_2m",
     "format": "image/jpeg",
-    "layer_name": "wms_elevation_test"
+    "layer_name": "wms_elevation_test",
+    "colorTextureElevationMinZ": 144,
+    "colorTextureElevationMaxZ": 622
   },
   "camera": {
-    "coordinates":{
+    "coordinates": {
       "position": {
-          "x": "1846672.8180720613",
-          "y": "5175061.564385533",
-          "z": "657.5354909665693"
+        "x": "1846672.8180720613",
+        "y": "5175061.564385533",
+        "z": "657.5354909665693"
       },
       "quaternion": {
-          "x": "0.5161982689901561",
-          "y": "0.14345149179044817",
-          "z": "0.22608279799992972",
-          "w": "0.8135401557656416"
+        "x": "0.5161982689901561",
+        "y": "0.14345149179044817",
+        "z": "0.22608279799992972",
+        "w": "0.8135401557656416"
       }
     }
   },
