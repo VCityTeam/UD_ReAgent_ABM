@@ -12,6 +12,9 @@ import { Utils } from './Utils';
 
 const app = new udviz.Templates.AllWidget();
 const myUtils = new Utils();
+var streaming = Boolean(true);
+var sources;
+var dynamicLayer;
 
 //app.start('../assets/config/config.json').then((config) => {
 app.start('../assets/config/config.json').then((config) => {  
@@ -31,182 +34,101 @@ app.start('../assets/config/config.json').then((config) => {
   let quat_w = parseFloat(app.config['camera']['coordinates']['quaternion']['w']);
   app.view.camera.camera3D.position.set(pos_x, pos_y, pos_z);
   app.view.camera.camera3D.quaternion.set(quat_x, quat_y, quat_z, quat_w);
+  if(!streaming){
+    sources = getSourceListfromGeojsonCollection(app.config["dynamic_layer"]);
+    console.log("Nb initial sources " + sources.length);
+    myUtils.foo(app.view);
+    setTimeout(() => { 
+      runTimelapse(app.view,dynamicLayer,sources,1000);
+    }, 200);
+  }
 });
 
-let wSocket = new WebSocket('ws://localhost:6868/');
+if(streaming){
+  let wSocket = new WebSocket('ws://localhost:6868/');
 
-WebSocket.prototype.sendMessage = function (message) {
-  this.send(message);
-  console.log('Message sent: ' + message);
-}
-
-const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Demo.gaml';
-const experimentName = 'Demo';
-
-const species1Name = 'people';
-const attribute1Name = 'type';
-const species2Name = 'building';
-const attribute2Name = 'type';
-const species3Name = 'road';
-const attribute3Name = 'type';
-
-let geojson;
-let gama_layer;
-
-let socket_id = 0;
-let exp_id = 0;
-
-let layer0added = 0;
-let layer1added = 0;
-let layer2added = 0;
-
-
-let queue = [];
-let request = "";
-let result = "";
-let updateSource;
-let executor_speed = 1;
-let executor = setInterval(() => {
-  if (queue.length > 0 && request === "") {
-    request = queue.shift();
-    request.exp_id = exp_id;
-    request.socket_id = socket_id;
-    wSocket.send(JSON.stringify(request));
-    wSocket.onmessage = function (event) {
-      let msg = event.data;
-      if (event.data instanceof Blob) { } else {
-        if (request.callback) {
-          request.callback(msg);
-        } else {
-          request = "";
-        }
-      }
-    }
+  WebSocket.prototype.sendMessage = function (message) {
+    this.send(message);
+    console.log('Message sent: ' + message);
   }
 
-}, executor_speed);
-wSocket.onclose = function (event) {
-  clearInterval(executor);
-  clearInterval(updateSource);
-};
+  const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Demo.gaml';
+  const experimentName = 'Demo';
 
-wSocket.onopen = function (event) {
+  const species1Name = 'people';
+  const attribute1Name = 'type';
+  const species2Name = 'building';
+  const attribute2Name = 'type';
+  const species3Name = 'road';
+  const attribute3Name = 'type';
 
-  let cmd = {
-    "type": "launch",
-    "model": modelPath,
-    "experiment": experimentName,
-    "callback": function (e) {
-      result = JSON.parse(e);
-      if (result.exp_id) exp_id = result.exp_id;
-      if (result.socket_id) socket_id = result.socket_id;
-      request = "";
-    }
-  };
-  queue.push(cmd);
-  cmd = {
-    "type": "play",
-    "socket_id": socket_id,
-    "exp_id": exp_id
-  };
-  queue.push(cmd);
+  let geojson;
+  let gama_layer;
 
-  // STATIC LAYER
-  //Building
-  cmd = {
-    'type': 'output',
-    'species': species2Name,
-    'attributes': [attribute2Name],
-    "crs": 'EPSG:3946',
-    'socket_id': socket_id,
-    'exp_id': exp_id,
-    "callback": function (message) {
-      if (typeof event.data == "object") {
-      } else {
-        geojson = null;
-        geojson = JSON.parse(message);
-        if (layer1added) {
-          app.view.removeLayer("BUILDING");
+  let socket_id = 0;
+  let exp_id = 0;
+
+  let layer0added = 0;
+  let layer1added = 0;
+  let layer2added = 0;
+
+
+  let queue = [];
+  let request = "";
+  let result = "";
+  let updateSource;
+  let executor_speed = 1;
+  let executor = setInterval(() => {
+    if (queue.length > 0 && request === "") {
+      request = queue.shift();
+      request.exp_id = exp_id;
+      request.socket_id = socket_id;
+      wSocket.send(JSON.stringify(request));
+      wSocket.onmessage = function (event) {
+        let msg = event.data;
+        if (event.data instanceof Blob) { } else {
+          if (request.callback) {
+            request.callback(msg);
+          } else {
+            request = "";
+          }
         }
-        layer1added = 1;
-
-        _source = new itowns.FileSource({
-          fetchedData: geojson,
-          crs: 'EPSG:3946',
-          format: 'application/json',
-        });
-
-        gama_layer = new itowns.FeatureGeometryLayer('BUILDING', {
-          // Use a FileSource to load a single file once
-          source: _source,
-          transparent: true,
-          opacity: 1,
-          style: new itowns.Style({
-            fill: {
-              extrusion_height: 10,
-              color: myUtils.setBuildingColor,
-            }
-          })
-        });
-
-        app.view.addLayer(gama_layer);
-
-        app.update3DView();
       }
-      request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
     }
+
+  }, executor_speed);
+  wSocket.onclose = function (event) {
+    clearInterval(executor);
+    clearInterval(updateSource);
   };
-  queue.push(cmd);
-  //road
-  /*cmd = {
-    'type': 'output',
-    'species': species3Name,
-    'attributes': [attribute3Name],
-    "crs": 'EPSG:3946',
-    'socket_id': socket_id,
-    'exp_id': exp_id,
-    "callback": function (message) {
-      if (typeof event.data == "object") {
-      } else {
-        geojson = null;
-        geojson = JSON.parse(message);
-        if (layer2added) {
-          app.view.removeLayer("ROAD");
-        }
-        layer2added = 1;
 
-        _source = new itowns.FileSource({
-          fetchedData: geojson,
-          crs: 'EPSG:3946',
-          format: 'application/json',
-        });
+  wSocket.onopen = function (event) {
 
-        gama_layer = new itowns.FeatureGeometryLayer('ROAD', {
-          source: _source,
-          transparent: true,
-          opacity: 1,
-          style: new itowns.Style({
-            stroke: {
-              color: myUtils.setRoadColor,
-            }
-          })
-        });
-
-        app.view.addLayer(gama_layer);
-
-        app.update3DView();
+    let cmd = {
+      "type": "launch",
+      "model": modelPath,
+      "experiment": experimentName,
+      "callback": function (e) {
+        result = JSON.parse(e);
+        if (result.exp_id) exp_id = result.exp_id;
+        if (result.socket_id) socket_id = result.socket_id;
+        request = "";
       }
-      request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
-    }
-  };*/
-  queue.push(cmd);
-  
-  //DYNAMIC LAYER (PEOPLE)
-  updateSource = setInterval(() => {
+    };
+    queue.push(cmd);
+    cmd = {
+      "type": "play",
+      "socket_id": socket_id,
+      "exp_id": exp_id
+    };
+    queue.push(cmd);
+
+    // STATIC LAYER
+    //Building
     cmd = {
       'type': 'output',
-      'species': species1Name,
-      'attributes': [attribute1Name],
+      'species': species2Name,
+      'attributes': [attribute2Name],
       "crs": 'EPSG:3946',
       'socket_id': socket_id,
       'exp_id': exp_id,
@@ -215,44 +137,192 @@ wSocket.onopen = function (event) {
         } else {
           geojson = null;
           geojson = JSON.parse(message);
-          if (layer0added) {
-            //gama_layer.delete();
-            app.view.removeLayer("PEOPLE");
+          if (layer1added) {
+            app.view.removeLayer("BUILDING");
           }
-          layer0added = 1;
+          layer1added = 1;
 
           _source = new itowns.FileSource({
             fetchedData: geojson,
             crs: 'EPSG:3946',
             format: 'application/json',
           });
-          gama_layer = new itowns.FeatureGeometryLayer("PEOPLE", {
+
+          gama_layer = new itowns.FeatureGeometryLayer('BUILDING', {
             // Use a FileSource to load a single file once
             source: _source,
             transparent: true,
             opacity: 1,
             style: new itowns.Style({
               fill: {
-                //base_altitude: setAltitude,
                 extrusion_height: 10,
-                color: myUtils.setPeopleColor,
+                color: myUtils.setBuildingColor,
               }
             })
           });
+
           app.view.addLayer(gama_layer);
+
           app.update3DView();
         }
         request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
       }
     };
     queue.push(cmd);
-  }, 200);
-}
-var _source;
+    //road
+    /*cmd = {
+      'type': 'output',
+      'species': species3Name,
+      'attributes': [attribute3Name],
+      "crs": 'EPSG:3946',
+      'socket_id': socket_id,
+      'exp_id': exp_id,
+      "callback": function (message) {
+        if (typeof event.data == "object") {
+        } else {
+          geojson = null;
+          geojson = JSON.parse(message);
+          if (layer2added) {
+            app.view.removeLayer("ROAD");
+          }
+          layer2added = 1;
 
-wSocket.onerror = function (event) {
-  console.log('An error occurred. Sorry for that.');
+          _source = new itowns.FileSource({
+            fetchedData: geojson,
+            crs: 'EPSG:3946',
+            format: 'application/json',
+          });
+
+          gama_layer = new itowns.FeatureGeometryLayer('ROAD', {
+            source: _source,
+            transparent: true,
+            opacity: 1,
+            style: new itowns.Style({
+              stroke: {
+                color: myUtils.setRoadColor,
+              }
+            })
+          });
+
+          app.view.addLayer(gama_layer);
+
+          app.update3DView();
+        }
+        request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
+      }
+    };*/
+    queue.push(cmd);
+    
+    //DYNAMIC LAYER (PEOPLE)
+    updateSource = setInterval(() => {
+      cmd = {
+        'type': 'output',
+        'species': species1Name,
+        'attributes': [attribute1Name],
+        "crs": 'EPSG:3946',
+        'socket_id': socket_id,
+        'exp_id': exp_id,
+        "callback": function (message) {
+          if (typeof event.data == "object") {
+          } else {
+            geojson = null;
+            geojson = JSON.parse(message);
+            if (layer0added) {
+              //gama_layer.delete();
+              app.view.removeLayer("PEOPLE");
+            }
+            layer0added = 1;
+
+            _source = new itowns.FileSource({
+              fetchedData: geojson,
+              crs: 'EPSG:3946',
+              format: 'application/json',
+            });
+            gama_layer = new itowns.FeatureGeometryLayer("PEOPLE", {
+              // Use a FileSource to load a single file once
+              source: _source,
+              transparent: true,
+              opacity: 1,
+              style: new itowns.Style({
+                fill: {
+                  //base_altitude: setAltitude,
+                  extrusion_height: 10,
+                  color: myUtils.setPeopleColor,
+                }
+              })
+            });
+            app.view.addLayer(gama_layer);
+            app.update3DView();
+          }
+          request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
+        }
+      };
+      queue.push(cmd);
+    }, 200);
+  }
+  var _source;
+  wSocket.onerror = function (event) {
+    console.log('An error occurred. Sorry for that.');
+  }
+}else{
+
 }
+
+
+/*
+  Read all GeoJson stored in the directory (geojsonCollectionUrl)
+  They are stored as itowns.FileSource 
+*/
+function getSourceListfromGeojsonCollection(parameters){
+  let sourceList = new Array();
+  for(let i = 0; i < parameters["step"];i++){
+    var _source = new itowns.FileSource({
+      url: parameters["geojsonCollectionUrl"] + i +".geojson",
+      crs: parameters["crs"],
+      format: parameters["format"]
+    });
+    sourceList.push(_source);
+  }
+  return sourceList;
+}
+
+/**
+   * Run a simulation using a geojsonCollection. 
+   * @param itownsView 
+   * @param layer The FeatureGeometryLayer that will be updated (filled with step 0)
+   * @param stepTime Time between each step of the timelapse
+   */
+ function runTimelapse(itownsView,layer,_sources,stepTime){
+  let step = 0;
+  let interval = setInterval( () => {
+    if(step > _sources.length-1){
+     clearInterval(interval);
+     log("Simulation Done with " + step + " Steps");
+    }
+    else{
+      if (step>0){
+        itownsView.removeLayer("current_layer"+(step-1));
+      }
+      layer = new itowns.FeatureGeometryLayer("current_layer"+step, {
+        source: _sources[step],
+        transparent: true,
+        batchId: function (property) { 
+          return parseInt(property.geojson.id); },  
+        opacity: 1,
+        style: new itowns.Style({
+          fill: {
+            extrusion_height: 1,
+            color: myUtils.setPeopleColor,
+          },
+        }),
+      });
+      itownsView.addLayer(layer);
+      app.update3DView();
+    }
+    step += 1;
+  },stepTime);
+}
+
 
 
 function onReceiveMsg(e) {
