@@ -13,3 +13,15 @@ ABM model developped using [Gama Platform](https://gama-platform.org/). As a sta
 - In Gama 1.8.2 Import the project ```ReAgent```
 - Open ```Gratte_Ciel_demo.gaml```
 - Run ```Demo```
+
+
+## UD-Viz-GCCV
+- ``` cd UD-Viz-GCCV ```
+- ``` npm i ```
+- ```npm run debug ```
+- Open a browser at this adress ``` http://localhost:8000/ ```
+
+### For the Streaming version you will need to run GAMA in headless as a server to do so
+
+- ``` cd Gama.app/Contents/headless ```
+- ``` bash gama-headless.sh -socket 6868 ```
