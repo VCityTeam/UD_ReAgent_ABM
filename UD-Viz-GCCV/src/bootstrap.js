@@ -12,7 +12,7 @@ import { Utils } from './Utils';
 
 const app = new udviz.Templates.AllWidget();
 const myUtils = new Utils();
-var streaming = Boolean(false);
+var streaming = Boolean(true);
 var sources;
 var dynamicLayer;
 
