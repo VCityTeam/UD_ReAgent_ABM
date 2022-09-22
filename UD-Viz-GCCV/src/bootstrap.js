@@ -87,6 +87,7 @@ if(streaming){
       request.socket_id = socket_id;
       wSocket.send(JSON.stringify(request));
       wSocket.onmessage = function (event) {
+        console.log("message recieved");
         let msg = event.data;
         if (event.data instanceof Blob) { } else {
           if (request.callback) {
@@ -99,6 +100,7 @@ if(streaming){
     }
 
   }, executor_speed);
+  
   wSocket.onclose = function (event) {
     clearInterval(executor);
     clearInterval(updateSource);
@@ -135,6 +137,7 @@ if(streaming){
       'socket_id': socket_id,
       'exp_id': exp_id,
       "callback": function (message) {
+        console.log("adding building");
         if (typeof event.data == "object") {
         } else {
           geojson = null;
@@ -213,9 +216,10 @@ if(streaming){
         request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
       }
     };*/
-    queue.push(cmd);
+    //queue.push(cmd);
     
     //DYNAMIC LAYER (PEOPLE)
+    let initPeople= false;
     updateSource = setInterval(() => {
       cmd = {
         'type': 'output',
@@ -225,6 +229,7 @@ if(streaming){
         'socket_id': socket_id,
         'exp_id': exp_id,
         "callback": function (message) {
+          console.log("adding people");
           if (typeof event.data == "object") {
           } else {
             geojson = null;
@@ -259,7 +264,11 @@ if(streaming){
           request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
         }
       };
-      queue.push(cmd);
+      if(!initPeople){
+        //initPeople = true;
+        queue.push(cmd);
+      }
+      
     }, 200);
   }
   var _source;
