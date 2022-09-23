@@ -54,7 +54,8 @@ if(streaming){
     console.log('Message sent: ' + message);
   }
 
-  const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Demo.gaml';
+  // const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Demo.gaml';
+  const modelPath = '/home/imuv/projects/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Demo.gaml';
   const experimentName = 'Demo';
 
   const species1Name = 'people';
@@ -216,10 +217,10 @@ if(streaming){
         request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
       }
     };*/
-    //queue.push(cmd);
+    // queue.push(cmd);
     
     //DYNAMIC LAYER (PEOPLE)
-    let initPeople= false;
+    let countIDLayer = 0;
     updateSource = setInterval(() => {
       cmd = {
         'type': 'output',
@@ -236,7 +237,7 @@ if(streaming){
             geojson = JSON.parse(message);
             if (layer0added) {
               //gama_layer.delete();
-              app.view3D.getItownsView().removeLayer("PEOPLE");
+              app.view3D.getItownsView().removeLayer(countIDLayer);
             }
             layer0added = 1;
 
@@ -245,7 +246,8 @@ if(streaming){
               crs: 'EPSG:3946',
               format: 'application/json',
             });
-            gama_layer = new itowns.FeatureGeometryLayer("PEOPLE", {
+            countIDLayer++
+            gama_layer = new itowns.FeatureGeometryLayer(countIDLayer, {
               // Use a FileSource to load a single file once
               source: _source,
               transparent: true,
@@ -264,10 +266,8 @@ if(streaming){
           request = "";//IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
         }
       };
-      if(!initPeople){
-        //initPeople = true;
-        queue.push(cmd);
-      }
+      queue.push(cmd);
+      
       
     }, 200);
   }
