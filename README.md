@@ -25,3 +25,5 @@ ABM model developped using [Gama Platform](https://gama-platform.org/). As a sta
 
 - ``` cd Gama.app/Contents/headless ```
 - ``` bash gama-headless.sh -socket 6868 ```
+
+NB: Be sure to update the local path by changing the local variable ```modelPath``` in ```bootstrap.js```to the GAMA model (by default const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Demo.gaml';
