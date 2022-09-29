@@ -16,6 +16,9 @@ var streaming = Boolean(true);
 var sources;
 var dynamicLayer;
 
+
+console.log("Folder in .env is ",FOLDER);
+
 //app.start('../assets/config/config.json').then((config) => {
 app.start('../assets/config/config.json').then((config) => {  
 

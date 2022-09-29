@@ -26,6 +26,7 @@
     "child-process-promise": "^2.2.1",
     "cross-env": "^7.0.3",
     "css-loader": "^0.28.10",
+    "dotenv": "^16.0.2",
     "eslint": "^7.28.0",
     "html-loader": "^1.3.2",
     "html-webpack-plugin": "^4.5.2",

@@ -1,15 +1,16 @@
 /** @format */
-const path = require('path');
-const WebSocket = require('websocket');
+const path = require("path");
 const mode = process.env.NODE_ENV;
-const debugBuild = mode === 'development';
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const debugBuild = mode === "development";
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const webpack = require("webpack");
+require("dotenv").config(); // Overwrite .env in process.env
 
 let outputPath;
 if (debugBuild) {
-  outputPath = path.resolve(__dirname, 'dist/debug');
+  outputPath = path.resolve(__dirname, "dist/debug");
 } else {
-  outputPath = path.resolve(__dirname, 'dist/release');
+  outputPath = path.resolve(__dirname, "dist/release");
 }
 
 module.exports = (env) => {
@@ -17,42 +18,45 @@ module.exports = (env) => {
     {
       // We also want to (web)pack the style files:
       test: /\.css$/,
-      use: ['style-loader', 'css-loader'],
+      use: ["style-loader", "css-loader"],
     },
     {
       test: /\.json$/,
-      include: [path.resolve(__dirname, 'src')],
-      loader: 'raw-loader',
+      include: [path.resolve(__dirname, "src")],
+      loader: "raw-loader",
     },
     {
       test: /\.html$/,
       use: [
         {
-          loader: 'html-loader',
+          loader: "html-loader",
           options: { minimize: !debugBuild },
         },
       ],
     },
   ];
 
-  const plugins = [];
-  if (debugBuild) 
+  const plugins = [
+    new webpack.DefinePlugin({
+      FOLDER: JSON.stringify(process.env.FOLDER), //indicate to webpack to replace FOLDER by its value at compile time
+    }),
+  ];
+  if (debugBuild)
     plugins.push(
       new HtmlWebpackPlugin({
-        title: 'Demo debug',
-        filename: 'index.html',
+        title: "Demo debug",
+        filename: "index.html",
       })
     );
-  
 
   const config = {
     mode,
-    entry: [path.resolve(__dirname, './src/bootstrap.js')],
+    entry: [path.resolve(__dirname, "./src/bootstrap.js")],
     output: {
       path: outputPath,
-      filename: 'app_name.js',
-      library: 'app_name',
-      libraryTarget: 'umd',
+      filename: "app_name.js",
+      library: "app_name",
+      libraryTarget: "umd",
       umdNamedDefine: true,
     },
     module: {
@@ -65,7 +69,7 @@ module.exports = (env) => {
     plugins: plugins,
   };
 
-  if (debugBuild) config.devtool = 'source-map';
+  if (debugBuild) config.devtool = "source-map";
 
   return config;
 };
