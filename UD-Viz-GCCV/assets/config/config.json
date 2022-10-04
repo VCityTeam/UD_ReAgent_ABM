@@ -103,5 +103,19 @@
         }
       }
     }
+  },
+  "slideShow": {
+    "slides": [
+      {
+        "name": "diapo1",
+        "folder": "../assets/slideshow",
+        "diapositives": ["1.png", "2.png", "3.png", "4.mp4"]
+      },
+      {
+        "name": "diapo2",
+        "folder": "../assets/slideshow",
+        "diapositives": ["1.png", "2.png", "3.png", "4.mp4"]
+      }
+    ]
   }
 }

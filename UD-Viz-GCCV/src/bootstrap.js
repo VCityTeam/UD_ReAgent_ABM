@@ -27,12 +27,19 @@ app.start('../assets/config/config.json').then((config) => {
   const layerChoice = new udviz.Widgets.LayerChoice(app.view3D.getLayerManager());
   app.addModuleView('layerChoice', layerChoice);
 
+  ////// SLIDESHOW MODULE
+  const slideShow = new udviz.Widgets.SlideShow(app, app.view3D.getInputManager());
+  app.addModuleView('slideShow', slideShow);
+  
+
   //CAMERA SETTINGS
   const newCameraPosition = app.extent.center();
   app.view3D
     .getCamera()
     .position.set(newCameraPosition.x, newCameraPosition.y, 1185);
   app.view3D.getCamera().rotation.set(0, 0, Math.PI / 2);
+
+  slideShow.setCoordinatesInputs(newCameraPosition.x,newCameraPosition.y,10);
   
   if(!streaming){
     sources = getSourceListfromGeojsonCollection(app.config["dynamic_layer"]);
