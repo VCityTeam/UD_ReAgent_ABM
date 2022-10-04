@@ -28,16 +28,11 @@ app.start('../assets/config/config.json').then((config) => {
   app.addModuleView('layerChoice', layerChoice);
 
   //CAMERA SETTINGS
-  let pos_x = parseInt(app.config['camera']['coordinates']['position']['x']);
-  let pos_y = parseInt(app.config['camera']['coordinates']['position']['y']);
-  let pos_z = parseInt(app.config['camera']['coordinates']['position']['z']);
-  let quat_x = parseFloat(app.config['camera']['coordinates']['quaternion']['x']);
-  let quat_y = parseFloat(app.config['camera']['coordinates']['quaternion']['y']);
-  let quat_z = parseFloat(app.config['camera']['coordinates']['quaternion']['z']);
-  let quat_w = parseFloat(app.config['camera']['coordinates']['quaternion']['w']);
-  app.view3D.getCamera().position.set(pos_x, pos_y, pos_z);
-  app.view3D.getCamera().quaternion.set(quat_x, quat_y, quat_z, quat_w);
-  //app.view3D.getCamera().updateProjectionMatrix();
+  const newCameraPosition = app.extent.center();
+  app.view3D
+    .getCamera()
+    .position.set(newCameraPosition.x, newCameraPosition.y, 1185);
+  app.view3D.getCamera().rotation.set(0, 0, Math.PI / 2);
   
   if(!streaming){
     sources = getSourceListfromGeojsonCollection(app.config["dynamic_layer"]);
