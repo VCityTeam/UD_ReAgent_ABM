@@ -23,7 +23,7 @@ ABM model developped using [Gama Platform](https://gama-platform.org/). As a sta
 
 ### For the Streaming version you will need to run GAMA in headless as a server to do so
 
-- ``` cd Gama.app/Contents/headless ```
+- ``` cd Gama.app/Contents/headless ``` (Mac OS) or ```cd C:\Program Files\Gama``` (Windows)
 - ``` bash gama-headless.sh -socket 6868 ```
 
 NB: Be sure to update the local path by changing the local variable ```modelPath``` in ```bootstrap.js```to the GAMA model (by default const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Demo.gaml';
