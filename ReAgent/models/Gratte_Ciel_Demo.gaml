@@ -39,7 +39,7 @@ global {
 	bool show_road<-true;
 	bool show_people<-true;
 	bool show_material<-true;
-	bool show_legend<-false;
+	bool show_legend<-true;
 	bool show_heatmap<-false;
 	bool show_wireframe<-false;
 	bool show_TUI<-true;
@@ -258,13 +258,13 @@ experiment Demo type: gui autorun:true{
 			event["w"] {show_wireframe<-!show_wireframe;}
 			event["h"] {show_heatmap<-!show_heatmap;}
 					
-			overlay position: { 200#px, 100#px } size: { 300 #px, 300 #px } background: #blue  rounded: true visible:show_legend
-            {
+			overlay position: { 500#px, 625#px } size: { 250 #px, 200 #px } background: #blue  rounded: true visible:show_legend
+            { 
             	if(show_legend){
             		
 					float y <- 50#px;
 					float x<- 50#px;
-					float textSize<-30.0;
+					float textSize<-15.0#px;
 					float gapBetweenColum<-250#px;
 					
 					draw "Phase" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
@@ -278,6 +278,7 @@ experiment Demo type: gui autorun:true{
 					
 					
 					y <- 50#px;
+					x<-200#px;
 					//x<- x+gapBetweenColum;
 					
 					draw "Keys" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
@@ -286,15 +287,17 @@ experiment Demo type: gui autorun:true{
 					//draw circle(5#px) at: { x - 20#px, y } color: #white border: #white;
 					draw "(p)eople (" + show_people + ")" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
-					
 					//draw square(10#px) at: { x - 20#px, y } color: #white border: #white;
 					draw "(m)aterial(" + show_material + ")" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 30 #px;
-					
-				
-				
 					draw "(b)uilding (" + show_building + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
+					draw "(r)oad (" + show_road + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+					
+					
+					x<-x+100#px;
+					y<-y-105#px;
 					
 					draw "(f)utur (" + show_projet + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
@@ -302,8 +305,7 @@ experiment Demo type: gui autorun:true{
 					draw "(e)xistant (" + show_existant + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(r)oad (" + show_road + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
+					
 					
 					draw "(T)ui (" + show_TUI + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
