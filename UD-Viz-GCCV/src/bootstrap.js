@@ -57,8 +57,7 @@ if(streaming){
     console.log('Message sent: ' + message);
   }
 
-  // const modelPath = '/Users/arno/Projects/GitHub/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Demo.gaml';
-  const modelPath = '/home/imuv/projects/UD_ReAgent_ABM/ReAgent/models/Gratte_Ciel_Demo.gaml';
+  const modelPath = FOLDER + '/ReAgent/models/Gratte_Ciel_Demo.gaml';
   const experimentName = 'Demo';
 
   const species1Name = 'people';
