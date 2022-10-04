@@ -39,7 +39,7 @@ global {
 	bool show_road<-true;
 	bool show_people<-true;
 	bool show_material<-true;
-	bool show_legend<-true;
+	bool show_legend<-false;
 	bool show_heatmap<-false;
 	bool show_wireframe<-false;
 	bool show_TUI<-true;
@@ -233,12 +233,11 @@ experiment Demo type: gui autorun:true{
 
 	float minimum_cycle_duration<-0.01;
 	output {
-		display city_display type: opengl background:backgroundColor fullscreen:false synchronized:false 
+		display city_display type: opengl background:backgroundColor fullscreen:1 synchronized:false 
 
 		{
 			rotation angle:90;
-			//camera 'default' location: {254.0627,446.7955,986.6105} target: {254.0627,446.7803,0.0};
-			camera 'default' location: {256.0359,459.6214,986.6105} target: {256.0359,459.6062,0.0};
+			camera 'default' location: {321.5273,579.0176,1196.2332} target: {321.5273,578.9992,0.0};
 			species background aspect: base visible:show_heatmap;
 			species building aspect: base visible:show_building;
 			species projet aspect: base visible:show_projet;
@@ -246,7 +245,7 @@ experiment Demo type: gui autorun:true{
 			species road aspect: base visible:show_road;
 			species people aspect: base visible:show_people;
 			species materials aspect: base visible:show_material;
-			species legend aspect:base;
+			//species legend aspect:base;
 
 			//species TUI aspect:base refresh:false visible:show_TUI;	
 			event["b"] {show_building<-!show_building;}
@@ -259,7 +258,7 @@ experiment Demo type: gui autorun:true{
 			event["w"] {show_wireframe<-!show_wireframe;}
 			event["h"] {show_heatmap<-!show_heatmap;}
 					
-			/*overlay position: { -200#px, 100#px } size: { 300 #px, 300 #px } background: #blue  rounded: true
+			overlay position: { 200#px, 100#px } size: { 300 #px, 300 #px } background: #blue  rounded: true visible:show_legend
             {
             	if(show_legend){
             		
@@ -313,11 +312,11 @@ experiment Demo type: gui autorun:true{
 					y <- y + 25#px;
 					
 					y <- y + 300#px;
-					//draw image_file('../images/logo_table_white.png') at: { x+300#px, y } size:{1000#px,115#px};
+					//draw image_file('../images/logo_table_white.png') at: { x+300#px, y } size:{1200#px,215#px};
 	
 				
 	            }
-          }*/
+          }
 		}
 	}
 }
