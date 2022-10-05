@@ -15,18 +15,26 @@ model HelloWorld
 global {
 	string useCase<-"GratteCiel";
 
-	file shape_file_buildings <- file("../includes/"+useCase+"/Data_cc46/New_Buildings_500_1000_3946.geojson");
+	file shape_file_buildings <- file("../includes/"+useCase+"/Data_cc46/bat_cstb_3946.geojson");
+	file shape_file_trees <- file("../includes/"+useCase+"/Data_cc46/arbres_align_3946.geojson");
 	file shape_file_projet <- file("../includes/"+useCase+"/Data_cc46/Zone_projet.geojson");
     file shape_file_existant <- file("../includes/"+useCase+"/Data_cc46/Existants.geojson");
 	file shape_file_roads <- file("../includes/"+useCase+"/Data_cc46/Roads_500_1000_3946.geojson");
 	file shape_file_bounds <- file("../includes/"+useCase+"/Data_cc46/Bounds_3946.geojson");
 	
-	image_file background_image <- image_file("../includes/"+useCase+"/images/heatmap.jpg");
+	image_file heatmap_image <- image_file("../includes/"+useCase+"/images/heatmap.jpg");
+	image_file tree_image <- image_file("../includes/"+useCase+"/images/trees.jpg");
+	image_file green_image <- image_file("../includes/"+useCase+"/images/green_occupation.jpg");
+	image_file plu_image <- image_file("../includes/"+useCase+"/images/plu.jpg");
 	geometry shape <- envelope(shape_file_buildings);
 	graph the_graph;
 		
 	map<string,rgb> standard_color_per_type <- 
 	["road"::#gamablue,"building"::#gamared,"amenity"::#gamaorange,"shop"::#cyan, "leisure"::#darkcyan];
+	
+	map<string,rgb> color_per_class <- 
+	["A"::rgb("#2b83ba"),"B"::rgb("#6bb0af"),"C"::rgb("#abdda4"),"D"::rgb("#d5eeb2"), 
+	"E"::rgb("#ffffbf"), "F"::rgb("#fed790"),"G"::rgb("#fdae61"),"N"::rgb("#ea633e"),nil::#lightgray];
 	
 	
 	map<int,rgb> project_color_per_phase <- 
@@ -34,13 +42,14 @@ global {
 	
 	//UI
 	bool show_building<-true;
-	bool show_projet<-true;
-	bool show_existant<-true;
+	bool show_projet<-false;
+	bool show_existant<-false;
 	bool show_road<-true;
 	bool show_people<-true;
 	bool show_material<-true;
 	bool show_legend<-true;
 	bool show_heatmap<-false;
+	bool show_tree<-false;
 	bool show_wireframe<-false;
 	bool show_TUI<-true;
 	rgb backgroundColor<-#white;
@@ -61,7 +70,9 @@ global {
 	}*/
 	
 	init {
-		create building from: shape_file_buildings;
+		create building from: shape_file_buildings with: [class:string(read ("adedpe202006_logtype_classe_estim_ges"))];
+		create trees from: shape_file_trees with: 
+		[radius_cm:int(read ("circonference_cm")),height_m:int(read ("hauteur_totale_m")),couronne_m:int(read ("diametre_couronne_m")),genre:string(read ("genre"))];		
 		create projet from: shape_file_projet with: [phase:int(read ("phase"))];
 		create existant from: shape_file_existant;
 		create road from: shape_file_roads ;
@@ -114,7 +125,7 @@ global {
 			shape<-shape rotated_by 90;
 		}
 		
-		create background{
+		create heatmap{
 			location<-{world.shape.width/2, world.shape.height/2};
 		}
 	}
@@ -131,10 +142,11 @@ global {
 species building {
 	string type; 
 	rgb color <- #gray  ;
+	string class;
 	
 	aspect base {
 		//draw shape color: standard_color_per_type["building"] wireframe:show_wireframe width:2;
-		draw shape color: #gamablue wireframe:show_wireframe width:2;
+		draw shape color: color_per_class[class] wireframe:show_wireframe width:2;
 	}
 }
 
@@ -203,9 +215,20 @@ species materials skills:[moving] {
 	}
 }
 
-species background{
+species heatmap{
+	
 	aspect base{
-		draw image_file(background_image) size:{world.shape.width, world.shape.height};
+		draw image_file(heatmap_image) size:{world.shape.width, world.shape.height};
+	}
+}
+
+species trees{
+	int radius_cm;
+	int height_m;
+	int couronne_m;
+	string genre;
+	aspect base{
+		draw circle(2*radius_cm#cm) color:#green;
 	}
 }
 
@@ -238,7 +261,8 @@ experiment Demo type: gui autorun:true{
 		{
 			rotation angle:90;
 			camera 'default' location: {321.5273,579.0176,1196.2332} target: {321.5273,578.9992,0.0};
-			species background aspect: base visible:show_heatmap;
+			species heatmap aspect: base visible:show_heatmap;
+			species trees aspect: base visible:show_tree;
 			species building aspect: base visible:show_building;
 			species projet aspect: base visible:show_projet;
 			species existant aspect: base visible:show_existant;
@@ -254,7 +278,7 @@ experiment Demo type: gui autorun:true{
 			event["r"] {show_road<-!show_road;}
 			event["p"] {show_people<-!show_people;}
 			event["m"] {show_material<-!show_material;}
-			event["t"] {show_TUI<-!show_TUI;}
+			event["t"] {show_tree<-!show_tree;}
 			event["w"] {show_wireframe<-!show_wireframe;}
 			event["h"] {show_heatmap<-!show_heatmap;}
 					
@@ -306,12 +330,12 @@ experiment Demo type: gui autorun:true{
 					y <- y + 25#px;
 					
 					
-					
-					draw "(T)ui (" + show_TUI + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
-					
 					draw "(h)eatmap (" + show_heatmap + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
+					
+					draw "(t)ree (" + show_tree + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+
 					
 					y <- y + 300#px;
 					//draw image_file('../images/logo_table_white.png') at: { x+300#px, y } size:{1200#px,215#px};
