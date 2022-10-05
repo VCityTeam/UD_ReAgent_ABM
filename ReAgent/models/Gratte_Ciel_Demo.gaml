@@ -23,8 +23,6 @@ global {
 	file shape_file_bounds <- file("../includes/"+useCase+"/Data_cc46/Bounds_3946.geojson");
 	
 	image_file heatmap_image <- image_file("../includes/"+useCase+"/images/heatmap.jpg");
-	image_file tree_image <- image_file("../includes/"+useCase+"/images/trees.jpg");
-	image_file green_image <- image_file("../includes/"+useCase+"/images/green_occupation.jpg");
 	image_file plu_image <- image_file("../includes/"+useCase+"/images/plu.jpg");
 	geometry shape <- envelope(shape_file_buildings);
 	graph the_graph;
@@ -49,6 +47,7 @@ global {
 	bool show_material<-true;
 	bool show_legend<-true;
 	bool show_heatmap<-false;
+	bool show_plu<-false;
 	bool show_tree<-false;
 	bool show_wireframe<-false;
 	bool show_TUI<-true;
@@ -126,6 +125,9 @@ global {
 		}
 		
 		create heatmap{
+			location<-{world.shape.width/2, world.shape.height/2};
+		}
+		create plu{
 			location<-{world.shape.width/2, world.shape.height/2};
 		}
 	}
@@ -215,12 +217,18 @@ species materials skills:[moving] {
 	}
 }
 
-species heatmap{
-	
+species heatmap{	
 	aspect base{
 		draw image_file(heatmap_image) size:{world.shape.width, world.shape.height};
 	}
 }
+
+species plu{
+	aspect base{
+		draw image_file(plu_image) size:{world.shape.width, world.shape.height};
+	}
+}
+
 
 species trees{
 	int radius_cm;
@@ -262,6 +270,7 @@ experiment Demo type: gui autorun:true{
 			rotation angle:90;
 			camera 'default' location: {321.5273,579.0176,1196.2332} target: {321.5273,578.9992,0.0};
 			species heatmap aspect: base visible:show_heatmap;
+			species plu aspect: base visible:show_plu;
 			species trees aspect: base visible:show_tree;
 			species building aspect: base visible:show_building;
 			species projet aspect: base visible:show_projet;
@@ -281,6 +290,7 @@ experiment Demo type: gui autorun:true{
 			event["t"] {show_tree<-!show_tree;}
 			event["w"] {show_wireframe<-!show_wireframe;}
 			event["h"] {show_heatmap<-!show_heatmap;}
+			event["l"] {show_plu<-!show_plu;}
 					
 			overlay position: { 500#px, 625#px } size: { 250 #px, 200 #px } background: #blue  rounded: true visible:show_legend
             { 
@@ -334,6 +344,9 @@ experiment Demo type: gui autorun:true{
 					y <- y + 25#px;
 					
 					draw "(t)ree (" + show_tree + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+					
+					draw "(l)anduse (" + show_tree + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 
 					
