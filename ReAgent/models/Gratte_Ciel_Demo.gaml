@@ -56,6 +56,10 @@ global {
 	
 	int curSnap<-0;
 	
+	bool fuzzAgent<-false;
+	float max_dev <- 1.0;
+	float fuzzyness <- 0.5;
+	
 	/*int size <- 100;
 	field heatmap <- field(size, size);
 	reflex update {
@@ -71,7 +75,7 @@ global {
 	init {
 		create building from: shape_file_buildings with: [class:string(read ("adedpe202006_logtype_classe_estim_ges"))];
 		create trees from: shape_file_trees with: 
-		[radius_cm:int(read ("circonference_cm")),height_m:int(read ("hauteur_totale_m")),couronne_m:int(read ("diametre_couronne_m")),genre:string(read ("genre"))];		
+		[radius_cm:int(read ("circonference_cm")),height_m:int(read ("hauteurtotale_m")),couronne_m:int(read ("diametrecouronne_m")),genre:string(read ("genre"))];		
 		create projet from: shape_file_projet with: [phase:int(read ("phase"))];
 		create existant from: shape_file_existant;
 		create road from: shape_file_roads ;
@@ -95,6 +99,9 @@ global {
 				}
 			}
 			my_speed<-my_speed*10;
+			if(fuzzAgent){
+			 val <- rnd(-max_dev,max_dev);	
+			}
 		}
 		//save people to:"../results/people_in.geojson" type: "json" attributes: ["ID"::name, "TYPE"::self.type];
 		
@@ -147,8 +154,7 @@ species building {
 	string class;
 	
 	aspect base {
-		//draw shape color: standard_color_per_type["building"] wireframe:show_wireframe width:2;
-		draw shape color: color_per_class[class] wireframe:show_wireframe width:2;
+		draw shape color: color_per_class[class] wireframe:show_wireframe width:2 border:#black;
 	}
 }
 
@@ -192,8 +198,13 @@ species people skills:[moving] {
 	list<point> locs;
 	float my_speed;
 	geometry shape<-circle(2#m);
+	float val;
 	reflex move {
 		do wander on:the_graph speed:my_speed;
+		if(fuzzAgent){
+		  float val_pt <- val + rnd(-fuzzyness, fuzzyness);
+		  location <- location + {cos(heading + 90) * val_pt, sin(heading + 90) * val_pt};	
+		}
 	}
 	
 	aspect base {
@@ -236,7 +247,8 @@ species trees{
 	int couronne_m;
 	string genre;
 	aspect base{
-		draw circle(2*radius_cm#cm) color:#green;
+		draw circle(radius_cm#cm) color:#green depth:height_m;
+		draw sphere(couronne_m) color:#green at:{location.x,location.y,height_m};
 	}
 }
 
@@ -276,8 +288,8 @@ experiment Demo type: gui autorun:true{
 			species projet aspect: base visible:show_projet;
 			species existant aspect: base visible:show_existant;
 			species road aspect: base visible:show_road;
-			species people aspect: base visible:show_people;
-			species materials aspect: base visible:show_material;
+			species people aspect: base visible:show_people trace:0 fading:true;
+			species materials aspect: base visible:show_material trace:0 fading:true;
 			//species legend aspect:base;
 
 			//species TUI aspect:base refresh:false visible:show_TUI;	
