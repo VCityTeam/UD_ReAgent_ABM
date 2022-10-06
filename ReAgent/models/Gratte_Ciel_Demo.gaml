@@ -34,14 +34,20 @@ global {
 	["A"::rgb("#2b83ba"),"B"::rgb("#6bb0af"),"C"::rgb("#abdda4"),"D"::rgb("#d5eeb2"), 
 	"E"::rgb("#ffffbf"), "F"::rgb("#fed790"),"G"::rgb("#fdae61"),"N"::rgb("#ea633e"),nil::#lightgray];
 	
+	map<string,rgb> color_per_type <- 
+	["Appartement"::rgb("#d7191c"),"Centres commerciaux"::rgb("#f69053"),"Logements collectifs"::rgb("#ffdf9a"),"Maison"::rgb("#def2b4"), 
+	"Non résidentiel"::rgb("#91cba9"),nil::#lightgray];
+	
 	
 	map<int,rgb> project_color_per_phase <- 
 	[1::#green,2::#blue,3::#red];
 	
 	//UI
 	bool show_building<-true;
+	bool show_building_energy<-true;
+	bool show_building_type<-true;
 	bool show_projet<-false;
-	bool show_existant<-false;
+	bool show_gratte_ciel<-false;
 	bool show_road<-true;
 	bool show_people<-true;
 	bool show_material<-true;
@@ -50,7 +56,7 @@ global {
 	bool show_plu<-false;
 	bool show_tree<-false;
 	bool show_wireframe<-false;
-	bool show_TUI<-true;
+	bool show_trace<-false;
 	rgb backgroundColor<-#white;
 	rgb textcolor<- (backgroundColor = #white) ? #white : #black;
 	
@@ -73,7 +79,9 @@ global {
 	}*/
 	
 	init {
-		create building from: shape_file_buildings with: [class:string(read ("adedpe202006_logtype_classe_estim_ges"))];
+		create building from: shape_file_buildings with: [type:string(read ("adedpe202006_logtype_type_batiment")),
+			class:string(read ("adedpe202006_logtype_classe_estim_ges"))
+		];
 		create trees from: shape_file_trees with: 
 		[radius_cm:int(read ("circonference_cm")),height_m:int(read ("hauteurtotale_m")),couronne_m:int(read ("diametrecouronne_m")),genre:string(read ("genre"))];		
 		create projet from: shape_file_projet with: [phase:int(read ("phase"))];
@@ -154,7 +162,16 @@ species building {
 	string class;
 	
 	aspect base {
-		draw shape color: color_per_class[class] wireframe:show_wireframe width:2 border:#black;
+		if (show_building){
+			draw shape color: #lightgray  width:2 border:#black;
+		}
+		if(show_building_energy){
+		  draw shape color: color_per_class[class] wireframe:show_wireframe width:2 border:#black;	
+		}
+		if(show_building_type){
+		  draw shape color: color_per_type[type] wireframe:show_wireframe width:2 border:#black;	
+		}
+		
 	}
 }
 
@@ -286,23 +303,26 @@ experiment Demo type: gui autorun:true{
 			species trees aspect: base visible:show_tree;
 			species building aspect: base visible:show_building;
 			species projet aspect: base visible:show_projet;
-			species existant aspect: base visible:show_existant;
+			species existant aspect: base visible:show_gratte_ciel;
 			species road aspect: base visible:show_road;
-			species people aspect: base visible:show_people trace:0 fading:true;
-			species materials aspect: base visible:show_material trace:0 fading:true;
+			species people aspect: base visible:show_people trace:(show_trace ? 10 : 0) fading:true;
+			species materials aspect: base visible:show_material trace:(show_trace ? 10: 0) fading:true;
 			//species legend aspect:base;
 
-			//species TUI aspect:base refresh:false visible:show_TUI;	
+	
 			event["b"] {show_building<-!show_building;}
+			event["e"] {show_building_energy<-!show_building_energy;}
+			event["t"] {show_building_type<-!show_building_type;}
 			event["f"] {show_projet<-!show_projet;}
-			event["e"] {show_existant<-!show_existant;}
+			event["g"] {show_gratte_ciel<-!show_gratte_ciel;}
 			event["r"] {show_road<-!show_road;}
 			event["p"] {show_people<-!show_people;}
 			event["m"] {show_material<-!show_material;}
-			event["t"] {show_tree<-!show_tree;}
+			event["a"] {show_tree<-!show_tree;}
 			event["w"] {show_wireframe<-!show_wireframe;}
 			event["h"] {show_heatmap<-!show_heatmap;}
 			event["l"] {show_plu<-!show_plu;}
+			//event["t"] {show_trace<-!show_trace;}
 					
 			overlay position: { 500#px, 625#px } size: { 250 #px, 200 #px } background: #blue  rounded: true visible:show_legend
             { 
@@ -340,6 +360,8 @@ experiment Demo type: gui autorun:true{
 					y <- y + 25#px;
 					draw "(r)oad (" + show_road + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
+					draw "(t)rajectoire (" + show_trace + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
 					
 					
 					x<-x+100#px;
@@ -348,17 +370,20 @@ experiment Demo type: gui autorun:true{
 					draw "(f)utur (" + show_projet + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(e)xistant (" + show_existant + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					draw "(g)ratte Ciel (" + show_gratte_ciel + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
 					
 					draw "(h)eatmap (" + show_heatmap + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(t)ree (" + show_tree + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					draw "(a)bres (" + show_tree + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(l)anduse (" + show_tree + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					draw "(e)nergy (" + show_building_energy + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+					
+					draw "(t)ype (" + show_building_type + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 
 					
