@@ -52,11 +52,12 @@ global {
 	bool show_people<-true;
 	bool show_material<-true;
 	bool show_legend<-true;
-	bool show_heatmap<-false;
+	bool show_vegetale_density<-false;
 	bool show_plu<-false;
 	bool show_tree<-false;
 	bool show_wireframe<-false;
 	bool show_trace<-false;
+	bool show_heatmap<-false;
 	rgb backgroundColor<-#white;
 	rgb textcolor<- (backgroundColor = #white) ? #white : #black;
 	
@@ -77,6 +78,13 @@ global {
 			}
 		}
 	}*/
+	int size <- 100;
+	field heatmap <- field(size, size);
+	reflex update {
+		ask people {
+			heatmap[location] <- heatmap[location] + 10;
+		}
+	}
 	
 	init {
 		create building from: shape_file_buildings with: [type:string(read ("adedpe202006_logtype_type_batiment")),
@@ -139,7 +147,7 @@ global {
 			shape<-shape rotated_by 90;
 		}
 		
-		create heatmap{
+		create texture{
 			location<-{world.shape.width/2, world.shape.height/2};
 		}
 		create plu{
@@ -163,7 +171,7 @@ species building {
 	
 	aspect base {
 		if (show_building){
-			draw shape color: #lightgray  width:2 border:#black;
+			draw shape color: #lightgray  width:2 border:#black wireframe:true;
 		}
 		if(show_building_energy){
 		  draw shape color: color_per_class[class] wireframe:show_wireframe width:2 border:#black;	
@@ -245,7 +253,7 @@ species materials skills:[moving] {
 	}
 }
 
-species heatmap{	
+species texture{	
 	aspect base{
 		draw image_file(heatmap_image) size:{world.shape.width, world.shape.height};
 	}
@@ -298,7 +306,8 @@ experiment Demo type: gui autorun:true{
 		{
 			rotation angle:90;
 			camera 'default' location: {321.5273,579.0176,1196.2332} target: {321.5273,578.9992,0.0};
-			species heatmap aspect: base visible:show_heatmap;
+			mesh heatmap scale: 0 color: palette([ #black, #yellow, #yellow, #orange, #orange, #red, #red]) smooth: 3 visible:show_heatmap;
+			species texture aspect: base visible:show_vegetale_density;
 			species plu aspect: base visible:show_plu;
 			species trees aspect: base visible:show_tree;
 			species building aspect: base visible:show_building;
@@ -320,8 +329,11 @@ experiment Demo type: gui autorun:true{
 			event["m"] {show_material<-!show_material;}
 			event["a"] {show_tree<-!show_tree;}
 			event["w"] {show_wireframe<-!show_wireframe;}
-			event["h"] {show_heatmap<-!show_heatmap;}
+			event["v"] {show_vegetale_density<-!show_vegetale_density;}
 			event["l"] {show_plu<-!show_plu;}
+			event["h"] {show_heatmap<-!show_heatmap;}
+			
+			
 			//event["t"] {show_trace<-!show_trace;}
 					
 			overlay position: { 500#px, 625#px } size: { 250 #px, 200 #px } background: #blue  rounded: true visible:show_legend
@@ -362,6 +374,8 @@ experiment Demo type: gui autorun:true{
 					y <- y + 25#px;
 					draw "(t)rajectoire (" + show_trace + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
+					draw "(h)eatmap (" + show_heatmap + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
 					
 					
 					x<-x+100#px;
@@ -374,7 +388,7 @@ experiment Demo type: gui autorun:true{
 					y <- y + 25#px;
 					
 					
-					draw "(h)eatmap (" + show_heatmap + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					draw "(v)egetale density (" + show_vegetale_density + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
 					draw "(a)bres (" + show_tree + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
