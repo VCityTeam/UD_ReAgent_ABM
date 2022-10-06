@@ -28,11 +28,17 @@ global {
 	graph the_graph;
 		
 	map<string,rgb> standard_color_per_type <- 
-	["road"::#gamablue,"building"::#gamared,"amenity"::#gamaorange,"shop"::#cyan, "leisure"::#darkcyan];
+	["road"::#gray,"building"::#gamared,"amenity"::#gamaorange,"shop"::#cyan, "leisure"::#darkcyan];
 	
 	map<string,rgb> color_per_class <- 
 	["A"::rgb("#2b83ba"),"B"::rgb("#6bb0af"),"C"::rgb("#abdda4"),"D"::rgb("#d5eeb2"), 
 	"E"::rgb("#ffffbf"), "F"::rgb("#fed790"),"G"::rgb("#fdae61"),"N"::rgb("#ea633e"),nil::#lightgray];
+	
+	map<int,rgb> color_per_mode <- [0::rgb(52,152,219), 1::rgb(161,196,90),2::rgb(192,57,43)];
+	map<int,string> mode_per_mode <- [0::"pedestrian", 1::"bike", 2::"car"];
+	map<int,rgb> color_per_material <- [0::#green, 1::#gray,2::#red];
+	map<int,string> mode_per_material <- [0::"food", 1::"construction", 2::"goods"];
+	
 	
 	map<string,rgb> color_per_type <- 
 	["Appartement"::rgb("#d7191c"),"Centres commerciaux"::rgb("#f69053"),"Logements collectifs"::rgb("#ffdf9a"),"Maison"::rgb("#def2b4"), 
@@ -42,12 +48,13 @@ global {
 	map<int,rgb> project_color_per_phase <- 
 	[1::#green,2::#blue,3::#red];
 	
+	
 	//UI
 	bool show_building<-true;
-	bool show_building_energy<-true;
-	bool show_building_type<-true;
-	bool show_projet<-false;
-	bool show_gratte_ciel<-false;
+	bool show_building_energy<-false;
+	bool show_building_type<-false;
+	bool show_projet<-true;
+	bool show_gratte_ciel<-true;
 	bool show_road<-true;
 	bool show_people<-true;
 	bool show_material<-true;
@@ -56,10 +63,10 @@ global {
 	bool show_plu<-false;
 	bool show_tree<-false;
 	bool show_wireframe<-false;
-	bool show_trace<-false;
+	bool show_trace<-true;
 	bool show_heatmap<-false;
 	rgb backgroundColor<-#white;
-	rgb textcolor<- (backgroundColor = #white) ? #white : #black;
+	rgb textcolor<- (backgroundColor = #black) ? #white : #black;
 	
 	int curSnap<-0;
 	
@@ -101,17 +108,19 @@ global {
 		create people number: 100 {
 			location <- any_location_in (one_of(building)); 
 			color<-rnd_color(255);
-			mode<-rnd(2);
-			if(flip(0.25)){
+			if(flip(0.1)){
 				my_speed<-0.1#m/#sec;
 				type<-"car";
+				mode<-2;
 			}else{
 				if(flip(0.25)){
 				my_speed<-0.05#m/#sec;	
 				type<-"bike";
+				mode<-1;
 				}else{
 				my_speed<-0.01#m/#sec;
-				type<-"pedestrian";		
+				type<-"pedestrian";
+				mode<-0;		
 				}
 			}
 			my_speed<-my_speed*10;
@@ -191,7 +200,7 @@ species projet{
 	
 	aspect base {
 		if(phase!=0){
-		  draw shape color: project_color_per_phase[phase] border: project_color_per_phase[phase] - 75 wireframe:show_wireframe width:5;	
+		  draw shape color: project_color_per_phase[phase] border: project_color_per_phase[phase] wireframe:show_wireframe width:5;	
 		}
 	}
 }
@@ -233,7 +242,7 @@ species people skills:[moving] {
 	}
 	
 	aspect base {
-		draw circle(2#m) color: color border: #black;
+		draw circle(2#m) color: color_per_mode[mode] border: #black;
 	}
 }
 
@@ -249,7 +258,7 @@ species materials skills:[moving] {
 	}
 	
 	aspect base {
-		draw rectangle(3#m,9#m) rotate:heading+90 color: color border: #black;
+		draw rectangle(3#m,9#m) rotate:heading+90 color: color_per_material[mode] border: #black;
 	}
 }
 
@@ -302,10 +311,11 @@ experiment Demo type: gui autorun:true{
 	float minimum_cycle_duration<-0.01;
 	output {
 		display city_display type: opengl background:backgroundColor fullscreen:1 synchronized:false 
-
+		//keystone: [{-0.13461307306143822,-0.27263252266269256,0.0},{-0.12039927031582047,1.0656775054594707,0.0},{1.0284276054912351,1.0307125025529897,0.0},{1.0706509607061578,-0.25751252140583614,0.0}]
 		{
 			rotation angle:90;
-			camera 'default' location: {321.5273,579.0176,1196.2332} target: {321.5273,578.9992,0.0};
+			camera 'default' location: {192.9253,499.1944,886.6691} target: {192.9253,499.1807,0.0};
+			
 			mesh heatmap scale: 0 color: palette([ #black, #yellow, #yellow, #orange, #orange, #red, #red]) smooth: 3 visible:show_heatmap;
 			species texture aspect: base visible:show_vegetale_density;
 			species plu aspect: base visible:show_plu;
@@ -315,13 +325,13 @@ experiment Demo type: gui autorun:true{
 			species existant aspect: base visible:show_gratte_ciel;
 			species road aspect: base visible:show_road;
 			species people aspect: base visible:show_people trace:(show_trace ? 10 : 0) fading:true;
-			species materials aspect: base visible:show_material trace:(show_trace ? 10: 0) fading:true;
+			species materials aspect: base visible:show_material;
 			//species legend aspect:base;
 
 	
 			event["b"] {show_building<-!show_building;}
 			event["e"] {show_building_energy<-!show_building_energy;}
-			event["t"] {show_building_type<-!show_building_type;}
+			//event["t"] {show_building_type<-!show_building_type;}
 			event["f"] {show_projet<-!show_projet;}
 			event["g"] {show_gratte_ciel<-!show_gratte_ciel;}
 			event["r"] {show_road<-!show_road;}
@@ -334,40 +344,45 @@ experiment Demo type: gui autorun:true{
 			event["h"] {show_heatmap<-!show_heatmap;}
 			
 			
-			//event["t"] {show_trace<-!show_trace;}
+			event["t"] {show_trace<-!show_trace;}
 					
-			overlay position: { 500#px, 625#px } size: { 250 #px, 200 #px } background: #blue  rounded: true visible:show_legend
+			overlay position: {500#px, 650#px } size: { 1000#px, 200#px } background: #white rounded: true visible:show_legend
             { 
             	if(show_legend){
             		
 					float y <- 50#px;
 					float x<- 50#px;
 					float textSize<-15.0#px;
-					float gapBetweenColum<-250#px;
+					float gapBetweenColum<-150#px;
 					
-					draw "Phase" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
-					y <- y + 30 #px;
-					loop phase over: project_color_per_phase.keys
+				
+					draw "Agent" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
+				    y <- y + 25#px;
+					draw string("(m)aterial(" + show_material + ")") at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize*1.25, #plain);
+					y <- y + 25#px;
+					loop mode over: color_per_mode.keys
 					{
-					    draw square(10#px) at: { x - 20#px, y } color: project_color_per_phase[phase] border: #white;
-					    draw string(phase) at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					    draw rectangle(9#m,3#m) at: { x - 20#px, y } color: color_per_material[mode] border: #white;
+					    draw string(mode_per_material[mode]) at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					    y <- y + 25#px;
 					}
 					
+					y <- y + 25 #px;
+					draw string("(p)eople (" + show_people + ")") at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize*1.25, #plain);
+					y <- y + 25#px;
+					loop mode over: color_per_mode.keys
+					{
+					    draw circle(10#px) at: { x - 20#px, y } color: color_per_mode[mode] border: #white;
+					    draw string(mode_per_mode[mode]) at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					    y <- y + 25#px;
+					}
+									
 					
 					y <- 50#px;
-					x<-200#px;
-					//x<- x+gapBetweenColum;
+					x<-x+gapBetweenColum;
 					
-					draw "Keys" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
-					y <- y + 30 #px;
-			
-					//draw circle(5#px) at: { x - 20#px, y } color: #white border: #white;
-					draw "(p)eople (" + show_people + ")" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
-					//draw square(10#px) at: { x - 20#px, y } color: #white border: #white;
-					draw "(m)aterial(" + show_material + ")" at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 30 #px;
+					draw "Simulation" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
+					y <- y + 25 #px;
 					draw "(b)uilding (" + show_building + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					draw "(r)oad (" + show_road + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
@@ -378,8 +393,11 @@ experiment Demo type: gui autorun:true{
 					y <- y + 25#px;
 					
 					
-					x<-x+100#px;
-					y<-y-105#px;
+					x<-x+gapBetweenColum;
+					y<-y-25*5#px;
+					
+					draw "Project" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
+					y <- y + 25 #px;
 					
 					draw "(f)utur (" + show_projet + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
@@ -388,6 +406,11 @@ experiment Demo type: gui autorun:true{
 					y <- y + 25#px;
 					
 					
+					x<-x+gapBetweenColum;
+					y<-y-25*3#px;
+					
+					draw "Nature and Consommation" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
+					y <- y + 25 #px;
 					draw "(v)egetale density (" + show_vegetale_density + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
@@ -397,12 +420,23 @@ experiment Demo type: gui autorun:true{
 					draw "(e)nergy (" + show_building_energy + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					draw "(t)ype (" + show_building_type + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
+					x<-x+2*gapBetweenColum;
+					y<-y-25*4#px;
+					draw "Phase" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
+					y <- y + 30 #px;
+					loop phase over: project_color_per_phase.keys
+					{
+					    draw square(10#px) at: { x - 20#px, y } color: project_color_per_phase[phase] border: #white;
+					    draw string(phase) at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					    y <- y + 25#px;
+					}
+					
+					y <- 50#px;
+					x<-x+gapBetweenColum;
 
 					
 					y <- y + 300#px;
-					//draw image_file('../images/logo_table_white.png') at: { x+300#px, y } size:{1200#px,215#px};
+					draw image_file('../images/logo_table_white.png') at: { x+300#px, y } size:{1200#px,215#px};
 	
 				
 	            }
