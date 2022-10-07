@@ -21,9 +21,13 @@ global {
     file shape_file_existant <- file("../includes/"+useCase+"/Data_cc46/Existants.geojson");
 	file shape_file_roads <- file("../includes/"+useCase+"/Data_cc46/Roads_500_1000_3946.geojson");
 	file shape_file_bounds <- file("../includes/"+useCase+"/Data_cc46/Bounds_3946.geojson");
-	
-	image_file heatmap_image <- image_file("../includes/"+useCase+"/images/heatmap.jpg");
-	image_file plu_image <- image_file("../includes/"+useCase+"/images/plu.jpg");
+		
+	list<image_file> image_files <- (list<image_file>(image_file("../includes/"+useCase+"/images/heatmap.jpg"),
+		image_file("../includes/"+useCase+"/images/plu.jpg"),image_file("../includes/"+useCase+"/images/Groupe_1_3.png"),
+		image_file("../includes/"+useCase+"/images/densite_arbres.jpg"),image_file("../includes/"+useCase+"/images/occsol.jpg"),image_file("../includes/"+useCase+"/images/plantabilite_exoDev.png")
+		
+	));
+	//list<gif_file> gif_files <- [gif_file("../includes/"+useCase+"/images/Group_4_05_HD.gif"),gif_file("../includes/"+useCase+"/images/Groupe3.gif")];
 	geometry shape <- envelope(shape_file_buildings);
 	graph the_graph;
 		
@@ -62,12 +66,13 @@ global {
 	bool show_people<-true;
 	bool show_material<-true;
 	bool show_legend<-true;
-	bool show_vegetale_density<-false;
-	bool show_plu<-false;
+	bool show_scenario_as_texture<-false;
+	bool show_gif<-false;
 	bool show_tree<-false;
 	bool show_wireframe<-false;
 	bool show_trace<-true;
 	bool show_heatmap<-false;
+	int curEpisode<-0;
 	rgb backgroundColor<-#white;
 	rgb textcolor<- (backgroundColor = #black) ? #white : #black;
 	
@@ -185,9 +190,9 @@ global {
 		create texture{
 			location<-{world.shape.width/2, world.shape.height/2};
 		}
-		create plu{
+		/*create gif{
 			location<-{world.shape.width/2, world.shape.height/2};
-		}
+		}*/
 	}
 	/*reflex u{
 		if (cycle mod 10 =0){
@@ -295,15 +300,16 @@ species materials skills:[moving] {
 
 species texture{	
 	aspect base{
-		draw image_file(heatmap_image) size:{world.shape.width, world.shape.height};
+		draw image_file(image_files[curEpisode]) size:{world.shape.width, world.shape.height};
 	}
 }
 
-species plu{
+/*species gif{
 	aspect base{
-		draw image_file(plu_image) size:{world.shape.width, world.shape.height};
+		//draw image_file(plu_image) size:{world.shape.width, world.shape.height};
+		draw gif_files[1] size:{world.shape.height, world.shape.width} rotate: 90 ;
 	}
-}
+}*/
 
 
 species trees{
@@ -348,8 +354,8 @@ experiment Demo type: gui autorun:true{
 			camera 'default' location: {192.9253,499.1944,886.6691} target: {192.9253,499.1807,0.0};
 			
 			mesh heatmap scale: 0 color: palette([ #black, #yellow, #yellow, #orange, #orange, #red, #red]) smooth: 3 visible:show_heatmap;
-			species texture aspect: base visible:show_vegetale_density;
-			species plu aspect: base visible:show_plu;
+			species texture aspect: base visible:show_scenario_as_texture position:{0,0,0.0};
+			//species gif aspect: base visible:show_gif;
 			species trees aspect: base visible:show_tree;
 			species building aspect: base visible:show_building;
 			species projet aspect: base visible:show_projet;
@@ -369,9 +375,17 @@ experiment Demo type: gui autorun:true{
 			event["m"] {show_material<-!show_material;}
 			event["a"] {show_tree<-!show_tree;}
 			event["w"] {show_wireframe<-!show_wireframe;}
-			event["v"] {show_vegetale_density<-!show_vegetale_density;}
-			event["l"] {show_plu<-!show_plu;}
+			event["s"] {show_scenario_as_texture<-!show_scenario_as_texture;}
+			event["g"] {show_gif<-!show_gif;}
 			event["h"] {show_heatmap<-!show_heatmap;}
+			
+			
+			event["1"] {curEpisode<-0;}
+			event["2"] {curEpisode<-1;}
+			event["3"] {curEpisode<-2;}
+			event["4"] {curEpisode<-3;}
+			event["5"] {curEpisode<-4;}
+			event["6"] {curEpisode<-5;}
 			
 			
 			event["t"] {show_trace<-!show_trace;}
@@ -444,15 +458,27 @@ experiment Demo type: gui autorun:true{
 					draw "(e)xistant (" + show_gratte_ciel + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
 					
-					y <- 50#px;
-					x<-x+gapBetweenColum;
-					draw "Nature" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
-					y <- y + 25 #px;
-					draw "(v)egetale density (" + show_vegetale_density + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
-					
 					draw "(a)bres (" + show_tree + ")"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
 					y <- y + 25#px;
+					
+					y <- 50#px;
+					x<-x+gapBetweenColum;
+					draw "(s)cenario" at: { x, y } color: show_scenario_as_texture ? textcolor : #gray font: font("Helvetica", textSize*1.5, #bold);
+					y <- y + 25 #px;
+					draw "(1) Vegetale density"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+					draw "(2) PLU"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+					draw "(3) Vegetalisation"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+					draw "(4) Densité Arbres"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+					draw "(5) Occupation des Sols"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+					draw "(6) Plantabilité"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 25#px;
+					
+					
 					
 
 					
