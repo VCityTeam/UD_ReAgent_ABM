@@ -53,7 +53,7 @@ global {
 	bool show_building<-true;
 	bool show_building_energy<-false;
 	bool show_building_type<-false;
-	bool show_projet<-true;
+	bool show_projet<-false;
 	bool show_gratte_ciel<-true;
 	bool show_road<-true;
 	bool show_people<-true;
@@ -87,25 +87,28 @@ global {
 	}*/
 	int size <- 100;
 	field heatmap <- field(size, size);
-	reflex update {
+	reflex updateHeatmap {
 		ask people {
 			heatmap[location] <- heatmap[location] + 10;
 		}
 	}
 	
-	init {
-		create building from: shape_file_buildings with: [type:string(read ("adedpe202006_logtype_type_batiment")),
-			class:string(read ("adedpe202006_logtype_classe_estim_ges"))
-		];
-		create trees from: shape_file_trees with: 
-		[radius_cm:int(read ("circonference_cm")),height_m:int(read ("hauteurtotale_m")),couronne_m:int(read ("diametrecouronne_m")),genre:string(read ("genre"))];		
-		create projet from: shape_file_projet with: [phase:int(read ("phase"))];
-		create existant from: shape_file_existant;
-		create road from: shape_file_roads ;
-		the_graph <- as_edge_graph(road);
+	reflex updatePop when: (cycle mod 100 = 0){
+		int newComer <-rnd(2);
+		ask newComer among people{
+			do die;
+		}
+		do initPop(rnd(2));
+		int newMat <-rnd(2);
+		ask newMat among materials{
+			do die;
+		}
+		do initMat(rnd(2));
 		
-		
-		create people number: 100 {
+	}
+	
+	action initPop (int nbPeople){
+		create people number: nbPeople {
 			location <- any_location_in (one_of(building)); 
 			color<-rnd_color(255);
 			if(flip(0.1)){
@@ -128,9 +131,10 @@ global {
 			 val <- rnd(-max_dev,max_dev);	
 			}
 		}
-		//save people to:"../results/people_in.geojson" type: "json" attributes: ["ID"::name, "TYPE"::self.type];
-		
-		create materials number: 100 {
+	}
+	
+	action initMat (int nbMat){
+		create materials number: nbMat {
 			location <- any_location_in (one_of(building)); 
 			color<-rnd_color(255);
 			mode<-rnd(2);
@@ -144,6 +148,25 @@ global {
 				}
 			}
 		}
+	}
+	
+	init {
+		create building from: shape_file_buildings with: [type:string(read ("adedpe202006_logtype_type_batiment")),
+			class:string(read ("adedpe202006_logtype_classe_estim_ges"))
+		];
+		create trees from: shape_file_trees with: 
+		[radius_cm:int(read ("circonference_cm")),height_m:int(read ("hauteurtotale_m")),couronne_m:int(read ("diametrecouronne_m")),genre:string(read ("genre"))];		
+		create projet from: shape_file_projet with: [phase:int(read ("phase"))];
+		create existant from: shape_file_existant;
+		create road from: shape_file_roads ;
+		the_graph <- as_edge_graph(road);
+		
+		do initPop(200);
+		do initMat(100);
+
+		//save people to:"../results/people_in.geojson" type: "json" attributes: ["ID"::name, "TYPE"::self.type];
+		
+
 		
 		/*create TUI{
 			size<-125#m;
@@ -169,6 +192,7 @@ global {
 			curSnap<-curSnap+1;
 		}
 	}*/
+		
 	}
 	
 
@@ -310,7 +334,7 @@ experiment Demo type: gui autorun:true{
 
 	float minimum_cycle_duration<-0.01;
 	output {
-		display city_display type: opengl background:backgroundColor fullscreen:1 synchronized:false 
+		display city_display type: opengl background:backgroundColor fullscreen:true synchronized:false 
 		//keystone: [{-0.13461307306143822,-0.27263252266269256,0.0},{-0.12039927031582047,1.0656775054594707,0.0},{1.0284276054912351,1.0307125025529897,0.0},{1.0706509607061578,-0.25751252140583614,0.0}]
 		{
 			rotation angle:90;
@@ -356,24 +380,26 @@ experiment Demo type: gui autorun:true{
 					float gapBetweenColum<-150#px;
 					
 				
-					draw "Agent" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
-				    y <- y + 25#px;
-					draw string("(m)aterial(" + show_material + ")") at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize*1.25, #plain);
-					y <- y + 25#px;
-					loop mode over: color_per_mode.keys
-					{
-					    draw rectangle(9#m,3#m) at: { x - 20#px, y } color: color_per_material[mode] border: #white;
-					    draw string(mode_per_material[mode]) at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					    y <- y + 25#px;
-					}
+					//draw "Agent" at: { x, y } color: textcolor font: font("Helvetica", textSize*1.5, #bold);
+				   
 					
-					y <- y + 25 #px;
-					draw string("(p)eople (" + show_people + ")") at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize*1.25, #plain);
+					//y <- y + 25 #px;
+					draw string("(p)eople" + string (length (people))) at: { x - 20#px, y + 4#px } color:  show_people ? textcolor : #gray font: font("Helvetica", textSize*1.5, #bold);
 					y <- y + 25#px;
 					loop mode over: color_per_mode.keys
 					{
 					    draw circle(10#px) at: { x - 20#px, y } color: color_per_mode[mode] border: #white;
-					    draw string(mode_per_mode[mode]) at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					    draw string(mode_per_mode[mode] + ": "+ length(people where (each.mode=mode))) at: { x, y } color: textcolor font: font("Helvetica", textSize, #plain);
+					    y <- y + 25#px;
+					}
+					
+					y <- y + 25#px;
+					draw string("(m)aterial" + string(length (materials))) at: { x - 20#px, y + 4#px } color: show_material ? textcolor : #gray  font: font("Helvetica", textSize*1.5, #bold);
+					y <- y + 25#px;
+					loop mode over: color_per_mode.keys
+					{
+					    draw rectangle(9#m,3#m) at: { x - 20#px, y } color: color_per_material[mode] border: #white;
+					    draw string(mode_per_material[mode] + ": "+ length(materials where (each.mode=mode))) at: { x, y } color: textcolor font: font("Helvetica", textSize, #plain);
 					    y <- y + 25#px;
 					}
 									
@@ -437,8 +463,6 @@ experiment Demo type: gui autorun:true{
 					
 					y <- y + 300#px;
 					draw image_file('../images/logo_table_white.png') at: { x+300#px, y } size:{1200#px,215#px};
-	
-				
 	            }
           }
 		}
