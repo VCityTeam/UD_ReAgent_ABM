@@ -351,7 +351,8 @@ experiment Demo type: gui autorun:true{
 		//keystone: [{-0.13461307306143822,-0.27263252266269256,0.0},{-0.12039927031582047,1.0656775054594707,0.0},{1.0284276054912351,1.0307125025529897,0.0},{1.0706509607061578,-0.25751252140583614,0.0}]
 		{
 			rotation angle:90;
-			camera 'default' location: {192.9253,499.1944,886.6691} target: {192.9253,499.1807,0.0};
+			//camera 'default' location: {192.9253,499.1944,886.6691} target: {192.9253,499.1807,0.0};
+			camera 'default' location: {192.9253,499.1937,842.3356} target: {192.9253,499.1807,0.0};
 			
 			mesh heatmap scale: 0 color: palette([ #black, #yellow, #yellow, #orange, #orange, #red, #red]) smooth: 3 visible:show_heatmap;
 			species texture aspect: base visible:show_scenario_as_texture position:{0,0,0.0};
@@ -390,12 +391,12 @@ experiment Demo type: gui autorun:true{
 			
 			event["t"] {show_trace<-!show_trace;}
 					
-			overlay position: {500#px, 700#px } size: { 1000#px, 200#px } background: #white rounded: true visible:show_legend
+			overlay position: {500#px, 675#px } size: { 1000#px, 200#px } background: #white rounded: true visible:show_legend
             { 
             	if(show_legend){
             		
 					float y <- 50#px;
-					float x<- 50#px;
+					float x<- -50#px;
 					float textSize<-15.0#px;
 					float gapBetweenColum<-150#px;
 
@@ -433,7 +434,7 @@ experiment Demo type: gui autorun:true{
 					    curClass<-curClass+1;
 					}
 					y <- 50#px;
-					x<-x+gapBetweenColum;
+					x<-x+1.1*gapBetweenColum;
 
 					
 					
@@ -464,19 +465,19 @@ experiment Demo type: gui autorun:true{
 					y <- 50#px;
 					x<-x+gapBetweenColum;
 					draw "(s)cenario" at: { x, y } color: show_scenario_as_texture ? textcolor : #gray font: font("Helvetica", textSize*1.5, #bold);
-					y <- y + 25 #px;
-					draw "(1) Vegetale density"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
+					y <- y + 20 #px;
+					draw "(1) Vegetale densiy"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
+					y <- y + 20#px;
 					draw "(2) PLU"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
+					y <- y + 15#px;
 					draw "(3) Vegetalisation"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
+					y <- y + 15#px;
 					draw "(4) Densité Arbres"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
+					y <- y + 15#px;
 					draw "(5) Occupation des Sols"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
+					y <- y + 15#px;
 					draw "(6) Plantabilité"  at: { x, y + 4#px } color: textcolor font: font("Helvetica", textSize, #plain);
-					y <- y + 25#px;
+					y <- y + 15#px;
 					
 					
 					
