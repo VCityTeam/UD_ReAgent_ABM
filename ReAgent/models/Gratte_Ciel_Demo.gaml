@@ -70,7 +70,7 @@ global {
 	bool show_gif<-false;
 	bool show_tree<-false;
 	bool show_wireframe<-false;
-	bool show_trace<-true;
+	bool show_trace<-false;
 	bool show_heatmap<-false;
 	int curEpisode<-0;
 	rgb backgroundColor<-#white;
@@ -278,7 +278,7 @@ species people skills:[moving] {
 	}
 	
 	aspect base {
-		draw circle(2#m) color: color_per_mode[mode] border: #black;
+		draw circle(2#m) color: color_per_mode[mode] border: color_per_mode[mode]-50;
 	}
 }
 
@@ -294,7 +294,7 @@ species materials skills:[moving] {
 	}
 	
 	aspect base {
-		draw rectangle(3#m,9#m) rotate:heading+90 color: color_per_material[mode] border: #black;
+		draw rectangle(3#m,9#m) rotate:heading+90 color: color_per_material[mode] border: color_per_material[mode]-50;
 	}
 }
 
