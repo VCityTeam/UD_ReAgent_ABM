@@ -23,6 +23,10 @@ console.log("Folder in .env is ",FOLDER);
 app.start('../assets/config/config.json').then((config) => {  
 
 
+  
+  app.view3D.getItownsView().controls.zoomInFactor = 1.1;
+  app.view3D.getItownsView().controls.zoomOutFactor = 1/ app.view3D.getItownsView().controls.zoomInFactor;
+
   ////// LAYER CHOICE MODULE
   const layerChoice = new udviz.Widgets.LayerChoice(app.view3D.getLayerManager());
   app.addModuleView('layerChoice', layerChoice);
@@ -36,7 +40,7 @@ app.start('../assets/config/config.json').then((config) => {
   const newCameraPosition = app.extent.center();
   app.view3D
     .getCamera()
-    .position.set(newCameraPosition.x, newCameraPosition.y, 1185);
+    .position.set(newCameraPosition.x, newCameraPosition.y, 1000);
   app.view3D.getCamera().rotation.set(0, 0, Math.PI / 2);
 
   
