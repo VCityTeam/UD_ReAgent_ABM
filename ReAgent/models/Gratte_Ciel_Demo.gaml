@@ -20,7 +20,7 @@ global {
 	file shape_file_projet <- file("../includes/"+useCase+"/Data_cc46/Zone_projet.geojson");
     file shape_file_existant <- file("../includes/"+useCase+"/Data_cc46/Existants.geojson");
 	file shape_file_roads <- file("../includes/"+useCase+"/Data_cc46/Roads_500_1000_3946.geojson");
-	file shape_file_bounds <- file("../includes/"+useCase+"/Data_cc46/Bounds_3946.geojson");
+	file shape_file_bounds <- file("../includes/"+useCase+"/Data_cc46/Emprise_500_1000.geojson");
 		
 	list<image_file> image_files <- (list<image_file>(image_file("../includes/"+useCase+"/images/heatmap.jpg"),
 		image_file("../includes/"+useCase+"/images/plu.jpg"),image_file("../includes/"+useCase+"/images/Groupe_1_3.png"),
@@ -28,7 +28,7 @@ global {
 		
 	));
 	//list<gif_file> gif_files <- [gif_file("../includes/"+useCase+"/images/Group_4_05_HD.gif"),gif_file("../includes/"+useCase+"/images/Groupe3.gif")];
-	geometry shape <- envelope(shape_file_buildings);
+	geometry shape <- envelope(shape_file_bounds);
 	graph the_graph;
 		
 	map<string,rgb> standard_color_per_type <- 
@@ -348,6 +348,7 @@ experiment Demo type: gui autorun:true{
 	float minimum_cycle_duration<-0.01;
 	output {
 		display city_display type: opengl background:backgroundColor fullscreen:true synchronized:false 
+		//keystone: [{-0.21254213755527052,-0.2439723177242098,0.0},{-0.24340763179583372,1.1851575625585524,0.0},{1.0761869794545538,1.1102232078289749,0.0},{1.1054896638601526,-0.1986631730039995,0.0}]
 		//keystone: [{-0.13461307306143822,-0.27263252266269256,0.0},{-0.12039927031582047,1.0656775054594707,0.0},{1.0284276054912351,1.0307125025529897,0.0},{1.0706509607061578,-0.25751252140583614,0.0}]
 		{
 			rotation angle:90;
