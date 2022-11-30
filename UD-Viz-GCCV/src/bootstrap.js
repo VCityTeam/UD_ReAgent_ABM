@@ -43,6 +43,44 @@ app.start('../assets/config/config.json').then((config) => {
     .position.set(newCameraPosition.x, newCameraPosition.y, 1000);
   app.view3D.getCamera().rotation.set(0, 0, Math.PI / 2);
 
+  document.addEventListener('keydown', function (event) {
+    if (event.code == 'KeyP') {
+      const cameraPos = app.view3D.getCamera().position.clone();
+      app.view3D
+        .getCamera()
+        .position.set(cameraPos.x, cameraPos.y, cameraPos.z + 10);
+    }
+    if (event.code == 'KeyM') {
+      const cameraPos = app.view3D.getCamera().position.clone();
+      app.view3D
+        .getCamera()
+        .position.set(cameraPos.x, cameraPos.y, cameraPos.z - 10);
+    }
+    if (event.code == 'ArrowUp') {
+      const cameraPos = app.view3D.getCamera().position.clone();
+      app.view3D
+        .getCamera()
+        .position.set(cameraPos.x + 10, cameraPos.y, cameraPos.z);
+    }
+    if (event.code == 'ArrowDown') {
+      const cameraPos = app.view3D.getCamera().position.clone();
+      app.view3D
+        .getCamera()
+        .position.set(cameraPos.x - 10, cameraPos.y, cameraPos.z);
+    }
+    if (event.code == 'ArrowLeft') {
+      const cameraPos = app.view3D.getCamera().position.clone();
+      app.view3D
+        .getCamera()
+        .position.set(cameraPos.x, cameraPos.y + 10, cameraPos.z);
+    }
+    if (event.code == 'ArrowRight') {
+      const cameraPos = app.view3D.getCamera().position.clone();
+      app.view3D
+        .getCamera()
+        .position.set(cameraPos.x, cameraPos.y - 10, cameraPos.z);
+    }
+  });
   
   
   if(!streaming){
