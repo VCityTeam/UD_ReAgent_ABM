@@ -1,8 +1,40 @@
 {
-  "assets": {
+  "all_widget": {
     "iconFolder": "./assets/icons",
     "imageFolder": "./assets/img",
     "logos": ["logo-liris.png", "logo-univ-lyon.png"]
+  },
+  "extent": {
+    "min_x": 1845869.7865,
+    "max_x": 1846369.7865,
+    "min_y": 5175547.801900000311434,
+    "max_y": 5176547.801899999
+  },
+  "crs": "EPSG:3946",
+  "slideShow": {
+    "slides": [
+      {
+        "name": "diapo1",
+        "folder": "../assets/slideshow",
+        "diapositives": ["1.png", "2.png", "3.png", "4.png", "5.png", "6.png"]
+      },
+      {
+        "name": "diapo2",
+        "folder": "../assets/slideshow",
+        "diapositives": ["1.png", "2.png", "3.png", "4.png", "5.png", "6.png"]
+      }
+    ]
+  },
+  "camera": {
+    "z": 1000
+  },
+  "baseMap": {
+    "url": "https://wxs.ign.fr/choisirgeoportail/geoportail/r/wms",
+    "name": "GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2",
+    "version": "1.3.0",
+    "format": "image/jpeg",
+    "layer_name": "Base_Map",
+    "transparent": true
   },
   "dynamic_layer": {
     "geojsonCollectionUrl": "./../assets/data/",
@@ -10,112 +42,5 @@
     "format": "application/json",
     "delay": "h",
     "step": "10"
-  },
-  "server": {
-    "url": "http://rict.liris.cnrs.fr:1525/",
-    "login": "login",
-    "user": "user",
-    "userMe": "user/me",
-    "document": "document",
-    "documentToValidate": "document/in_validation",
-    "comment": "comment",
-    "validate": "document/validate",
-    "file": "file",
-    "guidedTour": "guidedTour",
-    "link": "link"
-  },
-  "extents": {
-    "min_x": "1845869.7865",
-    "max_x": "1846369.7865",
-    "min_y": "5175547.801900000311434",
-    "max_y": "5176547.801899999"
-  },
-  "projection": "EPSG:3946",
-  "background_image_layer": {
-    "url": "https://download.data.grandlyon.com/wms/grandlyon",
-    "name": "Ortho2018_Dalle_unique_8cm_CC46",
-    "version": "1.3.0",
-    "format": "image/jpeg",
-    "layer_name": "Base_Map",
-    "transparent": true
-  },
-  "camera": {
-    "coordinates": {
-      "position": {
-        "x": "1846672.8180720613",
-        "y": "5175061.564385533",
-        "z": "100.5354909665693"
-      },
-      "quaternion": {
-        "x": "0.5161982689901561",
-        "y": "0.14345149179044817",
-        "z": "0.22608279799992972",
-        "w": "0.8135401557656416"
-      }
-    }
-  },
-  "temporalModule": {
-    "view": "SLIDERWINDOW",
-    "minTime": 2009,
-    "maxTime": 2015,
-    "currentTime": 2009,
-    "timeStep": 1
-  },
-  "geocoding": {
-    "url": "https://nominatim.openstreetmap.org/search",
-    "credit": "© OpenStreetMap contributors under <a href=\"https://www.openstreetmap.org/copyright\">ODbL</a>",
-    "requestTimeIntervalMs": "1000",
-    "result": {
-      "format": "json",
-      "basePath": "",
-      "lng": "lon",
-      "lat": "lat"
-    },
-    "parameters": {
-      "q": {
-        "fill": "query"
-      },
-      "format": {
-        "fill": "value",
-        "value": "json"
-      },
-      "viewbox": {
-        "fill": "extent",
-        "format": "WEST,SOUTH,EAST,NORTH"
-      }
-    }
-  },
-  "cityObjects": {
-    "styles": {
-      "layerDefault": {
-        "materialProps": {
-          "color": "#ffa14f"
-        }
-      },
-      "selection": {
-        "materialProps": {
-          "color": "#13ddef"
-        }
-      },
-      "linkedWithDisplayedDocument": {
-        "materialProps": {
-          "color": "#4c5af7"
-        }
-      }
-    }
-  },
-  "slideShow": {
-    "slides": [
-      {
-        "name": "diapo1",
-        "folder": "../assets/slideshow",
-        "diapositives": ["1.png", "2.png", "3.png", "4.png","5.png","6.png"]
-      },
-      {
-        "name": "diapo2",
-        "folder": "../assets/slideshow",
-        "diapositives": ["1.png", "2.png", "3.png", "4.png","5.png","6.png"]
-      }
-    ]
   }
 }

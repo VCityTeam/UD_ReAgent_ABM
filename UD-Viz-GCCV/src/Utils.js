@@ -1,66 +1,56 @@
-/** @format */
-import * as udviz from 'ud-viz';
 /**
- * 
+ *
  */
 export class Utils {
   /**
-     * 
-     * @param {*} name 
-     * @param {*} configLayer 
-     */
-  constructor(){
-  }
-
-  /**
-   * 
-   * @param {*} view 
+   *
+   * @param {*} name
+   * @param {*} configLayer
    */
-  foo(view){
-    console.log("ok je susi appelleé de l'exterieur");
+  constructor() {}
 
+  foo() {
+    console.log("ok je susi appelleé de l'exterieur");
   }
 
-
-  
   setPeopleColor(properties) {
     if (properties.type === "car") {
-      return "red"; //new itowns.THREE.Color(0xaaaaaa);
+      return "red"; // new itowns.THREE.Color(0xaaaaaa);
     }
     if (properties.type === "bike") {
-      return "green"; //new itowns.THREE.Color(0xaaaaaa);
+      return "green"; // new itowns.THREE.Color(0xaaaaaa);
     }
     if (properties.type === "pedestrian") {
-      return "blue"; //new itowns.THREE.Color(0xaaaaaa);
+      return "blue"; // new itowns.THREE.Color(0xaaaaaa);
     }
   }
 
   setBuildingColor(properties) {
     if (properties.type === "apartments") {
-      return 'blue';//new itowns.THREE.Color(0xaaaaaa);
+      return "blue"; // new itowns.THREE.Color(0xaaaaaa);
     }
     if (properties.type === "school") {
-      return 'green';//new itowns.THREE.Color(0xaaaaaa);
+      return "green"; // new itowns.THREE.Color(0xaaaaaa);
     }
     if (properties.type === "construction") {
-      return 'yellow';//new itowns.THREE.Color(0xaaaaaa);
+      return "yellow"; // new itowns.THREE.Color(0xaaaaaa);
     }
     if (properties.type === "civic") {
-      return 'orange';//new itowns.THREE.Color(0xaaaaaa);
+      return "orange"; // new itowns.THREE.Color(0xaaaaaa);
     }
     if (properties.type === "church") {
-      return 'white';//new itowns.THREE.Color(0xaaaaaa);
+      return "white"; // new itowns.THREE.Color(0xaaaaaa);
     }
     if (properties.type === "service") {
-      return 'pink';//new itowns.THREE.Color(0xaaaaaa);
+      return "pink"; // new itowns.THREE.Color(0xaaaaaa);
     }
-    return 'blue';
+    return "blue";
   }
-  
+
   setRoadColor(properties) {
     if (properties.type === "road") {
-      return 'white';//new itowns.THREE.Color(0xaaaaaa);
+      return "white"; // new itowns.THREE.Color(0xaaaaaa);
     }
-    return 'blue';
+    return "blue";
   }
 }
