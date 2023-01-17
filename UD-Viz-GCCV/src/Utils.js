@@ -9,6 +9,9 @@ export class Utils {
    */
   constructor() {}
 
+  /**
+   * toc toc, who is there ?
+   */
   foo() {
     console.log("ok je susi appelleé de l'exterieur");
   }
