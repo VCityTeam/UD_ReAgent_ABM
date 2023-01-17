@@ -10,7 +10,7 @@ import {
 import { Utils } from "./Utils";
 
 const myUtils = new Utils();
-const streaming = Boolean(true);
+const streaming = Boolean(false);
 let sources;
 let dynamicLayer;
 
