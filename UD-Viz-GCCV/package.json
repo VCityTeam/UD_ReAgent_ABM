@@ -9,7 +9,8 @@
     "eslint-fix": "./node_modules/.bin/eslint ./src --fix",
     "build": "cross-env NODE_ENV=production webpack",
     "build-debug": "cross-env NODE_ENV=development webpack",
-    "debug": "node ./bin/debug.js"
+    "debug": "node ./bin/debug.js",
+    "start": "npm run build && node ./bin/start.js"
   },
   "author": "",
   "license": "ISC",
