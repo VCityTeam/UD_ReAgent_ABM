@@ -10,7 +10,8 @@
     "build": "cross-env NODE_ENV=production webpack",
     "build-debug": "cross-env NODE_ENV=development webpack",
     "debug": "node ./bin/debug.js",
-    "start": "npm run build && node ./bin/start.js"
+    "start-build": "npm run build && node ./bin/start.js",
+    "start": "node ./bin/start.js"
   },
   "author": "",
   "license": "ISC",
