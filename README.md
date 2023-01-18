@@ -37,3 +37,11 @@ ABM model developped using [Gama Platform](https://gama-platform.org/). As a sta
 - In Gama 1.8.2 Import the project ```ReAgent```
 - Open ```models/Gratte_Ciel_demo.gaml```
 - Run ```Demo```
+
+----------------------------------------------------------------------------------------------------------
+Keystone
+If the keystoned frame is not updated clean the localStorage
+-> View Console -> localStorage.clear()
+-> Close Consolde
+-> F5
+NB: 
