@@ -1,13 +1,16 @@
 import {
   proj4,
   itowns,
-  AllWidget,
+  Frame3DPlanar,
   FileUtil,
   Widget,
   InputManager,
   addBaseMapLayer,
+  THREEUtil,
+  THREE,
 } from "@ud-viz/browser";
 import { Utils } from "./Utils";
+import { Maptastic } from "./vendor/maptastic.min.js";
 
 const myUtils = new Utils();
 const streaming = Boolean(false);
@@ -33,45 +36,117 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
     config["extent"]["min_y"],
     config["extent"]["max_y"]
   );
+  // config["extent"]["min_y"] + 100
 
-  const app = new AllWidget(extent, config["all_widget"], {
+  const frame3DPlanar = new Frame3DPlanar(extent, {
     maxSubdivisionLevel: 10,
+    hasItownsControls: false,
   });
 
-  // set zoom in factor
-  app.frame3DPlanar.itownsView.controls.zoomInFactor = 1.1;
-  app.frame3DPlanar.itownsView.controls.zoomOutFactor =
-    1 / app.frame3DPlanar.itownsView.controls.zoomInFactor;
+  THREEUtil.addLights(frame3DPlanar.scene);
+  THREEUtil.initRenderer(frame3DPlanar.renderer, new THREE.Color("red"));
+
+  const widthExtent = extent.east - extent.west;
+  const heightExtent = extent.north - extent.south;
+  const fov = frame3DPlanar.camera.fov * (Math.PI / 180); // fov radian
+  const fovh = 2 * Math.atan(Math.tan(fov / 2) * frame3DPlanar.camera.aspect);
+  const dx = Math.abs(heightExtent / 2 / Math.tan(fovh / 2));
+  const dy = Math.abs(widthExtent / 2 / Math.tan(fov / 2));
+  const fitElevation = Math.max(dx, dy);
+
+  console.log("camera elevation is ", fitElevation);
+  console.log("camera fov is ", frame3DPlanar.camera.fov);
+  console.log("camera fov is ", frame3DPlanar.scene);
 
   const newCameraPosition = extent.center();
-  app.frame3DPlanar.camera.position.set(
+  frame3DPlanar.camera.position.set(
     newCameraPosition.x,
     newCameraPosition.y,
-    config["camera"]["z"]
+    fitElevation
   );
-  app.frame3DPlanar.camera.rotation.set(0, 0, -Math.PI / 1.99);
-  app.frame3DPlanar.camera.updateProjectionMatrix();
-  app.frame3DPlanar.itownsView.notifyChange(app.frame3DPlanar.camera);
+  frame3DPlanar.camera.rotation.set(0, 0, -Math.PI / 2);
+  frame3DPlanar.camera.updateProjectionMatrix();
+  frame3DPlanar.itownsView.notifyChange(frame3DPlanar.camera);
+
+  // debug controls
+  if (false) {
+    document.addEventListener("keydown", function (event) {
+      if (event.code == "KeyP") {
+        const cameraPos = frame3DPlanar.getCamera().position.clone();
+        frame3DPlanar
+          .getCamera()
+          .position.set(cameraPos.x, cameraPos.y, cameraPos.z + 100);
+      }
+      if (event.code == "KeyO") {
+        const cameraPos = frame3DPlanar.getCamera().position.clone();
+        frame3DPlanar
+          .getCamera()
+          .position.set(cameraPos.x, cameraPos.y, cameraPos.z - 10);
+      }
+      if (event.code == "ArrowUp") {
+        const cameraPos = frame3DPlanar.getCamera().position.clone();
+        frame3DPlanar
+          .getCamera()
+          .position.set(cameraPos.x + 10, cameraPos.y, cameraPos.z);
+      }
+      if (event.code == "ArrowDown") {
+        const cameraPos = frame3DPlanar.getCamera().position.clone();
+        frame3DPlanar
+          .getCamera()
+          .position.set(cameraPos.x - 10, cameraPos.y, cameraPos.z);
+      }
+      if (event.code == "ArrowLeft") {
+        const cameraPos = frame3DPlanar.getCamera().position.clone();
+        frame3DPlanar
+          .getCamera()
+          .position.set(cameraPos.x, cameraPos.y + 10, cameraPos.z);
+      }
+      if (event.code == "ArrowRight") {
+        const cameraPos = frame3DPlanar.getCamera().position.clone();
+        frame3DPlanar
+          .getCamera()
+          .position.set(cameraPos.x, cameraPos.y - 10, cameraPos.z);
+      }
+      console.log("camera z ", frame3DPlanar.camera.position.z);
+      frame3DPlanar.camera.updateProjectionMatrix();
+      frame3DPlanar.itownsView.notifyChange(frame3DPlanar.camera);
+    });
+  }
 
   //   ////// SLIDESHOW MODULE
   const slideShow = new Widget.SlideShow(
-    app.frame3DPlanar.itownsView,
+    frame3DPlanar.itownsView,
     config["slideShow"],
     extent,
     new InputManager()
   );
-  app.addWidgetView("slideShow", slideShow);
+  slideShow.parentElement = frame3DPlanar.ui;
+
+  let slideShowActive = false;
+  window.addEventListener("keyup", (event) => {
+    if (event.key == "a") {
+      if (slideShowActive) {
+        slideShow.disable();
+      } else {
+        slideShow.enable();
+      }
+      slideShowActive = !slideShowActive;
+    }
+  });
 
   // layers
-  addBaseMapLayer(config["baseMap"], app.frame3DPlanar.itownsView, extent);
+  addBaseMapLayer(config["baseMap"], frame3DPlanar.itownsView, extent);
 
-  // no streaming
+  // keystone
+  Maptastic("viewerDiv");
+
+  // simulation
   if (!streaming) {
     sources = getSourceListfromGeojsonCollection(config["dynamic_layer"]);
     console.log("Nb initial sources " + sources.length);
-    myUtils.foo(app.frame3DPlanar.itownsView);
+    myUtils.foo(frame3DPlanar.itownsView);
     setTimeout(() => {
-      runTimelapse(app.frame3DPlanar.itownsView, dynamicLayer, sources, 1000);
+      runTimelapse(frame3DPlanar.itownsView, dynamicLayer, sources, 1000);
     }, 200);
   } else {
     const wSocket = new WebSocket("ws://localhost:6868/");
@@ -168,7 +243,7 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
             geojson = null;
             geojson = JSON.parse(message);
             if (layer1added) {
-              app.frame3DPlanar.itownsView.removeLayer("BUILDING");
+              frame3DPlanar.itownsView.removeLayer("BUILDING");
             }
             layer1added = 1;
 
@@ -185,13 +260,13 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
               opacity: 1,
               style: new itowns.Style({
                 fill: {
-                  extrusion_height: 10,
+                  extrusion_height: 0.1,
                   color: myUtils.setBuildingColor,
                 },
               }),
             });
 
-            app.frame3DPlanar.itownsView.addLayer(gama_layer);
+            frame3DPlanar.itownsView.addLayer(gama_layer);
 
             // app.update3DView();
           }
@@ -213,7 +288,7 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
           geojson = null;
           geojson = JSON.parse(message);
           if (layer2added) {
-            app.frame3DPlanar.itownsView.removeLayer("ROAD");
+            frame3DPlanar.itownsView.removeLayer("ROAD");
           }
           layer2added = 1;
 
@@ -234,7 +309,7 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
             })
           });
 
-          app.frame3DPlanar.itownsView.addLayer(gama_layer);
+          frame3DPlanar.itownsView.addLayer(gama_layer);
 
           app.update3DView();
         }
@@ -260,7 +335,7 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
               geojson = JSON.parse(message);
               if (layer0added) {
                 // gama_layer.delete();
-                app.frame3DPlanar.itownsView.removeLayer(countIDLayer);
+                frame3DPlanar.itownsView.removeLayer(countIDLayer);
               }
               layer0added = 1;
 
@@ -278,15 +353,13 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
                 style: new itowns.Style({
                   fill: {
                     // base_altitude: setAltitude,
-                    extrusion_height: 10,
+                    extrusion_height: 0.1,
                     color: myUtils.setPeopleColor,
                   },
                 }),
               });
-              app.frame3DPlanar.itownsView.addLayer(gama_layer);
-              app.frame3DPlanar.itownsView.notifyChange(
-                app.frame3DPlanar.camera
-              );
+              frame3DPlanar.itownsView.addLayer(gama_layer);
+              frame3DPlanar.itownsView.notifyChange(frame3DPlanar.camera);
             }
             request = ""; // IMPORTANT FLAG TO ACCOMPLISH CURRENT TRANSACTION
           },
@@ -343,7 +416,7 @@ function runTimelapse(itownsView, layer, _sources, stepTime) {
         opacity: 1,
         style: new itowns.Style({
           fill: {
-            extrusion_height: 1,
+            extrusion_height: 0.1,
             color: myUtils.setPeopleColor,
           },
         }),
