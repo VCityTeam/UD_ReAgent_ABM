@@ -23,11 +23,11 @@ Contact: [Arnaud Grignard](https://github.com/agrignard)
 - ``` cd UD-Viz-GCCV ```
 - (Hopefully temporal) Update your local path by editing ```FOLDER="yourpathtoUD_ReAgent_ABM"``` in the following file  ```UD-Viz-GCCV/.env```
 - ``` npm i ```
-
+- ```npm run build ```
 - ```npm run start ```
 - Open a browser at this adress ```http://localhost:8000/```
 For Developpers you can run it in debug mpde:
-- ```npm run debug ```
+- ```npm run debug```
 - Open a browser at this adress ```http://localhost:8000/debug.html```
 
 ----------------------------------------------------------------------------------------------------------
