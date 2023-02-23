@@ -151,10 +151,10 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
   } else {
     const wSocket = new WebSocket("ws://localhost:6868/");
 
-    WebSocket.prototype.sendMessage = function (message) {
-      this.send(message);
-      console.log("Message sent: " + message);
-    };
+    // WebSocket.prototype.sendMessage = function (message) {
+    //   this.send(message);
+    //   console.log("Message sent: " + message);
+    // };
 
     const modelPath = FOLDER + "/ReAgent/models/Gratte_Ciel_Demo.gaml";
     const experimentName = "Demo";
@@ -182,25 +182,6 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
     let result = "";
     let updateSource;
     const executor_speed = 1;
-    const executor = setInterval(() => {
-      if (queue.length > 0 && request === "") {
-        request = queue.shift();
-        request.exp_id = exp_id;
-        request.socket_id = socket_id;
-        wSocket.send(JSON.stringify(request));
-        wSocket.onmessage = function (event) {
-          // console.log("message recieved");
-          const msg = event.data;
-          if (!(event.data instanceof Blob)) {
-            if (request.callback) {
-              request.callback(msg);
-            } else {
-              request = "";
-            }
-          }
-        };
-      }
-    }, executor_speed);
 
     wSocket.onclose = function () {
       clearInterval(executor);
@@ -208,11 +189,34 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
     };
 
     wSocket.onopen = function (event) {
+
+      console.log("ws connected");
+      const executor = setInterval(() => {
+        if (queue.length > 0 && request === "") {
+          request = queue.shift();
+          request.exp_id = exp_id;
+          request.socket_id = socket_id;
+          // console.log(request);
+          wSocket.send(JSON.stringify(request));
+          wSocket.onmessage = function (event) {
+            // console.log("message recieved");
+            const msg = event.data;
+            if (!(event.data instanceof Blob)) {
+              if (request.callback) {
+                request.callback(msg);
+              } else {
+                request = "";
+              }
+            }
+          };
+        }
+      }, executor_speed);
       let cmd = {
         "type": "load",
         model: modelPath,
         experiment: experimentName,
         callback: function (e) {
+          // console.log(e);
           result = JSON.parse(e);
           if (result.content) exp_id = result.content;
           if (result.socket_id) socket_id = result.socket_id;
@@ -243,6 +247,7 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
           // console.log("adding building");
           if (!(typeof event.data == "object")) {
             geojson = null;
+            // console.log(message);
             geojson = JSON.parse(message).content;
             if (layer1added) {
               frame3DPlanar.itownsView.removeLayer("BUILDING");
