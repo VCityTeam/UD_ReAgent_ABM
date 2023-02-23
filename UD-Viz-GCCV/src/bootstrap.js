@@ -13,7 +13,7 @@ import { Utils } from "./Utils";
 import { Maptastic } from "./vendor/maptastic.min.js";
 
 const myUtils = new Utils();
-const streaming = Boolean(false);
+const streaming = Boolean(true);
 let sources;
 let dynamicLayer;
 
@@ -209,12 +209,12 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
 
     wSocket.onopen = function (event) {
       let cmd = {
-        type: "launch",
+        "type": "load",
         model: modelPath,
         experiment: experimentName,
         callback: function (e) {
           result = JSON.parse(e);
-          if (result.exp_id) exp_id = result.exp_id;
+          if (result.content) exp_id = result.content;
           if (result.socket_id) socket_id = result.socket_id;
           request = "";
         },
@@ -231,17 +231,19 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
 
       // Building
       cmd = {
-        type: "output",
-        species: species2Name,
-        attributes: [attribute2Name],
-        crs: "EPSG:3946",
+        'type': 'expression',
+        // 'species': species2Name,
+        // 'attributes': [attribute2Name],
+        // "crs": 'EPSG:3946',
+        "expr":"to_geojson(" + species2Name + ",\"EPSG:3946\",[\"" + attribute2Name + "\"])",
+        "escaped":true,
         socket_id: socket_id,
         exp_id: exp_id,
         callback: function (message) {
           // console.log("adding building");
           if (!(typeof event.data == "object")) {
             geojson = null;
-            geojson = JSON.parse(message);
+            geojson = JSON.parse(message).content;
             if (layer1added) {
               frame3DPlanar.itownsView.removeLayer("BUILDING");
             }
@@ -322,17 +324,20 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
       let countIDLayer = 0;
       updateSource = setInterval(() => {
         cmd = {
-          type: "output",
-          species: species1Name,
-          attributes: [attribute1Name],
-          crs: "EPSG:3946",
+          // 'type': 'output',
+          // 'species': species1Name,
+          // 'attributes': [attribute1Name],
+          // "crs": 'EPSG:3946',
+        'type': 'expression', 
+        "expr":"to_geojson(" + species1Name + ",\"EPSG:3946\",[\"" + attribute1Name + "\"])",
+        "escaped":true,
           socket_id: socket_id,
           exp_id: exp_id,
           callback: function (message) {
             // console.log("adding people");
             if (!(typeof event.data == "object")) {
               geojson = null;
-              geojson = JSON.parse(message);
+              geojson = JSON.parse(message).content;
               if (layer0added) {
                 // gama_layer.delete();
                 frame3DPlanar.itownsView.removeLayer(countIDLayer);
