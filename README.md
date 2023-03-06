@@ -27,6 +27,9 @@ Contact: [Arnaud Grignard](https://github.com/agrignard)
 - Open a browser at this adress ```http://localhost:8000/```
 
 
+NB: To reload the keystoning in the Javacript console of your browser run ```localStorage.clear()
+
+
 ----------------------------------------------------------------------------------------------------------
 ## [GAMA](https://gama-platform.org/) version
 ABM model developped using [Gama Platform](https://gama-platform.org/). As a standalone can be used directly to be displayed on a physical table. 
