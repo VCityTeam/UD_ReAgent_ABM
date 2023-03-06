@@ -13,6 +13,11 @@ import { Utils } from "./Utils";
 import { Maptastic } from "./vendor/maptastic.min.js";
 
 const myUtils = new Utils();
+/**
+ * Here you can modify the gama data (geojson) acquisition what you are visualizing.
+ * True means you have to launch a gama_headless service on your computer (default)
+ * False means data are fetch from ./assets/data
+ */
 const streaming = Boolean(true);
 let sources;
 let dynamicLayer;
