@@ -2,7 +2,6 @@ const path = require("path");
 const mode = process.env.NODE_ENV;
 const debugBuild = mode === "development";
 const webpack = require("webpack");
-require("dotenv").config(); // Overwrite .env in process.env
 
 let outputPath;
 if (debugBuild) {
@@ -20,9 +19,12 @@ module.exports = () => {
     },
   ];
 
+  const folderPath = path.resolve(__dirname, "../");
+  console.log(folderPath);
+
   const plugins = [
     new webpack.DefinePlugin({
-      FOLDER: JSON.stringify(process.env.FOLDER), // indicate to webpack to replace FOLDER by its value at compile time
+      FOLDER: "'" + folderPath + "'", // indicate to webpack to replace FOLDER by its value at compile time
     }),
   ];
 

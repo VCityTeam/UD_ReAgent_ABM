@@ -17,7 +17,7 @@ const streaming = Boolean(true);
 let sources;
 let dynamicLayer;
 
-console.log("Folder in .env is ", FOLDER);
+console.log("Folder of your gama model (server) is ", FOLDER);
 
 FileUtil.loadJSON("../assets/config/config.json").then((config) => {
   // http://proj4js.org/
