@@ -16,11 +16,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@ud-viz/browser": "file:../../UD-Viz/packages/browser",
+    "@ud-viz/browser": "3.0.0",
     "websocket": "^1.0.34"
   },
   "devDependencies": {
-    "@ud-viz/node": "file:../../UD-Viz/packages/node",
+    "@ud-viz/node": "3.0.0",
     "child-process-promise": "^2.2.1",
     "cross-env": "^7.0.3",
     "css-loader": "^0.28.10",
