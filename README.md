@@ -15,7 +15,7 @@ Contact: [Arnaud Grignard](https://github.com/agrignard)
 ### Start the server (GAMA headless) 
 
 - If not yet installed, download the last Gama 1.8.2 stable version [here](https://github.com/gama-platform/gama/releases/tag/1.8.2) 
-- ``` cd /Applications/Gama.app/Contents/headless ``` (Mac OS) or ```cd C:\Program Files\Gama\headless``` (Windows)
+- ``` cd /Applications/Gama.app/Contents/headless ``` (Mac OS) or ```cd C:\Program Files\Gama\headless``` (Windows) or ```/opt/gama-platform/headless```(linux)
 - ``` bash gama-headless.sh -socket 6868 ```(Mac OS)   or ```gama-headless.bat -socket 6868``` (Windows)
 
 ### Start your client
