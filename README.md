@@ -21,13 +21,13 @@ Contact: [Arnaud Grignard](https://github.com/agrignard)
 ### Start your client
 
 - ``` cd UD-Viz-GCCV ```
-- (Hopefully temporal) Update your local path by editing ```FOLDER="yourpathtoUD_ReAgent_ABM"``` in the following file  ```UD-Viz-GCCV/.env```
 - ``` npm i ```
 - ```npm run start ``` or ```npm run debug``` (For Developpers):
 - Open a browser at this adress ```http://localhost:8000/```
 
 
-NB: To reload the keystoning in the Javacript console of your browser run ```localStorage.clear()
+NB: - To reload the keystoning in the Javacript console of your browser run ```localStorage.clear()
+
 
 
 ----------------------------------------------------------------------------------------------------------
