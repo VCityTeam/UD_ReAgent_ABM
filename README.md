@@ -26,7 +26,7 @@ Contact: [Arnaud Grignard](https://github.com/agrignard)
 - Open a browser at this adress ```http://localhost:8000/```
 
 
-NB: - To reload the keystoning in the Javacript console of your browser run ```localStorage.clear()
+NB: - To reload the keystoning in the Javacript console of your browser run  ``` localStorage.clear() ```
 
 
 
@@ -39,9 +39,4 @@ ABM model developped using [Gama Platform](https://gama-platform.org/). As a sta
 - Run ```Demo```
 
 ----------------------------------------------------------------------------------------------------------
-Keystone
-If the keystoned frame is not updated clean the localStorage
--> View Console -> localStorage.clear()
--> Close Consolde
--> F5
-NB: 
+
