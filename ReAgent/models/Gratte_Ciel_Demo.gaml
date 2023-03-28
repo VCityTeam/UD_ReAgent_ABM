@@ -369,29 +369,29 @@ experiment Demo type: gui autorun:true{
 			//species legend aspect:base;
 
 	
-			event["b"] {show_building<-!show_building;}
+			event"b" {show_building<-!show_building;}
 			//event["t"] {show_building_type<-!show_building_type;}
-			event["f"] {show_projet<-!show_projet;}
-			event["e"] {show_gratte_ciel<-!show_gratte_ciel;}
-			event["r"] {show_road<-!show_road;}
-			event["p"] {show_people<-!show_people;}
-			event["m"] {show_material<-!show_material;}
-			event["a"] {show_tree<-!show_tree;}
-			event["w"] {show_wireframe<-!show_wireframe;}
-			event["s"] {show_scenario_as_texture<-!show_scenario_as_texture;}
-			event["g"] {show_gif<-!show_gif;}
-			event["h"] {show_heatmap<-!show_heatmap;}
+			event "f" {show_projet<-!show_projet;}
+			event "e" {show_gratte_ciel<-!show_gratte_ciel;}
+			event "r" {show_road<-!show_road;}
+			event "p" {show_people<-!show_people;}
+			event "m" {show_material<-!show_material;}
+			event "a" {show_tree<-!show_tree;}
+			event "w" {show_wireframe<-!show_wireframe;}
+			event "s" {show_scenario_as_texture<-!show_scenario_as_texture;}
+			event "g" {show_gif<-!show_gif;}
+			event "h" {show_heatmap<-!show_heatmap;}
 			
 			
-			event["1"] {curEpisode<-0;}
-			event["2"] {curEpisode<-1;}
-			event["3"] {curEpisode<-2;}
-			event["4"] {curEpisode<-3;}
-			event["5"] {curEpisode<-4;}
-			event["6"] {curEpisode<-5;}
+			event "1" {curEpisode<-0;}
+			event "2" {curEpisode<-1;}
+			event "3" {curEpisode<-2;}
+			event "4" {curEpisode<-3;}
+			event "5" {curEpisode<-4;}
+			event "6" {curEpisode<-5;}
 			
 			
-			event["t"] {show_trace<-!show_trace;}
+			event "t" {show_trace<-!show_trace;}
 					
 			overlay position: {500#px, 675#px } size: { 1000#px, 200#px } background: #white rounded: true visible:show_legend
             { 

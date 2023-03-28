@@ -228,6 +228,7 @@ FileUtil.loadJSON("../assets/config/config.json").then((config) => {
           request = "";
         },
       };
+      console.log("cmd ", cmd);
       queue.push(cmd);
       cmd = {
         type: "play",
