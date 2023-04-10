@@ -15,7 +15,7 @@ global control: fsm{
 	bool blackMirror parameter: 'Dark Room' category: 'Aspect' <- true;
 
 	bool reverse <- true;
-	string mode <- 'interactive' among: ['interactive','auto','exhibition']; // interactive: only changes when the table is updated
+	string mode <- 'auto' among: ['interactive','auto','exhibition']; // interactive: only changes when the table is updated
 																	  // auto: no table interaction, the model is updated randomly
 																	  // exhibition: if there is no interaction with the table for the long time, switch to auto mode
 
