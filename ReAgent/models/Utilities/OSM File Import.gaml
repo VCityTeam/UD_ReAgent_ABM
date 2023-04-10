@@ -168,12 +168,7 @@ experiment "Load OSM" type: gui
 			species natural visible:show_natural;
 			species TUI visible:show_TUI;
 			//species node_agent refresh: false;
-			event["b"] {show_building<-!show_building;}
-			event["r"] {show_road<-!show_road;}
-			event["a"] {show_amenity<-!show_amenity;}
-			event["s"] {show_shop<-!show_shop;}
-			event["n"] {show_natural<-!show_natural;}
-			event["t"] {show_TUI<-!show_TUI;}
+
 			graphics 'legend'{
                
 			}

@@ -590,29 +590,28 @@ experiment CityScopeTable type: gui autorun: true{
 			}*/
 
 			
-			event["h"] action: {road_aspect<-"hide";};
-			event["r"] action: {road_aspect<-"default";};
-			event["s"] action: {road_aspect<-"split (5)";};
-			event["c"] action: {road_aspect<-"edge color";}; 
+			event "h" {road_aspect<-"hide";}
+			event "r" {road_aspect<-"default";}
+			event "s" {road_aspect<-"split (5)";}
+			event "c" {road_aspect<-"edge color";} 
 			
-			event["n"] action: {people_aspect<-"hide";};
-			event["m"] action: {people_aspect<-"mode";};
-			//event["p"] action: {people_aspect<-"profile";};
-			event["a"] action: {people_aspect<-"dynamic_abstract";};
+			event "n" {people_aspect<-"hide";}
+			event "m" {people_aspect<-"mode";}
+			event "a" {people_aspect<-"dynamic_abstract";}
 		
-			event["w"] action: {blackMirror<-!blackMirror;};
-			event["b"] action: {show_building<-!show_building;};
+			event "w" {blackMirror<-!blackMirror;}
+			event "b" {show_building<-!show_building;}
 			 
-			event["g"] action: {show_cells<-!show_cells;}; 
+			event "g" {show_cells<-!show_cells;} 
 			
-			event["o"] action: {weight_car<-weight_car-0.1;}; 
-			event["p"] action: {weight_car<-weight_car+0.1;};
+			event "o" {weight_car<-weight_car-0.1;} 
+			event "p" {weight_car<-weight_car+0.1;}
 			
-			event["u"] action: {weight_bike<-weight_bike-0.1;}; 
-			event["i"] action: {weight_bike<-weight_bike+0.1;};
+			event "u" {weight_bike<-weight_bike-0.1;}
+			event "i" {weight_bike<-weight_bike+0.1;}
 			
-			event["t"] action: {weight_pev<-weight_pev-0.1;}; 
-			event["y"] action: {weight_pev<-weight_pev+0.1;};
+			event "t" {weight_pev<-weight_pev-0.1;}
+			event "y" {weight_pev<-weight_pev+0.1;}
 			
 		}	
 		display map3D synchronized:true background:blackMirror ? #black :#white toolbar:false type:opengl  draw_env:false fullscreen:0 rotate:180
