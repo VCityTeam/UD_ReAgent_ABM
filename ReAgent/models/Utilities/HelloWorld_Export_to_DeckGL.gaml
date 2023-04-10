@@ -11,11 +11,11 @@ model HelloWorld
 /* Insert your model definition here */
 
 global {
-	string useCase<-"GratteCiel";
-	file shape_file_buildings <- file("../includes/"+useCase+"/Buildings.shp");
-	file shape_file_roads <- file("../includes/"+useCase+"/Roads.shp");
-	file shape_file_bounds <- file("../includes/"+useCase+"/Bounds.shp");
-	geometry shape <- envelope(shape_file_bounds);
+	string useCase<-"Lyon";
+	file shape_file_buildings <- file("./../../includes/"+useCase+"/Buildings.shp");
+	file shape_file_roads <- file("./../../includes/"+useCase+"/Roads.shp");
+	file shape_file_bounds <- file("./../../includes/"+useCase+"/Bounds.shp");
+	geometry shape <- envelope(shape_file_buildings);
 	graph the_graph;
 	bool savePedestrian parameter: 'Save Pedestrian' category: "Parameters" <-true;  
    
@@ -37,10 +37,9 @@ global {
 	}
 	
 	reflex save_results when: (cycle mod (totalTimeInSec/step) = 0 and cycle>1)  {
-		
 		string t;
 		map<string, unknown> test;
-		save "[" to: useCase+"result.json";
+		save "[" to: "./result.json" format:text;
 		ask people {
 			test <+ "mode"::mode;
 			test<+"path"::locs;
@@ -77,11 +76,12 @@ global {
 			if (int(self) < (length(people) - 1)) {
 				t <- t + ",";
 			}
-			save t to: "result.json" rewrite: false;
+			save t to: "result.json" rewrite: false format:text;
 		}
 
-		save "]" to: "result.json" rewrite: false;
+		save "]" to: "result.json" rewrite: false format:text;
 		file JsonFileResults <- json_file("./result.json");
+		write JsonFileResults;
         map<string, unknown> c <- JsonFileResults.contents;
         write "saving result in json";
 	}
