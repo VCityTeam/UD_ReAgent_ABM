@@ -31,7 +31,7 @@ NB: - To reload the keystoning in the Javacript console of your browser run  ```
 
 
 ----------------------------------------------------------------------------------------------------------
-## [GAMA](https://gama-platform.org/) version
+## [GAMA](https://gama-platform.org/) version (compatible with version 1.9.1)
 ABM model developped using [Gama Platform](https://gama-platform.org/). As a standalone can be used directly to be displayed on a physical table. 
 
 - In Gama Import the project ```ReAgent```
